@@ -1,0 +1,38 @@
+<?php
+
+return [
+    'oracle' => [
+        'driver'         => 'oracle',
+        'tns'            => env('DB_ORACLE_TNS', ''),
+        'host'           => env('DB_ORACLE_HOST', ''),
+        'port'           => env('DB_ORACLE_PORT', ''),
+        'service_name'   => env('DB_ORACLE_SERVICE_NAME', ''),
+        'database'       => env('DB_ORACLE_DATABASE', ''),
+        'username'       => env('DB_ORACLE_USERNAME', ''),
+        'password'       => env('DB_ORACLE_PASSWORD', ''),
+        'charset'        => env('DB_ORACLE_CHARSET', 'AL32UTF8'),
+        'prefix'         => env('DB_ORACLE_PREFIX', ''),
+        'prefix_schema'  => env('DB_ORACLE_SCHEMA_PREFIX', ''),
+        'edition'        => env('DB_ORACLE_EDITION', 'ora$base'),
+        'server_version' => env('DB_ORACLE_SERVER_VERSION', '11g'),
+        'load_balance'   => env('DB_LOAD_BALANCE', 'yes'),
+        'dynamic'        => [],
+    ],
+    'oracle_phris' => [
+        'driver'         => 'oracle',
+        'tns'            => env('DB_TNS', ''),
+        'host'           => env('CCIVR_DB_HOST_SECOND', ''),
+        'port'           => env('CCIVR_DB_PORT_SECOND', '1521'),
+        'service_name'   => env('CCIVR_DB_SERVICE_NAME_SECOND', ''),
+        'database'       => env('CCIVR_DB_DATABASE_SECOND', ''),
+        'username'       => env('CCIVR_DB_USERNAME_SECOND', ''),
+        'password'       => env('CCIVR_DB_PASSWORD_SECOND', ''),
+        'charset'        => env('DB_CHARSET', 'AL32UTF8'),
+        'prefix'         => env('DB_PREFIX', ''),
+        'prefix_schema'  => env('DB_SCHEMA_PREFIX', ''),
+        'edition'        => env('DB_EDITION', 'ora$base'),
+        'server_version' => env('DB_SERVER_VERSION', '11g'),
+        'load_balance'   => env('DB_LOAD_BALANCE', 'yes'),
+        'dynamic'        => [],
+    ],
+];
