@@ -70,7 +70,7 @@ class RegisterController extends Controller
             ->where('con_st_code', 'ACT')
             ->first();
 
-        //dd($phris_user_details);
+        // dd($phris_user_details);
 
         if (empty($phris_user_details)) {
             return redirect()->back()->withInput()->withErrors(['man_no' => "Sorry! man number does not exists in PHCMS or is Inactive"]);

@@ -114,6 +114,7 @@ class DashboardController extends Component
     {
         $user = $this->user;
         $this->agent = $user->myAgentDetails;
+        // dd($user->myAgentDetails);
         $this->agent_num = $this->agent->endpoint;
         $api_server = config("app.API_SERVER_ENDPOINT");
         $ws_server = config("app.WS_SERVER_ENDPOINT");
