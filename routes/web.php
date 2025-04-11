@@ -33,6 +33,7 @@ use App\Http\Livewire\Live\Agent\DashboardController as AgentDashboardController
 use App\Http\Livewire\RolesAndPermissions\PermissionComponent;
 use App\Http\Livewire\RolesAndPermissions\RoleComponent;
 use App\Http\Livewire\RolesAndPermissions\UserComponent;
+use App\Http\Livewire\RolesAndPermissions\UserEditComponent;
 use App\Http\Livewire\RolesAndPermissions\UserManagement;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -115,18 +116,19 @@ Route::middleware(['auth', 'role:agent|super-admin|admin'])->group(function () {
 Route::group(['middleware' => ['role:super-admin|admin']], function () {
     // Route::resource('permissions', App\Http\Controllers\PermissionController::class);
     Route::get('permissions', PermissionComponent::class)->name('permissions.index');
-    // Route::get('permissions/{permissionId}/delete', [App\Http\Controllers\PermissionController::class, 'destroy']);
+    Route::get('permissions/{permissionId}/delete', [App\Http\Controllers\PermissionController::class, 'destroy']);
 
     // Route::resource('roles', App\Http\Controllers\RoleController::class);
     Route::get('roles', RoleComponent::class)->name('roles.index');
-    // Route::get('roles/{roleId}/delete', [App\Http\Controllers\RoleController::class, 'destroy']);
+    Route::get('roles/{roleId}/delete', [App\Http\Controllers\RoleController::class, 'destroy']);
     Route::get('roles/{roleId}/give-permissions', [App\Http\Controllers\RoleController::class, 'addPermissionToRole'])->name('role.roledid.give-permissions');
     Route::put('roles/{roleId}/give-permissions', [App\Http\Controllers\RoleController::class, 'givePermissionToRole']);
 
-    // Route::resource('users', App\Http\Controllers\UserController::class);
 
     Route::get('users', UserComponent::class)->name('users.index');
-    Route::get('users/{userId}/delete', [App\Http\Controllers\UserController::class, 'destroy']);
+
+    Route::get('users/{userId}/edit', UserEditComponent::class)->name('users.edit');
+    // Route::get('users/{userId}/delete', [App\Http\Controllers\UserController::class, 'destroy']);
 });
 
 
