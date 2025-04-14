@@ -44,7 +44,7 @@ class DashboardController extends Component
             $this->currentSession = CallSession::find($this->selectedSession);
         }
 
-        $this->server = config("constants.configs.API_SERVER_ENDPOINT");
+        // $this->server = config("constants.configs.API_SERVER_ENDPOINT");
     }
 
     public function changeSession()
@@ -246,14 +246,14 @@ class DashboardController extends Component
         $this->agent->status = $status;
         $agent_status = $status;
         $this->agent->save();
-        try {
-            $response = Http::get($this->server . '?status=' . $agent_status . '&endpoint=' .  $this->agent_num);
-            // Set success message
-            session()->flash('message', 'Connected successfully.');
-        } catch (\Exception $e) {
-            // Set error message
-            session()->flash('error', 'Failed to connect: ' . $e->getMessage());
-        }
+        // try {
+        //     $response = Http::get($this->server . '?status=' . $agent_status . '&endpoint=' .  $this->agent_num);
+        //     // Set success message
+        //     session()->flash('message', 'Connected successfully.');
+        // } catch (\Exception $e) {
+        //     // Set error message
+        //     session()->flash('error', 'Failed to connect: ' . $e->getMessage());
+        // }
     }
     public function logout()
     {
@@ -262,19 +262,19 @@ class DashboardController extends Component
         $this->agent->save();
 
         $this->agent->refresh();
-        self::clearSession();
+        // self::clearSession();
 
-        try {
+        // try {
 
-            $response = Http::get($this->server . '?logout=logout&endpoint=' .  $this->agent_num);
-            // Save the selected session ID to the session
+        //     $response = Http::get($this->server . '?logout=logout&endpoint=' .  $this->agent_num);
+        //     // Save the selected session ID to the session
 
-            // Set success message
-            session()->flash('message', 'PBX credentials successfully updated.');
-        } catch (\Exception $e) {
-            // Set error message
-            session()->flash('error', 'Failed to update PBX credentials: ' . $e->getMessage());
-        }
+        //     // Set success message
+        //     session()->flash('message', 'PBX credentials successfully updated.');
+        // } catch (\Exception $e) {
+        //     // Set error message
+        //     session()->flash('error', 'Failed to update PBX credentials: ' . $e->getMessage());
+        // }
     }
 
 
