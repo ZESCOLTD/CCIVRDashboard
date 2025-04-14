@@ -231,14 +231,14 @@ class DashboardController extends Component
         $this->agent->status =  config('constants.agent_status.IDLE');
         $this->agent->save();
         $server = config("app.API_SERVER_ENDPOINT");
-        try {
-            $response = Http::get($server . '?login=login&endpoint=' .  $this->agent_num);
-            // Set success message
-            session()->flash('message', 'Successfully logged in.');
-        } catch (\Exception $e) {
-            // Set error message
-            session()->flash('error', 'Error: ' . $e->getMessage());
-        }
+        // try {
+        //     $response = Http::get($server . '?login=login&endpoint=' .  $this->agent_num);
+        //     // Set success message
+        //     session()->flash('message', 'Successfully logged in.');
+        // } catch (\Exception $e) {
+        //     // Set error message
+        //     session()->flash('error', 'Error: ' . $e->getMessage());
+        // }
     }
 
     public function status($status)
