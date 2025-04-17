@@ -33,6 +33,20 @@ Route::get('/agents', function (Request $request) {
     return CCAgent::get();
 });
 
+Route::get('/session', function () {
+    return response()->json([
+        'session' => session()->all(),
+    ]);
+});
+
+Route::get('/agent', function (Request $request) {
+
+    $man_no= $request->input('man_no');
+    $user = CCAgent::where('man_no', '=', $man_no)->first();
+    return $user;
+});
+
+
 Route::get('/pbxkey', function (Request $request) {
     $username = Configurations::where('config_key_id', '=', 'pbx_username')->first();
     $password = Configurations::where('config_key_id', '=', 'pbx_password')->first();
