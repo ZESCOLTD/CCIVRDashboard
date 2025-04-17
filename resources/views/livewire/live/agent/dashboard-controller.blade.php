@@ -385,13 +385,20 @@
         </div>
         <div class="col-lg-4">
             <div class="card">
-                <iframe src="{{ url('phone') }}"width="100%" height="800"></iframe>
+
+                <iframe id="myIframe" src="{{ url('phone') }}"width="100%" height="800"></iframe>
             </div>
 
 
         </div>
     </div>
 
+    <script>
+        const iframe = document.getElementById('myIframe');
+        iframe.onload = function() {
+          iframe.contentWindow.postMessage({ man_no: {{ $agent->endpoint}} }, 'http://localhost:8000');
+        };
+        </script>
 </div>
 
 @push('custom-scripts')
