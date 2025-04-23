@@ -14,6 +14,9 @@ use App\Http\Livewire\Reports\CallDetailRecords;
 use App\Models\Customer;
 use App\Models\Live\Recordings;
 use App\Models\User;
+use App\Models\KnowledgeBase;
+use Illuminate\Support\Str;
+
 
 class DashboardController extends Component
 {
@@ -27,6 +30,10 @@ class DashboardController extends Component
     public $server;
     public $customer_details;
     public $meter_number;
+
+    public $searchQuery = '';
+    public $searchResults = [];
+    public $selectedTopic;
 
     public function mount($id)
     {
@@ -46,6 +53,54 @@ class DashboardController extends Component
 
         // $this->server = config("constants.configs.API_SERVER_ENDPOINT");
     }
+
+//Search funtionality
+    public function updatedSearchQuery($value)
+    {
+        $value = trim($value);
+
+        if (strlen($value) >= 2) {
+            $this->searchResults = KnowledgeBase::query()
+                ->where(function ($query) use ($value) {
+                    $query->where('topic', 'like', '%' . $value . '%')
+                        ->orWhere('description', 'like', '%' . $value . '%');
+                })
+                ->select('id', 'topic', 'description')
+                ->limit(5)
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'topic' => $item->topic,
+                        'description' => Str::limit(strip_tags($item->description), 100),
+                    ];
+                })
+                ->toArray();
+        } else {
+            $this->searchResults = [];
+            $this->selectedTopic = null;
+        }
+    }
+
+    public function selectTopic($topicId)
+    {
+        $this->selectedTopic = KnowledgeBase::find($topicId);
+        $this->searchQuery = $this->selectedTopic->topic;
+        $this->searchResults = [];
+    }
+
+//Search funtionality
+
+
+
+//    public function selectTopic($topicId)
+//    {
+//        $this->selectedTopic = KnowledgeBase::find($topicId);
+//        $this->searchQuery = $this->selectedTopic->topic;
+//        $this->searchResults = [];
+//    }
+
+//    Search Result for Knowledge base
 
     public function changeSession()
     {
@@ -131,40 +186,40 @@ class DashboardController extends Component
         // $this->customer_details = Customer::where('meter_no', '=', $meter_no)->get();
         //dd(Customer::where('meter_no', '=', 'Z01851393')->get());
         // $query = Customer::query();
-        $query = Customer::select([
-            //'region',
-            //'zone',
-            'division',
-            'service_no',
-            'service_point',
-            //'csc',
-            //'tariff',
-            'itinerary_assigned',
-            //'declared_demand',
-            'premise_id',
-            'customer_name',
-            'meter_no',
-            'meter_serial_no',
-            'meter_make',
-            'meter_type_code',
-            'meter_status',
-            'phase_type',
-            'phase_type',
-            'voltage_type',
-            'meter_rating',
-            'meter_constant',
-            'meter_instal_date',
-            'town',
-            'meter_type',
-            'connection_type',
-            //'province',
-            //'township',
-            //'street',
-            //'address',
-            // 'home_phone',
-            // 'buss_phone',
-            // 'other_phone',
-        ]);
+//        $query = Customer::select([
+//            //'region',
+//            //'zone',
+//            'division',
+//            'service_no',
+//            'service_point',
+//            //'csc',
+//            //'tariff',
+//            'itinerary_assigned',
+//            //'declared_demand',
+//            'premise_id',
+//            'customer_name',
+//            'meter_no',
+//            'meter_serial_no',
+//            'meter_make',
+//            'meter_type_code',
+//            'meter_status',
+//            'phase_type',
+//            'phase_type',
+//            'voltage_type',
+//            'meter_rating',
+//            'meter_constant',
+//            'meter_instal_date',
+//            'town',
+//            'meter_type',
+//            'connection_type',
+//            //'province',
+//            //'township',
+//            //'street',
+//            //'address',
+//            // 'home_phone',
+//            // 'buss_phone',
+//            // 'other_phone',
+//        ]);
 
         if ($this->meter_number) {
             $meter_number = strtoupper($this->meter_number);
@@ -340,3 +395,5 @@ class DashboardController extends Component
 //         return view('livewire.call-manager');
 //     }
 // }
+
+

@@ -180,31 +180,106 @@
                 </div>
             </div> --}}
 
+
+            <style>
+                .search-suggestions {
+                    max-height: 300px;
+                    overflow-y: auto;
+                    z-index: 1000;
+                    border: 1px solid #ddd;
+                }
+
+                .search-suggestions .list-group-item {
+                    border-left: none;
+                    border-right: none;
+                }
+
+                .search-suggestions .list-group-item:hover {
+                    background-color: #f8f9fa;
+                }
+
+                .knowledge-content {
+                    max-height: 400px;
+                    overflow-y: auto;
+                    background-color: #f8f9fa;
+                }
+
+                .z-index-100 {
+                    z-index: 100;
+                }
+            </style>
+
             <!-- Combined Call Control and Incoming Call Information Card -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <h4>Call Control Panel & Incoming Call</h4>
+                    <h1 style="text-align: center">Agent Knowledge Base (Type In the Topic of Interest)</h1>
                 </div>
+
                 <div class="card-body">
-                    {{-- <div class="row mb-3">
-                        <div class="col-md-4">
-                            <button class="btn btn-warning btn-block">Hold Call</button>
+                    <!-- Knowledge Base Search Section -->
+                    <div class="knowledge-base-search mb-4">
+                        <h5 class="mb-3">Knowledge Base Quick Search</h5>
+
+                        <div class="form-group position-relative">
+                            <input
+                                type="text"
+                                class="form-control"
+                                wire:model.debounce.300ms="searchQuery"
+                                placeholder="Search knowledge base..."
+                                autocomplete="off"
+                            >
+
+                            @if(!empty($searchResults))
+                                <div class="search-suggestions position-absolute w-100 bg-white shadow-lg rounded mt-1 z-index-100">
+                                    <ul class="list-group">
+                                        @foreach($searchResults as $result)
+                                            <li class="list-group-item list-group-item-action"
+                                                wire:click="selectTopic({{ $result['id'] }})"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#knowledgeModal"
+                                                style="cursor: pointer;">
+                                                <strong>{{ $result['topic'] }}</strong>
+                                                <div class="text-muted small text-truncate">
+                                                    {{ $result['description'] }}
+                                                </div>
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @else
+                                @if(!empty($searchQuery))
+                                    <div class="no-results p-2 text-center text-muted">
+                                        <p>No topics found for "<strong>{{ $searchQuery }}</strong>"</p>
+                                    </div>
+                                @endif
+                            @endif
                         </div>
-                        <div class="col-md-4">
-                            <button class="btn btn-danger btn-block" wire:click.prevent="endCall">End Call</button>
-                        </div>
-                        <div class="col-md-4">
-                            <button class="btn btn-secondary btn-block" wire:click.prevent="transferCall">Transfer
-                                Call</button>
-                        </div>
-                    </div> --}}
-                    <div class="incoming-call-info">
-                        <h5>Incoming Call Information</h5>
-                        <pre id="json-call-data">[Call Data Placeholder]</pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="knowledgeModal" tabindex="-1" role="dialog" aria-labelledby="knowledgeModalLabel" aria-hidden="true" wire:ignore.self>
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <h1 style="color: #f49434 ">@if($selectedTopic)</h1>
+
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="knowledgeModalLabel">{{ $selectedTopic->topic }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" wire:click="$set('selectedTopic', null)"></button>
+                            </div>
+                            <div class="modal-body">
+{{--                                {!! $selectedTopic->content !!}--}}
+                                {!! $selectedTopic->description !!}
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
             <!-- Combined Call Control and Incoming Call Information Card -->
+
+
+
             <div class="card mb-4">
                 <div class="card-header">
                     <span class="text-bold text-orange">Customer Details </span>
@@ -400,4 +475,32 @@
 
     <!-- Include Bootstrap JS -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+    <script>
+        document.addEventListener('livewire:load', function() {
+            Livewire.on('highlightSearch', (query) => {
+                const elements = document.querySelectorAll('.search-result-text');
+                elements.forEach(el => {
+                    const text = el.textContent;
+                    const regex = new RegExp(query, 'gi');
+                    const highlighted = text.replace(regex, match =>
+                        `<span class="highlight">${match}</span>`
+                    );
+                    el.innerHTML = highlighted;
+                });
+            });
+        });
+    </script>
+
+    <script>
+        Livewire.on('closeModal', () => {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('knowledgeModal'));
+            if (modal) {
+                modal.hide();
+            }
+        });
+    </script>
 @endpush

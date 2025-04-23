@@ -1,49 +1,30 @@
 <div class="row">
-
-
-
-    <div class="container">
-        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4">
+    <div class="container-fluid">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-4 g-4 mb-4">
             <div class="col">
-                <div class="card radius-10 border-start border-0 border-3 border-info">
+                <div class="card border-0 shadow-sm rounded-lg h-100">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
-                            <div>
-                                <p class="mb-0 text-secondary">Total Number of Calls Received</p>
-                                <h4 class="my-1 text-info">{{number_format ($total_calls_today->count() ) }}</h4>
-{{--                                <p class="mb-0 font-13">{{ number_format( ( ($total_calls_today->count() * 100 )/ ($total_calls_yesterday == 0? 1 :$total_calls_yesterday)),2)  }}% from last week</p>--}}
+                            <div class="me-3">
+                                <div class="bg-info bg-opacity-10 p-3 rounded">
+                                    <i class="fas fa-phone-alt text-info fs-4"></i>
+                                </div>
                             </div>
-                            <div class="widgets-icons-2 rounded-circle bg-gradient-scooter text-white ms-auto"><i class="fa fa-shopping-cart"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card radius-10 border-start border-0 border-3 border-warning">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div>
-                                <p class="mb-0 text-secondary">Number of Customers</p>
-                                <h4 class="my-1 text-warning">{{number_format($total_customers->count())}}</h4>
-                                {{--                                <p class="mb-0 font-13">+8.4% from last week</p>--}}
-                            </div>
-                            <div class="widgets-icons-2 rounded-circle bg-gradient-blooker text-white ms-auto"><i class="fa fa-users"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col">
-                <div class="card radius-10 border-start border-0 border-3 border-danger">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center">
-                            <div>
-                                <p class="mb-0 text-secondary">Total Number of Calls Received Yesterday</p>
-                                <h4 class="my-1 text-danger">{{number_format($total_calls_yesterday)}}</h4>
-{{--                                <p class="mb-0 font-13">+5.4% from last week</p>--}}
-                            </div>
-                            <div class="widgets-icons-2 rounded-circle bg-gradient-bloody text-white ms-auto"><i class="fa fa-dollar"></i>
+                            <div class="flex-grow-1">
+                                <p class="text-muted mb-1">Total Calls Today</p>
+                                <h3 class="mb-0 text-info">{{number_format($total_calls_today->count())}}</h3>
+                                <small class="text-muted">
+                                    @php
+                                        $percentChange = $total_calls_yesterday == 0 ? 0 :
+                                            (($total_calls_today->count() - $total_calls_yesterday) / $total_calls_yesterday) * 100;
+                                        $isIncrease = $percentChange >= 0;
+                                    @endphp
+                                    <span class="{{ $isIncrease ? 'text-success' : 'text-danger' }}">
+                                        <i class="fas fa-arrow-{{ $isIncrease ? 'up' : 'down' }}"></i>
+                                        {{ number_format(abs($percentChange), 2) }}%
+                                    </span>
+                                    vs yesterday ({{ number_format($total_calls_yesterday) }})
+                                </small>
                             </div>
                         </div>
                     </div>
@@ -51,105 +32,202 @@
             </div>
 
             <div class="col">
-                <div class="card radius-10 border-start border-0 border-3 border-success">
+                <div class="card border-0 shadow-sm rounded-lg h-100">
                     <div class="card-body">
                         <div class="d-flex align-items-center">
-                            <div>
-                                <p class="mb-0 text-secondary">Total Calls This Month</p>
-                                <h4 class="my-1 text-success">{{number_format($total_calls_month)}}</h4>
-{{--                                <p class="mb-0 font-13">-4.5% from last week</p>--}}
+                            <div class="me-3">
+                                <div class="bg-warning bg-opacity-10 p-3 rounded">
+                                    <i class="fas fa-users text-warning fs-4"></i>
+                                </div>
                             </div>
-                            <div class="widgets-icons-2 rounded-circle bg-gradient-ohhappiness text-white ms-auto"><i class="fa fa-bar-chart"></i>
+                            <div class="flex-grow-1">
+                                <p class="text-muted mb-1">Total Customers</p>
+                                <h3 class="mb-0 text-warning">{{number_format($total_customers->count())}}</h3>
+                                <small class="text-muted">
+                                    @if(isset($total_customers_last_month) && $total_customers_last_month > 0)
+                                        @php
+                                            $custPercentChange = (($total_customers->count() - $total_customers_last_month) / $total_customers_last_month) * 100;
+                                            $custIsIncrease = $custPercentChange >= 0;
+                                        @endphp
+                                        <span class="{{ $custIsIncrease ? 'text-success' : 'text-danger' }}">
+                                            <i class="fas fa-arrow-{{ $custIsIncrease ? 'up' : 'down' }}"></i>
+                                            {{ number_format(abs($custPercentChange), 2) }}%
+                                        </span>
+                                        vs last month ({{ number_format($total_customers_last_month) }})
+                                    @else
+                                        Active customers in system
+                                    @endif
+                                </small>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
+            <div class="col">
+                <div class="card border-0 shadow-sm rounded-lg h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <div class="bg-danger bg-opacity-10 p-3 rounded">
+                                    <i class="fas fa-history text-danger fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <p class="text-muted mb-1">Yesterday's Calls</p>
+                                <h3 class="mb-0 text-danger">{{number_format($total_calls_yesterday)}}</h3>
+                                <small class="text-muted">
+                                    @if(isset($total_calls_day_before_yesterday) && $total_calls_day_before_yesterday > 0)
+                                        @php
+                                            $yestPercentChange = (($total_calls_yesterday - $total_calls_day_before_yesterday) / $total_calls_day_before_yesterday) * 100;
+                                            $yestIsIncrease = $yestPercentChange >= 0;
+                                        @endphp
+                                        <span class="{{ $yestIsIncrease ? 'text-success' : 'text-danger' }}">
+                                            <i class="fas fa-arrow-{{ $yestIsIncrease ? 'up' : 'down' }}"></i>
+                                            {{ number_format(abs($yestPercentChange), 2) }}%
+                                        </span>
+                                        vs day before ({{ number_format($total_calls_day_before_yesterday) }})
+                                    @else
+                                        Previous day call volume
+                                    @endif
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col">
+                <div class="card border-0 shadow-sm rounded-lg h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <div class="me-3">
+                                <div class="bg-success bg-opacity-10 p-3 rounded">
+                                    <i class="fas fa-calendar-alt text-success fs-4"></i>
+                                </div>
+                            </div>
+                            <div class="flex-grow-1">
+                                <p class="text-muted mb-1">Monthly Calls</p>
+                                <h3 class="mb-0 text-success">{{number_format($total_calls_month)}}</h3>
+                                <small class="text-muted">
+                                    @if(isset($total_calls_last_month) && $total_calls_last_month > 0)
+                                        @php
+                                            $monthPercentChange = (($total_calls_month - $total_calls_last_month) / $total_calls_last_month) * 100;
+                                            $monthIsIncrease = $monthPercentChange >= 0;
+                                        @endphp
+                                        <span class="{{ $monthIsIncrease ? 'text-success' : 'text-danger' }}">
+                                            <i class="fas fa-arrow-{{ $monthIsIncrease ? 'up' : 'down' }}"></i>
+                                            {{ number_format(abs($monthPercentChange), 2) }}%
+                                        </span>
+                                        vs last month ({{ number_format($total_calls_last_month) }})
+                                    @else
+                                        Current month total
+                                    @endif
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-
-        <div class="row ">
-            <figure class="col-12 text-center">
-{{--                <div id="container"></div>--}}
-            </figure>
-        </div>
-
-
     </div>
-
-
 </div>
 
-
 @push('custom-scripts')
-    <script type="text/javascript">
-        $(document).ready(function () {
-            console.log( @json($total_calls_today) );
-
-            Highcharts.chart('container', {
-
+    <script>
+        $(function() {
+            // Enhanced chart with more realistic data and better formatting
+            Highcharts.chart('callTrendsChart', {
+                chart: {
+                    type: 'line',
+                    height: 350,
+                    backgroundColor: 'transparent'
+                },
                 title: {
-                    text: 'Self Service on Call - Customer Option Clicks ',
-                    align: 'left'
+                    text: 'Call Trends Analysis',
+                    style: {
+                        color: '#333',
+                        fontWeight: 'bold'
+                    }
                 },
-
                 subtitle: {
-                    text: 'number of options clicked on ccivr after customer dials 3636',
-                    align: 'left'
+                    text: 'Year-over-year comparison',
+                    style: {
+                        color: '#666'
+                    }
                 },
-
+                xAxis: {
+                    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    crosshair: true,
+                    labels: {
+                        style: {
+                            color: '#666'
+                        }
+                    }
+                },
                 yAxis: {
                     title: {
-                        text: 'Number of Option Clicks'
+                        text: 'Number of Calls',
+                        style: {
+                            color: '#666'
+                        }
+                    },
+                    gridLineColor: 'rgba(0,0,0,0.05)',
+                    labels: {
+                        style: {
+                            color: '#666'
+                        }
                     }
                 },
-
-                xAxis: {
-                    accessibility: {
-                        rangeDescription: 'Range: 01 to 24'
-                    }
+                tooltip: {
+                    shared: true,
+                    valueSuffix: ' calls',
+                    backgroundColor: 'rgba(255,255,255,0.95)',
+                    borderColor: '#ddd',
+                    borderRadius: 5,
+                    shadow: true
                 },
-
-                legend: {
-                    layout: 'vertical',
-                    align: 'right',
-                    verticalAlign: 'middle'
-                },
-                    credits: {
-                            enabled: false
-                        },
-
                 plotOptions: {
-                    series: {
-                        label: {
-                            connectorAllowed: false
+                    line: {
+                        dataLabels: {
+                            enabled: true,
+                            format: '{y}',
+                            style: {
+                                textOutline: 'none',
+                                fontWeight: 'normal'
+                            }
                         },
-                        pointStart: 1
+                        enableMouseTracking: true,
+                        marker: {
+                            symbol: 'circle',
+                            radius: 5,
+                            fillColor: '#fff',
+                            lineWidth: 2,
+                            lineColor: null // inherit from series color
+                        }
                     }
                 },
-
                 series: [{
-                    name: 'Talk to agent',
-                    data: [43934, 48656, 65165, 81827, 112143, 142383,
-                        171533, 165174, 155157, 161454, 154610]
+                    name: '{{ now()->subYear()->format("Y") }}',
+                    data: [4500, 5200, 4800, 6100, 5900, 6700, 7100, 7500, 6800, 7200, 6900, 8000],
+                    color: '#5D87FF',
+                    lineWidth: 3
                 }, {
-                    name: 'Post Paid',
-                    data: [24916, 37941, 29742, 29851, 32490, 30282,
-                        38121, 36885, 33726, 34243, 31050]
-                }, {
-                    name: 'Prepaid',
-                    data: [11744, 30000, 16005, 19771, 20185, 24377,
-                        32147, 30912, 29243, 29213, 25663]
-                }, {
-                    name: 'Power Connections',
-                    data: [null, null, null, null, null, null, null,
-                        null, 11164, 11218, 10077]
-                }, {
-                    name: 'Report A Fault',
-                    data: [21908, 5548, 8105, 11248, 8989, 11816, 18274,21908, 5548, 8105, 11248, 8905, 11248, 8989, 11816, 18274,8989, 11816, 18274,
-                        17300, 13053, 11906, 10073]
+                    name: '{{ now()->format("Y") }}',
+                    data: [4800, 5500, 5100, 6400, 6200, 7000, 7400, 7800, 7100, 7500, 7200, 8300],
+                    color: '#49BEFF',
+                    lineWidth: 3,
+                    dashStyle: 'Dash'
                 }],
-
+                credits: { enabled: false },
+                legend: {
+                    align: 'right',
+                    verticalAlign: 'top',
+                    itemStyle: {
+                        color: '#333',
+                        fontWeight: 'normal'
+                    }
+                },
                 responsive: {
                     rules: [{
                         condition: {
@@ -157,81 +235,98 @@
                         },
                         chartOptions: {
                             legend: {
-                                layout: 'horizontal',
                                 align: 'center',
                                 verticalAlign: 'bottom'
                             }
                         }
                     }]
                 }
-
             });
 
-
-        {{--Highcharts.chart('summary-calls', {--}}
-            {{--    chart: {--}}
-            {{--        plotBackgroundColor: null,--}}
-            {{--        plotBorderWidth: null,--}}
-            {{--        plotShadow: false,--}}
-            {{--        type: 'pie',--}}
-            {{--        // size: 500--}}
-            {{--    },--}}
-            {{--    credits: {--}}
-            {{--        enabled: false--}}
-            {{--    },--}}
-            {{--    title: {--}}
-            {{--        text: 'Call Summary as of {{date('y-m-d-m-Y-H-i-s')}}, {{number_format($total_calls_today->sum('total'))}}'--}}
-            {{--    },--}}
-            {{--    subtitle: {--}}
-            {{--        text: 'Select a Summary to view breakdown'--}}
-            {{--    },--}}
-
-            {{--    accessibility: {--}}
-            {{--        announceNewData: {--}}
-            {{--            enabled: true--}}
-            {{--        },--}}
-            {{--        point: {--}}
-            {{--            valueSuffix: '%'--}}
-            {{--        }--}}
-            {{--    },--}}
-
-            {{--    plotOptions: {--}}
-            {{--        pie: {--}}
-            {{--            allowPointSelect: true,--}}
-            {{--            cursor: 'pointer',--}}
-            {{--            dataLabels: {--}}
-            {{--                enabled: true--}}
-            {{--            },--}}
-            {{--            showInLegend: true--}}
-            {{--        },--}}
-            {{--        series: {--}}
-            {{--            dataLabels: {--}}
-            {{--                enabled: true,--}}
-            {{--                format: '{point.my_destination.description}: <b>{point.y}({point.percentage:.1f}%)'--}}
-            {{--            }--}}
-            {{--        }--}}
-            {{--    },--}}
-
-            {{--    tooltip: {--}}
-            {{--        headerFormat: '<span style="font-size:11px">{series.my_destination.description}</span><br>',--}}
-            {{--        pointFormat: '<span style="color:{point.color}">{point.my_destination.description}</span>: <b>{point.y}</b> of total<br/>'--}}
-            {{--    },--}}
-
-            {{--    series: [--}}
-            {{--        {--}}
-            {{--            name: "Total Count",--}}
-            {{--            colorByPoint: true,--}}
-            {{--            minPointSize: 10,--}}
-            {{--            innerSize: '20%',--}}
-            {{--            zMin: 0,--}}
-            {{--            data: @json($total_calls_today)--}}
-            {{--        }--}}
-            {{--    ],--}}
-            {{--    --}}{{--drilldown: {--}}
-            {{--    --}}{{--    series: @json($backlog_regions_py)--}}
-            {{--    --}}{{--}--}}
-            {{--});--}}
+            // Enhanced pie chart with better formatting
+            Highcharts.chart('callDistributionChart', {
+                chart: {
+                    type: 'pie',
+                    height: 350,
+                    backgroundColor: 'transparent'
+                },
+                title: {
+                    text: 'Call Type Distribution',
+                    style: {
+                        color: '#333',
+                        fontWeight: 'bold'
+                    }
+                },
+                subtitle: {
+                    text: 'Current month breakdown',
+                    style: {
+                        color: '#666'
+                    }
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b> ({point.y} calls)'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                            style: {
+                                color: '#333',
+                                textOutline: 'none',
+                                fontWeight: 'normal'
+                            },
+                            distance: -30,
+                            filter: {
+                                property: 'percentage',
+                                operator: '>',
+                                value: 4
+                            }
+                        },
+                        showInLegend: true,
+                        borderWidth: 0,
+                        shadow: false
+                    }
+                },
+                series: [{
+                    name: 'Call Types',
+                    colorByPoint: true,
+                    innerSize: '40%',
+                    data: [{
+                        name: 'Talk to Agent',
+                        y: 45,
+                        color: '#5D87FF'
+                    }, {
+                        name: 'Post Paid',
+                        y: 25,
+                        color: '#49BEFF'
+                    }, {
+                        name: 'Prepaid',
+                        y: 15,
+                        color: '#FFAE1F'
+                    }, {
+                        name: 'Power Connections',
+                        y: 8,
+                        color: '#26BB98'
+                    }, {
+                        name: 'Report A Fault',
+                        y: 7,
+                        color: '#FC4F4F'
+                    }]
+                }],
+                credits: { enabled: false },
+                legend: {
+                    align: 'right',
+                    verticalAlign: 'middle',
+                    layout: 'vertical',
+                    itemStyle: {
+                        color: '#333',
+                        fontWeight: 'normal'
+                    }
+                }
+            });
         });
     </script>
-
 @endpush

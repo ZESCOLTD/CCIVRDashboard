@@ -34,6 +34,7 @@ use App\Http\Livewire\RolesAndPermissions\PermissionComponent;
 use App\Http\Livewire\RolesAndPermissions\RoleComponent;
 use App\Http\Livewire\RolesAndPermissions\UserComponent;
 use App\Http\Livewire\RolesAndPermissions\UserEditComponent;
+use App\Http\Livewire\Live\Supervisor\KnowledgeBaseManager;
 use App\Http\Livewire\RolesAndPermissions\UserManagement;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -135,3 +136,21 @@ Route::group(['middleware' => ['role:super-admin|admin']], function () {
 Route::get('/phone', function () {
     return view('phone');
 });
+
+Route::get('/user/status', function() {
+    return response()->json([
+        'online' => Auth::check() ? Auth::user()->isOnline() : false,
+        'is_banned' => Auth::check() ? Auth::user()->is_banned : false
+    ]);
+})->middleware('auth:sanctum')->name('api.user.status');
+
+Route::get('/knowledge-base', \App\Http\Livewire\Live\Supervisor\KnowledgeBase\KnowledgeBaseManager::class)
+    ->name('live.supervisor.knowledge-base');
+
+
+
+//Route::group(['middleware' => ['role:super-admin|admin']], function () {
+//    Route::get('supervisor/knowledge-base', KnowledgeBase::class)
+//        ->name('live.supervisor.knowledge-base.index');
+//});
+

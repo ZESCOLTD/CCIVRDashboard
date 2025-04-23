@@ -1,33 +1,122 @@
 <div class="container mt-4">
-    <!-- Supervisor Information and Status -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4">
-                    <h5 class="card-title">Supervisor Information</h5>
-                    <p><strong>Supervisor Name:</strong> John Doe</p>
-                    <p><strong>Supervisor ID:</strong> 12345</p>
-                    <p><strong>Status:</strong> <span class="badge badge-success">Online</span></p>
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h1 class="mb-0" style="color: #0f974b; font-weight: 600;">
+                        <i class="fas fa-tachometer-alt mr-2" style="color: #f49e38;"></i>
+                        ZESCO Call Centre Dashboard
+                    </h1>
+                    <div class="text-right">
+                    <span class="badge px-3 py-2" style="background-color: #0f974b; color: white; font-size: 0.9rem;">
+                        <i class="fas fa-circle mr-1"></i> Real-time Monitoring
+                    </span>
+                    </div>
                 </div>
-                <div class="col-md-4">
-                    <h5 class="card-title">System Status</h5>
-                    <label class="text-info">Recorder Websocket:</label>
-                    <input type="text" id="ws_endpoint" value='{{ $ws_server }}' hidden>
-                    <span id="ws-info" class="badge badge-success">Connected</span>
-                    <br>
-                    <label class="text-info">Recorder Rest Interface:</label>
-                    <input class="form-control text-success" type="text" id="api_endpoint"
-                        value='{{ $api_server }}'>
+                <hr style="border-top: 3px solid #f49e38; opacity: 0.7;">
+            </div>
+        </div>
+
+        <!-- Main Dashboard Card -->
+        <div class="card mb-4 border-0 shadow-lg" style="border-radius: 10px; overflow: hidden;">
+            <div class="card-header py-3" style="background-color: #0f974b; color: white;">
+                <h5 class="mb-0">
+                    <i class="fas fa-user-shield mr-2"></i>
+                    Supervisor Control Panel
+                </h5>
+            </div>
+            <div class="card-body" style="background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);">
+                <div class="row">
+                    <!-- Supervisor Information Column -->
+                    <div class="col-md-4 border-right pr-4" style="border-color: rgba(244, 158, 56, 0.3) !important;">
+                        <h6 class="card-subtitle mb-3" style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
+                            <i class="fas fa-user-tie mr-2"></i>Supervisor Information
+                        </h6>
+                        <div class="pl-3">
+                            <p class="mb-2">
+                                <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Name:</strong>
+                                <span style="color: #333;">{{ $user->name }}</span>
+                            </p>
+                            <p class="mb-2">
+                                <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Employee No:</strong>
+                                <span style="color: #333;">{{ $user->man_no }}</span>
+                            </p>
+                            <p class="mb-0">
+                                <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Status:</strong>
+
+                                <!-- Status Badge - update this part -->
+                                <span class="badge px-2 py-1" style="background-color: {{ $user->isOnline() ? '#0f974b' : '#6c757d' }}; color: white; font-size: 0.8rem;">
+                                <i class="fas {{ $user->isOnline() ? 'fa-wifi' : 'fa-clock' }} mr-1"></i>
+                                  {{ $user->isOnline() ? 'Online' : 'Offline' }}
+                                    @if($user->is_banned)
+                                        <i class="fas fa-ban ml-1"></i>
+                                    @endif
+                                  </span>
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- System Status Column -->
+                    <div class="col-md-4 border-right px-4" style="border-color: rgba(244, 158, 56, 0.3) !important;">
+                        <h6 class="card-subtitle mb-3" style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
+                            <i class="fas fa-server mr-2"></i>System Status
+                        </h6>
+                        <div class="pl-3">
+                            <div class="mb-3">
+                                <label style="color: #0f974b; display: block; margin-bottom: 2px;">
+                                    <i class="fas fa-plug mr-1"></i>Recorder Websocket:
+                                </label>
+                                <div class="d-flex align-items-center">
+                                    <input type="text" id="ws_endpoint" value='{{ $ws_server }}' hidden>
+                                    <span id="ws-info" class="badge px-2 py-1" style="background-color: #0f974b; color: white; font-size: 0.8rem;">
+                                    <i class="fas fa-check-circle mr-1"></i>Connected
+                                </span>
+                                    <i class="fas fa-info-circle ml-2" style="color: #f49e38; cursor: pointer;" data-toggle="tooltip" title="WebSocket connection status"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <label style="color: #0f974b; display: block; margin-bottom: 2px;">
+                                    <i class="fas fa-exchange-alt mr-1"></i>Recorder Rest Interface:
+                                </label>
+                                <input class="form-control form-control-sm" type="text" id="api_endpoint" value='{{ $api_server }}'
+                                       style="border-color: #f49e38; color: #0f974b; background-color: rgba(244, 158, 56, 0.05);">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Current Team Overview Column -->
+                    <div class="col-md-4 pl-4">
+                        <h6 class="card-subtitle mb-3" style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
+                            <i class="fas fa-users mr-2"></i>Team Overview
+                        </h6>
+                        <div class="pl-3">
+                            <p class="mb-2">
+                                <strong style="color: #0f974b; min-width: 150px; display: inline-block;">Active Agents:</strong>
+                                <span style="color: #333;">5</span>
+                            </p>
+                            <p class="mb-2">
+                                <strong style="color: #0f974b; min-width: 150px; display: inline-block;">Calls in Progress:</strong>
+                                <span style="color: #333;">3</span>
+                            </p>
+                            <p class="mb-0">
+                                <strong style="color: #0f974b; min-width: 150px; display: inline-block;">Longest Call:</strong>
+                                <span style="color: #333;">00:12:45</span>
+                            </p>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-md-4">
-                    <h5 class="card-title">Current Team Overview</h5>
-                    <p><strong>Active Agents:</strong> 5</p>
-                    <p><strong>Total Calls in Progress:</strong> 3</p>
-                    <p><strong>Longest Call Duration:</strong> 00:12:45</p>
-                </div>
+            </div>
+            <div class="card-footer py-2" style="background-color: rgba(15, 151, 75, 0.1); border-top: 1px solid rgba(244, 158, 56, 0.3);">
+                <small class="text-muted">
+                    <i class="fas fa-sync-alt mr-1" style="color: #f49e38;"></i>
+                    Last updated: <span id="lastUpdated">Just now</span>
+                    <span id="syncStatus" class="ml-2"></span>
+                </small>
             </div>
         </div>
     </div>
+
+{{--First Card Handling Code DO NOT DELETE--}}
+
 
     <!-- Key Metrics Overview -->
     <div class="row">
@@ -795,4 +884,100 @@
             console.log("WebSocket connection closed:", event);
         });
     </script>
+
+    <script>
+        // Function to format the timestamp with ZESCO colors
+        function updateLastUpdated() {
+            const now = new Date();
+            const options = {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            };
+
+            // Format with ZESCO color accents
+            const timeString = now.toLocaleTimeString('en-US', options);
+            const lastUpdated = document.getElementById('lastUpdated');
+
+            // Display with colored seconds for better visibility
+            const [time, period] = timeString.split(' ');
+            const [hours, minutes, seconds] = time.split(':');
+
+            lastUpdated.innerHTML = `${hours}:<span style="color:#0f974b">${minutes}</span>:<span style="color:#f49e38">${seconds}</span> ${period}`;
+
+            // Add rotating sync icon effect
+            const syncIcon = document.querySelector('.fa-sync-alt');
+            syncIcon.style.transition = 'transform 0.5s ease';
+            syncIcon.style.transform = 'rotate(180deg)';
+            setTimeout(() => {
+                syncIcon.style.transform = 'rotate(0deg)';
+            }, 500);
+        }
+
+        // Initial update
+        updateLastUpdated();
+
+        // Update every second
+        const syncInterval = setInterval(updateLastUpdated, 1000);
+
+        // Optional: Add sync status indicator
+        function updateSyncStatus() {
+            const statusElement = document.getElementById('syncStatus');
+            const statuses = [
+                {text: "Syncing data...", class: "text-info"},
+                {text: "Connection stable", class: "text-success"},
+                {text: "Real-time active", class: "text-primary"}
+            ];
+
+            let currentStatus = 0;
+
+            setInterval(() => {
+                statusElement.textContent = statuses[currentStatus].text;
+                statusElement.className = `ml-2 ${statuses[currentStatus].class}`;
+                currentStatus = (currentStatus + 1) % statuses.length;
+            }, 3000);
+        }
+
+        // Uncomment to enable status messages
+        // updateSyncStatus();
+
+        // For actual data sync integration:
+        function syncDashboardData() {
+            // Your data fetching logic here
+            console.log("Syncing dashboard data...");
+
+            // After successful sync:
+            const now = new Date();
+            document.getElementById('lastUpdated').dataset.lastSync = now.getTime();
+        }
+
+        // Uncomment to sync data every 30 seconds
+        // setInterval(syncDashboardData, 30000);
+    </script>
+
+    <script>
+        // Real-time status update (optional)
+        document.addEventListener('DOMContentLoaded', function() {
+            function updateStatus() {
+                fetch('{{ route('api.user.status') }}')
+                    .then(response => response.json())
+                    .then(data => {
+                        const statusBadge = document.querySelector('#statusBadge');
+                        if (statusBadge) {
+                            statusBadge.innerHTML = `<i class="fas ${data.online ? 'fa-wifi' : 'fa-clock'} mr-1"></i>${data.online ? 'Online' : 'Offline'}`;
+                            statusBadge.style.backgroundColor = data.online ? '#0f974b' : '#6c757d';
+                        }
+                    });
+            }
+
+            // Update every 30 seconds
+            setInterval(updateStatus, 30000);
+
+            // Update on user activity
+            document.addEventListener('mousemove', updateStatus);
+            document.addEventListener('keypress', updateStatus);
+        });
+    </script>
+
 @endpush

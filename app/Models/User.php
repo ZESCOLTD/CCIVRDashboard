@@ -13,11 +13,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use IvanoMatteo\LaravelDeviceTracking\Traits\UseDevices;
 use Rappasoft\LaravelAuthenticationLog\Traits\AuthenticationLoggable;
+use Illuminate\Support\Facades\Cache; // Correct import statement
 
 class User extends Authenticatable
 {
-    //    use HasApiTokens, HasFactory, Notifiable, AuthenticationLoggable,UseDevices;
     use HasApiTokens, HasFactory, Notifiable, HasRoles;
+    // Remove the incorrect Cache trait usage
 
     protected $connection = 'asterisk_mysql';
 
@@ -30,19 +31,14 @@ class User extends Authenticatable
         'man_no',
         'nrc',
         'name',
-
         'firstname',
         'middlename',
         'lastname',
-
         'dob',
         'sex',
-
         'mobile_no',
         'email',
         'password',
-
-
         'bu_code',
         'cc_code',
         'bu_name',
@@ -56,9 +52,7 @@ class User extends Authenticatable
         'job_code',
         'job_title',
         'grade',
-
         'status',
-
         'is_banned',
         'banned_until',
         'user_group_id'
@@ -95,6 +89,38 @@ class User extends Authenticatable
 
     public function myCallSessions()
     {
-        return $this->hasMany(CallSession::class,'call_session_to_agent', 'agent_id', 'call_session_id');
+        return $this->hasMany(CallSession::class, 'call_session_to_agent', 'agent_id', 'call_session_id');
+    }
+
+    /**
+     * Check if user is currently online
+     */
+    public function isOnline()
+    {
+        return Cache::has('user-is-online-' . $this->id);
+    }
+
+    /**
+     * Get user's full name
+     */
+    public function getFullNameAttribute()
+    {
+        return trim("{$this->firstname} {$this->middlename} {$this->lastname}");
+    }
+
+    /**
+     * Get formatted station information
+     */
+    public function getFormattedStationAttribute()
+    {
+        return $this->station . ' (' . $this->location . ')';
+    }
+
+    /**
+     * Check if user is banned
+     */
+    public function isBanned()
+    {
+        return $this->is_banned || ($this->banned_until && now()->lt($this->banned_until));
     }
 }
