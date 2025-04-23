@@ -166,13 +166,52 @@ class DashboardController extends Component
             // 'other_phone',
         ]);
 
+        #attributes: array:32 [▼
+    //     "region" => "LUSAKA NORTH REGION"
+    //     "zone" => "LSK EAST"
+    //     "division" => "LUSAKA PROVINCE"
+    //     "service_no" => "5170267"
+    //     "service_point" => "1094770"
+    //     "csc" => "CSC - MANDA HILL"
+    //     "tariff" => "PREPAYMENT RESIDENTIAL TARIFF"
+    //     "itinerary_assigned" => "11305"
+    //     "declared_demand" => "15"
+    //     "premise_id" => "1075229"
+    //     "customer_name" => "MANDA MANGAMU   BWALYA"
+    //     "meter_no" => "Z01688617"
+    //     "meter_serial_no" => "04189566039"
+    //     "meter_make" => "CONLOG"
+    //     "meter_type_code" => "BEC23PLT"
+    //     "meter_status" => "INSTALLED"
+    //     "phase_type" => "1- Phase"
+    //     "voltage_type" => "HIGH VOLTAGE CATEGORY [SYSTEM USE ONLY]"
+    //     "meter_rating" => "20"
+    //     "meter_constant" => "1"
+    //     "meter_instal_date" => "2009-09-02 00:00:00"
+    //     "town" => "LUSAKA"
+    //     "meter_type" => "PREPAYMENT"
+    //     "connection_type" => "PREPAYMENT METER ( X1 )"
+    //     "province" => "LUSAKA PROVINCE"
+    //     "township" => "IBEX"
+    //     "street" => "TWIN PALM"
+    //     "address" => "234 OFF TWINPALM IBEX HILL"
+    //     "landmark" => "OFF TWIN PALM RD"
+    //     "home_phone" => "+260976648748"
+    //     "buss_phone" => "+260976648748"
+    //     "other_phone" => "+260976648748"
+    //   ]
+
+        $query = Customer::query();
+
         if ($this->meter_number) {
             $meter_number = strtoupper($this->meter_number);
             $query->where(function ($query) use ($meter_number) {
-                $query->where('meter_no', '=', $meter_number);
+                $query->where('meter_serial_no', '=', $meter_number);
             });
 
+
             $this->customer_details = $query->get();
+
         }
 
         return view('livewire.live.agent.dashboard-controller', [
@@ -222,7 +261,7 @@ class DashboardController extends Component
         // "buss_phone" => " "
         // "other_phone" => " "
 
-        $this->customer_details = Customer::where('meter_no', '=', $meter_no)->get();
+        $this->customer_details = Customer::where('meter_serial_no', '=', $meter_no)->get();
     }
 
     public function login()

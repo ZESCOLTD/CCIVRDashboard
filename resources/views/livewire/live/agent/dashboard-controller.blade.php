@@ -28,9 +28,9 @@
                         <div class="col-md-4">
                             <h5 class="card-title d-block">Agent Information </h5>
                             <br>
-                            <p><strong>Agent Name:</strong> {{ $agent->name }}</p>
-                            <p><strong>Agent ID:</strong> {{ $agent->endpoint }}</p>
-                            <strong>Agent number:</strong> {{ $agent->endpoint }}<br>
+                            <p><strong>Agent Name:</strong> {{ $agent->name ?? '--' }}</p>
+                            <p><strong>Agent ID:</strong> {{ $agent->endpoint ?? '--' }}</p>
+                            <strong>Agent number:</strong> {{ $agent->endpoint ?? '--' }}<br>
                             <p><strong>Status:</strong>
                                 @switch($agent->status)
                                     @case('LOGGED_IN')
@@ -236,54 +236,56 @@
                                     </thead>
                                     <tbody>
                                         <tr>
+                                            <td>Customer Name</td>
+                                            <td>{{ $customer->customer_name ?? '--' }}</td>
+                                            <td>Home Phone</td>
+                                            <td>{{ $customer->home_phone ?? '--' }}</td>
+
+                                        </tr>
+                                        <tr>
                                             <td>Division</td>
                                             <td>{{ $customer->division ?? '--' }}</td>
-                                            <td>Service Number</td>
-                                            <td>{{ $customer->service_no ?? '--' }}</td>
+                                            <td>Town</td>
+                                            <td>{{ $customer->town ?? '--' }}</td>
                                         </tr>
                                         <tr>
                                             <td>Service Point</td>
                                             <td>{{ $customer->service_point ?? '--' }}</td>
-                                            <td>Itinerary Assigned</td>
-                                            <td>{{ $customer->itinerary_assigned ?? '--' }}</td>
+                                            <td>Street</td>
+                                            <td>{{ $customer->street ?? '--' }}</td>
                                         </tr>
+
                                         <tr>
-                                            <td>Premise ID</td>
-                                            <td>{{ $customer->premise_id ?? '--' }}</td>
-                                            <td>Customer Name</td>
-                                            <td>{{ $customer->customer_name ?? '--' }}</td>
+                                            <td>Address</td>
+                                            <td>{{ $customer->address ?? '--' }}</td>
+                                            <td>Landmark</td>
+                                            <td>{{ $customer->landmark ?? '--' }}</td>
                                         </tr>
                                         <tr>
                                             <td>Meter Number</td>
-                                            <td>{{ $customer->meter_no ?? '--' }}</td>
-                                            <td>Meter Serial Number</td>
                                             <td>{{ $customer->meter_serial_no ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
                                             <td>Meter Make</td>
                                             <td>{{ $customer->meter_make ?? '--' }}</td>
-                                            <td>Meter Type Code</td>
-                                            <td>{{ $customer->meter_type_code ?? '--' }}</td>
                                         </tr>
                                         <tr>
-                                            <td>Meter Status</td>
-                                            <td>{{ $customer->meter_status ?? '--' }}</td>
+                                            <td>Tariff</td>
+                                            <td>{{ $customer->tariff ?? '--' }}</td>
                                             <td>Phase Type</td>
                                             <td>{{ $customer->phase_type ?? '--' }}</td>
                                         </tr>
                                         <tr>
-                                            <td>Voltage Type</td>
-                                            <td>{{ $customer->voltage_type ?? '--' }}</td>
-                                            <td>Meter Rating</td>
-                                            <td>{{ $customer->meter_rating ?? '--' }}</td>
+                                            <td>Service Number</td>
+                                            <td>{{ $customer->service_no ?? '--' }}</td>
+                                            <td>Phone Number</td>
+                                            <td>{{ $customer->home_phone ?? '--' }}</td>
                                         </tr>
                                         <tr>
-                                            <td>Meter Constant</td>
-                                            <td>{{ $customer->meter_constant ?? '--' }}</td>
-                                            <td>Meter Installation Date</td>
-                                            <td>{{ $customer->meter_instal_date ?? '--' }}</td>
+                                            <td>Other Number</td>
+                                            <td>{{ $customer->buss_phone ?? '--' }}</td>
+                                            <td>Other Number</td>
+                                            <td>{{ $customer->other_phone ?? '--' }}</td>
                                         </tr>
-                                        <tr>
+                                        {{-- <tr>
                                             <td>Town</td>
                                             <td>{{ $customer->town ?? '--' }}</td>
                                             <td>Meter Type</td>
@@ -293,7 +295,7 @@
                                             <td>Connection Type</td>
                                             <td>{{ $customer->connection_type ?? '--' }}</td>
                                             <td colspan="2"></td>
-                                        </tr>
+                                        </tr> --}}
                                     </tbody>
                                 </table>
                             @endforeach
