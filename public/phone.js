@@ -79,6 +79,22 @@ let wallpaperDark = getDbItem("wallpaperDark", "wallpaper.dark.webp");     // Wa
  * If you want to  keep this library in its original form, but still provision settings, look at the
  * index.html for some sample provisioning and web_hook options.
  */
+// console.warn("Getting user information from Laravel");
+//     fetch('/api/session')
+//     .then(res => res.json())
+//     .then(data => {
+//         console.log('Laravel session:', data.session);
+//     })
+//     .catch(err => {
+//         console.error('Error fetching Laravel session:', err);
+//     });
+
+    window.addEventListener('message', function(event) {
+        // if (event.origin !== 'https://example.com') return;
+        console.warn(event.data); // { key: 'value' }
+      });
+
+
 let profileUserID = getDbItem("profileUserID", null);   // Internal reference ID. (DON'T CHANGE THIS!)
 let profileName = getDbItem("profileName", null);       // eg: Keyla James
 let wssServer = getDbItem("wssServer", "ivr.zesco.co.zm");           // eg: raspberrypi.local
@@ -601,12 +617,22 @@ $(document).ready(function () {
     if(options.XmppChatGroupService !== undefined) XmppChatGroupService = options.XmppChatGroupService;
 
 
-    if(getDbItem("wssServer", null)==null){
+    console.warn("Provisioning settings");
+    // if(getDbItem("wssServer", null)==null){
         localDB.setItem("wssServer", "ivr.zesco.co.zm");
         localDB.setItem("WebSocketPort", 8089);
         localDB.setItem("ServerPath", "/ws");
         localDB.setItem("SipDomain", "ivr.zesco.co.zm");
-    }
+    // }
+console.warn("Getting user information from Laravel");
+    fetch('/api/session')
+    .then(res => res.json())
+    .then(data => {
+        console.log('Laravel session:', data.session);
+    })
+    .catch(err => {
+        console.error('Error fetching Laravel session:', err);
+    });
 
     // Single Instance Check
     if(SingleInstance == true){
