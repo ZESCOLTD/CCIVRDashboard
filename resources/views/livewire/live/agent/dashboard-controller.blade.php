@@ -510,4 +510,41 @@
             }
         });
     </script>
+
+<script>
+    window.addEventListener('load', function() {
+        // WebSocket connection and event listeners as in the original code
+        var ws_address = document.getElementById("ws_endpoint");
+        var ws_socket = document.getElementById("ws-info");
+        const preElement = document.getElementById('json-data');
+        const socket = new WebSocket(ws_address.value);
+        // ws://127.0.0.1:8001/ws
+        // const socket = new WebSocket("http://127.0.0.1:8001/ws");
+        socket.addEventListener("open", (event) => {
+            console.log("WebSocket connection opened: ", ws_address);
+            ws_socket.classList.remove("badge-danger");
+            ws_socket.classList.add("badge-success");
+            ws_socket.textContent = "Connected ..";
+            socket.send("Hello Server!");
+        });
+        socket.addEventListener("message", (event) => {
+            preElement.style.fontSize = '12px';
+            var data = JSON.parse(event.data);
+            preElement.innerHTML = JSON.stringify(data, null, 4);
+            console.log("Message from server:", event.data);
+        });
+        socket.addEventListener("error", (event) => {
+            console.error("WebSocket error:", event);
+            ws_socket.classList.remove("badge-success");
+            ws_socket.classList.add("badge-danger");
+            ws_socket.textContent = "Web socket error";
+        });
+        socket.addEventListener("close", (event) => {
+            ws_socket.classList.remove("badge-success");
+            ws_socket.classList.add("badge-danger");
+            ws_socket.textContent = "Web socket error";
+            console.log("WebSocket connection closed:", event);
+        });
+    })
+</script>
 @endpush
