@@ -35,6 +35,10 @@ class DashboardController extends Component
     public $searchResults = [];
     public $selectedTopic;
 
+    protected $listeners = ['refreshLastCall' => 'loadLastCall','refreshLastFileName' => 'loadLastFilename'];
+    public $recordingFileName;
+    public $filename;
+
     public function mount($id)
     {
 
@@ -52,6 +56,17 @@ class DashboardController extends Component
         }
 
         // $this->server = config("constants.configs.API_SERVER_ENDPOINT");
+    }
+
+    public function loadLastCall()
+    {
+        $this->recordingFileName = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')
+        ->where('file_name', '=', $this->filename)->get();
+    }
+    public function loadLastFilename($filename=null)
+    {
+        $this->filename = $filename;
+        dd($this->filename);
     }
 
 //Search funtionality

@@ -413,48 +413,6 @@
                 </div>
             </div>
 
-            <div class="row">
-                <!-- Other info boxes here -->
-                <div class="col-md-12">
-                    <div class="info-box bg-info">
-                        <span class="info-box-icon"><i class="fas fa-list"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Last Five Calls</span>
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Agent number</th>
-                                        <th>Caller phone</th>
-                                        <th>Call date</th>
-                                        <th>Duration</th>
-                                        <th>Transaction code</th>
-                                    </tr>
-                                </thead>
-
-                                @isset($lastCall)
-                                    <tbody>
-                                        <tr>
-                                            <td>{{ $lastCall->dst }}</td>
-                                            <td>{{ $lastCall->phone_number }}</td>
-                                            <td>{{ $lastCall->created_at ?? '--' }}</td>
-                                            <td>{{ $lastCall->call_duration }}</td>
-                                            <td>{{ $lastCall->disposition }}</td>
-                                        </tr>
-                                    </tbody>
-                                @else
-                                    <tbody>
-
-                                        No last call found
-
-                                    </tbody>
-                                @endisset
-
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
 
             <!-- WebSocket Data -->
             <div class="card mb-4">
@@ -577,40 +535,22 @@
                 // console.log("Message from server:", event.data);
                 if (data.hasOwnProperty('type')) {
                     if (data.type == "Dial") {
-                        // if (data.dialstring == {{ $agent->endpoint }}) {
-                        //     // console.log("Message from server:", {{ $agent->endpoint }});
+                        if (data.dialstring == {{ $agent->endpoint }}) {
+                            // console.log("Message from server:", {{ $agent->endpoint }});
 
-                        //     // console.log("Message from server:", JSON.stringify(data, null, 4));
-                        //     console.log("Message from server:", JSON.stringify(data., null, 4));
-                        //     // preElement.innerHTML = JSON.stringify(data, null, 4);
-                        //     preElement.innerHTML = JSON.stringify(data.peer.caller, null, 4);
-                        // }
-                    } else
-                    if (data.type == "StasisStart") {
-                        // if (data.dialstring == {{ $agent->endpoint }}) {
-                        // console.log("Message from server:", {{ $agent->endpoint }});
-
-                        if (data.args[0] == 'dialed') {
-                            Livewire.emit('refreshLastFileName', data.args[4]);
-
-                            console.log("Message from server:", JSON.stringify(data.args, null, 4));
+                            console.log("Message from server:", JSON.stringify(data, null, 4));
+                            // preElement.innerHTML = JSON.stringify(data, null, 4);
+                            preElement.innerHTML = JSON.stringify(data.peer.caller, null, 4);
                         }
-                        // preElement.innerHTML = JSON.stringify(data, null, 4);
-                        preElement.innerHTML = JSON.stringify(data.peer.caller, null, 4);
-                        // }
                     } else
                     if (data.type == "StasisEnd") {
-                        // if (data.dialstring == {{ $agent->endpoint }}) {
-                        // console.log("Message from server:", {{ $agent->endpoint }});
+                        if (data.dialstring == {{ $agent->endpoint }}) {
+                            // console.log("Message from server:", {{ $agent->endpoint }});
 
-                        // if (data.args[0] == 'dialed') {
-                        Livewire.emit('refreshLastCall');
-
-                        console.log("Message from server:", JSON.stringify(data.args, null, 4));
-                        // }
-                        // preElement.innerHTML = JSON.stringify(data, null, 4);
-                        // preElement.innerHTML = JSON.stringify(data.peer.caller, null, 4);
-                        // }
+                            console.log("Message from server:", JSON.stringify(data, null, 4));
+                            // preElement.innerHTML = JSON.stringify(data, null, 4);
+                            preElement.innerHTML = JSON.stringify(data.peer.caller, null, 4);
+                        }
                     }
                 }
             });
