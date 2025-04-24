@@ -3,6 +3,10 @@
 namespace App\Http\Livewire\Live\Supervisor;
 
 use App\Models\Live\CallSession;
+use Illuminate\Support\Facades\Auth;  // Correct Auth import
+ use Illuminate\Support\Facades\Cache; // Correct import statement
+
+
 use Livewire\Component;
 
 class SupervisorDashboard extends Component
@@ -16,6 +20,11 @@ class SupervisorDashboard extends Component
         $sessions = CallSession::all();
         //$ws_server = env("WS_SERVER_ENDPOINT");
         //dd([$api_server, $ws_server]);
-        return view('livewire.live.supervisor.supervisor-dashboard', ['api_server' => $api_server, 'ws_server' => $ws_server, 'sessions' => $sessions]);
+        return view('livewire.live.supervisor.supervisor-dashboard', [
+            'api_server' => $api_server,
+            'ws_server' => $ws_server,
+            'sessions' => $sessions,
+            'user' => Auth::user() // Add authenticated user data
+        ]);
     }
 }

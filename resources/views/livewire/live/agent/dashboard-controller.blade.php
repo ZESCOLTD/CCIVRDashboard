@@ -180,10 +180,37 @@
                 </div>
             </div> --}}
 
+            <style>
+                .search-suggestions {
+                    max-height: 300px;
+                    overflow-y: auto;
+                    z-index: 1000;
+                    border: 1px solid #ddd;
+                }
+
+                .search-suggestions .list-group-item {
+                    border-left: none;
+                    border-right: none;
+                }
+
+                .search-suggestions .list-group-item:hover {
+                    background-color: #f8f9fa;
+                }
+
+                .knowledge-content {
+                    max-height: 400px;
+                    overflow-y: auto;
+                    background-color: #f8f9fa;
+                }
+
+                .z-index-100 {
+                    z-index: 100;
+                }
+            </style>
             <!-- Combined Call Control and Incoming Call Information Card -->
             <div class="card mb-4">
                 <div class="card-header">
-                    <h4>Call Control Panel & Incoming Call</h4>
+                    <h1 style="text-align: center">Agent Knowledge Base (Type In the Topic of Interest)</h1>
                 </div>
                 <div class="card-body">
                     {{-- <div class="row mb-3">
@@ -397,6 +424,31 @@
 </div>
 
 @push('custom-scripts')
+
+<script>
+    document.addEventListener('livewire:load', function() {
+        Livewire.on('highlightSearch', (query) => {
+            const elements = document.querySelectorAll('.search-result-text');
+            elements.forEach(el => {
+                const text = el.textContent;
+                const regex = new RegExp(query, 'gi');
+                const highlighted = text.replace(regex, match =>
+                    `<span class="highlight">${match}</span>`
+                );
+                el.innerHTML = highlighted;
+            });
+        });
+    });
+</script>
+
+<script>
+    Livewire.on('closeModal', () => {
+        const modal = bootstrap.Modal.getInstance(document.getElementById('knowledgeModal'));
+        if (modal) {
+            modal.hide();
+        }
+    });
+</script>
     <script>
         window.addEventListener('load', function() {
             // WebSocket connection and event listeners as in the original code

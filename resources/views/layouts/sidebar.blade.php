@@ -133,7 +133,13 @@
                         <p>Transaction codes</p>
                     </a>
                 </li>
-
+                <li class="nav-item">
+                    <a href="{{ route('live.supervisor.knowledge-base') }}"
+                       class="nav-link {{ request()->routeIs('live.supervisor.knowledge-base') ? 'active' : '' }}">
+                        <i class="fas fa-book nav-icon"></i>
+                        <p>Knowledge Base</p>
+                    </a>
+                </li>
 
                 <!-- Supervisor Section -->
                 @if (Auth::user()->hasRole('supervisor'))
