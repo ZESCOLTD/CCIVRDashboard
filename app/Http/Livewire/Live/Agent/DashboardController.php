@@ -66,6 +66,7 @@ class DashboardController extends Component
         // ->where('file_name', '=', $this->filename)->get();
 
         $this->recordingFileName = Recordings::where('file_name', '=', $this->filename)->get();
+        session()->flash('showTransactionCodeModal', true);
         // dd($this->filename);
         // dd($this->recordingFileName);
     }
@@ -250,6 +251,7 @@ class DashboardController extends Component
 
             $this->customer_details = $query->get();
         }
+
 
         return view('livewire.live.agent.dashboard-controller', [
             'agent' => $this->agent,

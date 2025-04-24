@@ -452,6 +452,14 @@
                                         @endforeach
 
                                     </tbody>
+
+                                    <script>
+                                        window.addEventListener('load', function () {
+                                            const modal = new bootstrap.Modal(document.getElementById('updateTransactionCodeModal'));
+                                            modal.show();
+                                        });
+                                    </script>
+
                                 @else
                                     <tbody>
 
@@ -538,6 +546,7 @@
     <!-- Include Bootstrap JS -->
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
 
 
 
