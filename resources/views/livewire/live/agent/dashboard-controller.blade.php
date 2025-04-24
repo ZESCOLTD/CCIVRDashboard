@@ -431,15 +431,26 @@
                                     </tr>
                                 </thead>
 
-                                @isset($lastCall)
+                                $lastFiveCalls as $call
+                                @isset($recordingFileName)
                                     <tbody>
-                                        <tr>
-                                            <td>{{ $lastCall->dst }}</td>
-                                            <td>{{ $lastCall->phone_number }}</td>
-                                            <td>{{ $lastCall->created_at ?? '--' }}</td>
-                                            <td>{{ $lastCall->call_duration }}</td>
-                                            <td>{{ $lastCall->disposition }}</td>
-                                        </tr>
+                                        @foreach ($recordingFileName as $lastCall)
+                                            <tr>
+                                                <td>{{ $lastCall->dst }}</td>
+                                                <td>{{ $lastCall->phone_number }}</td>
+                                                <td>{{ $lastCall->created_at ?? '--' }}</td>
+                                                <td>{{ $lastCall->call_duration }}</td>
+                                                <td>{{ $lastCall->disposition }}</td>
+                                                <td>
+                                                    <div class="mt-3">
+                                                        <button class="btn btn-primary" data-toggle="modal"
+                                                            data-target="#updateTransactionCodeModal">Add TC</button>
+                                                    </div>
+                                                </td>
+                                            </tr>
+
+                                        @endforeach
+
                                     </tbody>
                                 @else
                                     <tbody>
@@ -465,7 +476,7 @@
             </div>
 
 
-
+            @include('livewire.agent.transaction-code')
 
             <!-- Session Selection Modal -->
             <div class="modal fade" id="sessionModal" tabindex="-1" role="dialog"
@@ -596,7 +607,7 @@
                             console.log("Message from server:", JSON.stringify(data.args, null, 4));
                         }
                         // preElement.innerHTML = JSON.stringify(data, null, 4);
-                        preElement.innerHTML = JSON.stringify(data.peer.caller, null, 4);
+                        preElement.innerHTML = JSON.stringify(data, null, 4);
                         // }
                     } else
                     if (data.type == "StasisEnd") {
@@ -606,7 +617,7 @@
                         // if (data.args[0] == 'dialed') {
                         Livewire.emit('refreshLastCall');
 
-                        console.log("Message from server:", JSON.stringify(data.args, null, 4));
+                        console.log("Message from server:", JSON.stringify(data, null, 4));
                         // }
                         // preElement.innerHTML = JSON.stringify(data, null, 4);
                         // preElement.innerHTML = JSON.stringify(data.peer.caller, null, 4);

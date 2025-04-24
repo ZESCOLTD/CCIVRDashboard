@@ -17,6 +17,7 @@ use App\Models\User;
 use App\Models\KnowledgeBase;
 use Illuminate\Support\Str;
 
+use App\Models\Live\TransactionCode as TransCode;
 
 class DashboardController extends Component
 {
@@ -38,6 +39,7 @@ class DashboardController extends Component
     protected $listeners = ['refreshLastCall' => 'loadLastCall','refreshLastFileName' => 'loadLastFilename'];
     public $recordingFileName;
     public $filename;
+    public $t_code;
 
     public function mount($id)
     {
@@ -60,13 +62,17 @@ class DashboardController extends Component
 
     public function loadLastCall()
     {
-        $this->recordingFileName = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')
-        ->where('file_name', '=', $this->filename)->get();
+        // $this->recordingFileName = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')
+        // ->where('file_name', '=', $this->filename)->get();
+
+        $this->recordingFileName = Recordings::where('file_name', '=', $this->filename)->get();
+        // dd($this->filename);
+        // dd($this->recordingFileName);
     }
     public function loadLastFilename($filename=null)
     {
         $this->filename = $filename;
-        dd($this->filename);
+        // dd($this->filename);
     }
 
 //Search funtionality
@@ -189,7 +195,7 @@ class DashboardController extends Component
         $api_server = config("app.API_SERVER_ENDPOINT");
         $ws_server = config("app.WS_SERVER_ENDPOINT");
 
-
+        $transactionCodes = TransCode::all();
         $totalCalls = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')->count();
         $answeredCalls = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')->count();
         $missedCalls = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')->count();
@@ -254,7 +260,10 @@ class DashboardController extends Component
             'missedCalls' => $missedCalls,
             'averageCallTime' => gmdate('H:i:s', $averageCallTime),
             'lastFiveCalls' => $lastFiveCalls,
-            'customer_details' => $this->customer_details
+            'customer_details' => $this->customer_details,
+            'recordingFileName' => $this->recordingFileName,
+            'filename' => $this->filename,
+            'transactionCodes' => $transactionCodes
         ]);
     }
 
@@ -372,6 +381,15 @@ class DashboardController extends Component
     {
         Auth::user()->myCallRecordings;
     }
+
+    public function editTCode()
+    {
+        Recordings::where('file_name',  $this->filename)
+            ->update(['transaction_code' => $this->t_code]);
+        $this->t_code = null;
+        session()->flash('success', 'Transaction code updated successfully!');
+    }
+
 }
 
 // class CallManager extends \Livewire\Component
