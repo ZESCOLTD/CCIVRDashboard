@@ -33,27 +33,27 @@
                             <strong>Agent number:</strong> {{ $agent->endpoint }}<br>
                             <p><strong>Status:</strong>
                                 @switch($agent->status)
-                                    @case('LOGGED_IN')
+                                    @case('LOGGED_IN'||'AgentState.LOGGEDIN')
                                         <span class="badge badge-success">LOGGED IN</span>
                                     @break
 
-                                    @case('LOGGED_OUT')
+                                    @case('LOGGED_OUT'||'AgentState.LOGGEDOUT')
                                         <span class="badge badge-secondary">LOGGED OUT</span>
                                     @break
 
-                                    @case('IDLE')
+                                    @case('IDLE'||'AgentState.IDLE')
                                         <span class="badge badge-warning">IDLE</span>
                                     @break
 
-                                    @case('WITHDRAWN')
+                                    @case('WITHDRAWN'||'AgentState.WITHDRAWN')
                                         <span class="badge badge-danger">WITHDRAWN</span>
                                     @break
 
-                                    @case('WRAPPING_UP')
+                                    @case('WRAPPING_UP'||'AgentState.WRAPPINGUP')
                                         <span class="badge badge-info">WRAPPING UP</span>
                                     @break
 
-                                    @case('IN_CONVERSATION')
+                                    @case('IN_CONVERSATION'||'AgentState.INCONVERSATION')
                                         <span class="badge badge-primary">IN CONVERSATION</span>
                                     @break
 
@@ -103,7 +103,7 @@
                             <h5 class="card-title">Current Call</h5>
                             <p><strong>Caller ID:</strong> +1234567890</p>
                             <p><strong>Call Duration:</strong> 00:03:15</p>
-                            @if ($this->agent->state == config('constants.agent_state.LOGGED_IN'))
+                            @if ($this->agent->state == config('constants.agent_state.LOGGED_IN')||$this->agent->state == 'AgentState.LOGGEDIN')
                                 <button wire:click="logout()" class="btn btn-danger btn-block">Logout</button>
                             @else
                                 <button wire:click="login()" class="btn btn-success btn-block">Login</button>
