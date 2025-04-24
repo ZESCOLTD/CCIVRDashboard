@@ -453,12 +453,7 @@
 
                                     </tbody>
 
-                                    <script>
-                                        window.addEventListener('load', function () {
-                                            const modal = new bootstrap.Modal(document.getElementById('updateTransactionCodeModal'));
-                                            modal.show();
-                                        });
-                                    </script>
+
 
                                 @else
                                     <tbody>
@@ -624,7 +619,13 @@
                         // console.log("Message from server:", {{ $agent->endpoint }});
 
                         // if (data.args[0] == 'dialed') {
-                        Livewire.emit('refreshLastCall');
+                        // Livewire.emit('refreshLastCall');
+
+                        const modal = new bootstrap.Modal(document.getElementById('updateTransactionCodeModal'));
+                        modal.show();
+                        setTimeout(() => {
+                            modal.hide();
+                        }, 15000);
 
                         console.log("Message from server:", JSON.stringify(data, null, 4));
                         // }

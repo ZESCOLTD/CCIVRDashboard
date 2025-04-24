@@ -6,6 +6,7 @@ use App\Models\Live\CallSession;
 use Illuminate\Support\Facades\Auth;  // Correct Auth import
 use Illuminate\Support\Facades\Cache; // Correct import statement
 
+use App\Models\Live\CCAgent;
 
 use Livewire\Component;
 
@@ -19,11 +20,15 @@ class SupervisorDashboard extends Component
         $sessions = CallSession::all();
         //$ws_server = env("WS_SERVER_ENDPOINT");
         //dd([$api_server, $ws_server]);
+        $activeAgents = CCAgent::where('state', '=', 'AgentState.LOGGEDIN')
+        ->orWhere('state', '=', 'LOGGED_IN')
+        ->get();
         return view('livewire.live.supervisor.supervisor-dashboard', [
             'api_server' => $api_server,
             'ws_server' => $ws_server,
             'sessions' => $sessions,
-            'user' => Auth::user() // Add authenticated user data
+            'user' => Auth::user(), // Add authenticated user data
+            'activeAgents' => $activeAgents,
         ]);
     }
 
