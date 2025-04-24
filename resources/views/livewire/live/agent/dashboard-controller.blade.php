@@ -280,6 +280,7 @@
 
 
 
+            <!-- Combined Call Control and Incoming Call Information Card -->
             <div class="card mb-4">
                 <div class="card-header">
                     <span class="text-bold text-orange">Customer Details </span>
@@ -311,54 +312,56 @@
                                     </thead>
                                     <tbody>
                                         <tr>
+                                            <td>Customer Name</td>
+                                            <td>{{ $customer->customer_name ?? '--' }}</td>
+                                            <td>Home Phone</td>
+                                            <td>{{ $customer->home_phone ?? '--' }}</td>
+
+                                        </tr>
+                                        <tr>
                                             <td>Division</td>
                                             <td>{{ $customer->division ?? '--' }}</td>
-                                            <td>Service Number</td>
-                                            <td>{{ $customer->service_no ?? '--' }}</td>
+                                            <td>Town</td>
+                                            <td>{{ $customer->town ?? '--' }}</td>
                                         </tr>
                                         <tr>
                                             <td>Service Point</td>
                                             <td>{{ $customer->service_point ?? '--' }}</td>
-                                            <td>Itinerary Assigned</td>
-                                            <td>{{ $customer->itinerary_assigned ?? '--' }}</td>
+                                            <td>Street</td>
+                                            <td>{{ $customer->street ?? '--' }}</td>
                                         </tr>
+
                                         <tr>
-                                            <td>Premise ID</td>
-                                            <td>{{ $customer->premise_id ?? '--' }}</td>
-                                            <td>Customer Name</td>
-                                            <td>{{ $customer->customer_name ?? '--' }}</td>
+                                            <td>Address</td>
+                                            <td>{{ $customer->address ?? '--' }}</td>
+                                            <td>Landmark</td>
+                                            <td>{{ $customer->landmark ?? '--' }}</td>
                                         </tr>
                                         <tr>
                                             <td>Meter Number</td>
-                                            <td>{{ $customer->meter_no ?? '--' }}</td>
-                                            <td>Meter Serial Number</td>
                                             <td>{{ $customer->meter_serial_no ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
                                             <td>Meter Make</td>
                                             <td>{{ $customer->meter_make ?? '--' }}</td>
-                                            <td>Meter Type Code</td>
-                                            <td>{{ $customer->meter_type_code ?? '--' }}</td>
                                         </tr>
                                         <tr>
-                                            <td>Meter Status</td>
-                                            <td>{{ $customer->meter_status ?? '--' }}</td>
+                                            <td>Tariff</td>
+                                            <td>{{ $customer->tariff ?? '--' }}</td>
                                             <td>Phase Type</td>
                                             <td>{{ $customer->phase_type ?? '--' }}</td>
                                         </tr>
                                         <tr>
-                                            <td>Voltage Type</td>
-                                            <td>{{ $customer->voltage_type ?? '--' }}</td>
-                                            <td>Meter Rating</td>
-                                            <td>{{ $customer->meter_rating ?? '--' }}</td>
+                                            <td>Service Number</td>
+                                            <td>{{ $customer->service_no ?? '--' }}</td>
+                                            <td>Phone Number</td>
+                                            <td>{{ $customer->home_phone ?? '--' }}</td>
                                         </tr>
                                         <tr>
-                                            <td>Meter Constant</td>
-                                            <td>{{ $customer->meter_constant ?? '--' }}</td>
-                                            <td>Meter Installation Date</td>
-                                            <td>{{ $customer->meter_instal_date ?? '--' }}</td>
+                                            <td>Other Number</td>
+                                            <td>{{ $customer->buss_phone ?? '--' }}</td>
+                                            <td>Other Number</td>
+                                            <td>{{ $customer->other_phone ?? '--' }}</td>
                                         </tr>
-                                        <tr>
+                                        {{-- <tr>
                                             <td>Town</td>
                                             <td>{{ $customer->town ?? '--' }}</td>
                                             <td>Meter Type</td>
@@ -368,7 +371,7 @@
                                             <td>Connection Type</td>
                                             <td>{{ $customer->connection_type ?? '--' }}</td>
                                             <td colspan="2"></td>
-                                        </tr>
+                                        </tr> --}}
                                     </tbody>
                                 </table>
                             @endforeach
@@ -376,7 +379,6 @@
                     </div>
                 </div>
             </div>
-
 
 
             <div class="row">
@@ -510,4 +512,41 @@
             }
         });
     </script>
+
+<script>
+    window.addEventListener('load', function() {
+        // WebSocket connection and event listeners as in the original code
+        var ws_address = document.getElementById("ws_endpoint");
+        var ws_socket = document.getElementById("ws-info");
+        const preElement = document.getElementById('json-data');
+        const socket = new WebSocket(ws_address.value);
+        // ws://127.0.0.1:8001/ws
+        // const socket = new WebSocket("http://127.0.0.1:8001/ws");
+        socket.addEventListener("open", (event) => {
+            console.log("WebSocket connection opened: ", ws_address);
+            ws_socket.classList.remove("badge-danger");
+            ws_socket.classList.add("badge-success");
+            ws_socket.textContent = "Connected ..";
+            socket.send("Hello Server!");
+        });
+        socket.addEventListener("message", (event) => {
+            preElement.style.fontSize = '12px';
+            var data = JSON.parse(event.data);
+            preElement.innerHTML = JSON.stringify(data, null, 4);
+            console.log("Message from server:", event.data);
+        });
+        socket.addEventListener("error", (event) => {
+            console.error("WebSocket error:", event);
+            ws_socket.classList.remove("badge-success");
+            ws_socket.classList.add("badge-danger");
+            ws_socket.textContent = "Web socket error";
+        });
+        socket.addEventListener("close", (event) => {
+            ws_socket.classList.remove("badge-success");
+            ws_socket.classList.add("badge-danger");
+            ws_socket.textContent = "Web socket error";
+            console.log("WebSocket connection closed:", event);
+        });
+    })
+</script>
 @endpush
