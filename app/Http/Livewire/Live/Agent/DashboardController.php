@@ -34,6 +34,7 @@ class DashboardController extends Component
     public $searchQuery = '';
     public $searchResults = [];
     public $selectedTopic;
+    public $selectedCustomer;
 
     public function mount($id)
     {
@@ -185,7 +186,7 @@ class DashboardController extends Component
 
         // $this->customer_details = Customer::where('meter_no', '=', $meter_no)->get();
         //dd(Customer::where('meter_no', '=', 'Z01851393')->get());
-         $query = Customer::query();
+         //$query = Customer::query();
 //        $query = Customer::select([
 //            //'region',
 //            //'zone',
@@ -221,14 +222,14 @@ class DashboardController extends Component
 //            // 'other_phone',
 //        ]);
 
-        if ($this->meter_number) {
-            $meter_number = strtoupper($this->meter_number);
-            $query->where(function ($query) use ($meter_number) {
-                $query->where('meter_serial_no', '=', $meter_number);
-            });
-
-            $this->customer_details = $query->get();
-        }
+//        if ($this->meter_number) {
+//            $meter_number = strtoupper($this->meter_number);
+//            $query->where(function ($query) use ($meter_number) {
+//                $query->where('meter_serial_no', '=', $meter_number);
+//            });
+//
+//            $this->customer_details = $query->get();
+//        }
 
         return view('livewire.live.agent.dashboard-controller', [
             'agent' => $this->agent,
