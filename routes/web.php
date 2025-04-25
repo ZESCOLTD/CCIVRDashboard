@@ -74,6 +74,7 @@ Route::middleware(['auth', 'role:super-admin|admin'])->group(function () {
     // Configuration Routes
     Route::get('config/destinations', Destination::class)->name('config.destinations');
     Route::get('config/contexts', Contexts::class)->name('config.contexts');
+    // Route::get('config/show/contexts/{id}', Contexts::class)->name('config.show.contexts');
     Route::get('config/show/contexts/{id}', ShowContexts::class)->name('config.show.contexts');
 
     Route::get('reports/call/summary/records', CallSummaryRecords::class)->name('reports.call.summary.records');

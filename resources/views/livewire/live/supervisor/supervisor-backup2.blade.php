@@ -474,38 +474,27 @@
                                 <div class="card-body">
                                     <h6>{{ $activeAgent->name }}</h6>
 
-                                    {{-- Status + Icon --}}
-                                    <div class="d-flex align-items-center gap-2 mb-2">
-                                        @if ($activeAgent->status == 'Active')
-                                            <p><i class="fas fa-phone-alt text-success"
-                                                    id="{{ 'icon-' . $activeAgent->endpoint }}"></i></p>
-                                            <span class="badge badge-success"
-                                                id="{{ 'status-' . $activeAgent->endpoint }}">{{ $activeAgent->status }}</span>
-                                        @elseif ($activeAgent->status == 'On Hold')
-                                            <p><i class="fas fa-pause-circle text-warning"
-                                                    id="{{ 'icon-' . $activeAgent->endpoint }}"></i></p>
-                                            <span class="badge badge-warning"
-                                                id="{{ 'status-' . $activeAgent->endpoint }}">{{ $activeAgent->status }}</span>
-                                        @elseif ($activeAgent->status == 'IDLE')
-                                            <p><i class="fas fa-pause-circle text-warning"
-                                                    id="{{ 'icon-' . $activeAgent->endpoint }}"></i></p>
-                                            <span class="badge badge-danger"
-                                                id="{{ 'status-' . $activeAgent->endpoint }}">{{ $activeAgent->status }}</span>
-                                        @else
-                                            <p><i class="fas fa-phone-slash text-muted"
-                                                    id="{{ 'icon-' . $activeAgent->endpoint }}"></i></p>
-                                            <span class="badge badge-secondary"
-                                                id="{{ 'status-' . $activeAgent->endpoint }}">{{ $activeAgent->status }}</span>
-                                        @endif
-                                    </div>
+                                    {{-- Status Badge --}}
+                                    <span
+                                        class="badge
+                        {{ $activeAgent->status === 'Active'
+                            ? 'badge-success'
+                            : ($activeAgent->status === 'On Hold'
+                                ? 'badge-warning'
+                                : ($activeAgent->status === 'IDLE'
+                                    ? 'badge-danger'
+                                    : 'badge-secondary')) }}"
+                                        id="status-{{ $activeAgent->endpoint }}">
+                                        {{ $activeAgent->status }}
+                                    </span>
 
                                     {{-- Caller Info --}}
-                                    <p class="mt-2" id="{{ 'caller-' . $activeAgent->endpoint }}">
+                                    <p class="mt-2" id="caller-{{ $activeAgent->endpoint }}">
                                         <strong>Caller:</strong> <span class="text-muted">N/A</span>
                                     </p>
 
                                     {{-- Duration (optional real-time update) --}}
-                                    <p id="{{ 'duration-' . $activeAgent->endpoint }}">
+                                    <p id="duration-{{ $activeAgent->endpoint }}">
                                         <strong>Duration:</strong> 00:00:00
                                     </p>
                                 </div>
@@ -513,7 +502,6 @@
                         </div>
                     @endforeach
                 @endif
-
 
                 {{-- <!-- Agent 2 -->
                     <div class="col-md-3 mb-3">
@@ -1022,43 +1010,22 @@
                     }
 
                     const statusElement = document.getElementById('status-' + dialstring);
-                    const iconElement = document.getElementById('icon-' + dialstring);
                     if (statusElement) {
                         statusElement.classList.remove("badge-danger", "badge-warning", "badge-success");
 
                         if (dialstatus === "NOANSWER") {
                             statusElement.classList.add("badge-danger");
                             statusElement.innerHTML = "AgentState.IDLE";
-                            if (iconElement) {
-                                iconElement.classList.remove("text-success", "text-warning");
-                                iconElement.classList.add("text-warning");
-                                iconElement.classList.add("fas", "fa-pause-circle");
-                            }
                         } else if (dialstatus === "RINGING") {
                             statusElement.classList.add("badge-warning");
                             statusElement.innerHTML = "RINGING";
-                            if (iconElement) {
-                                iconElement.classList.remove("text-success", "text-warning");
-                                iconElement.classList.add("text-warning");
-                                iconElement.classList.add("fas", "fa-phone-alt");
-                            }
                         } else if (dialstatus === "ANSWER") {
                             statusElement.classList.add("badge-success");
                             statusElement.innerHTML = "ANSWER";
-                            if (iconElement) {
-                                iconElement.classList.remove("text-warning", "text-muted");
-                                iconElement.classList.add("text-success");
-                                iconElement.classList.add("fas", "fa-phone-alt");
-                            }
                         } else {
                             // initial empty status or unknown
                             statusElement.classList.add("badge-secondary");
                             statusElement.innerHTML = "Calling...";
-                            if (iconElement) {
-                                iconElement.classList.remove("text-success", "text-warning", "text-muted");
-                                iconElement.classList.add("text-muted");
-                                iconElement.classList.add("fas", "fa-phone-alt");
-                            }
                         }
                     }
                 }
@@ -1086,16 +1053,10 @@
                         }
 
                         const statusElement = document.getElementById('status-' + dialstring);
-                        const iconElement = document.getElementById('icon-' + dialstring);
                         if (statusElement) {
                             statusElement.classList.remove("badge-success", "badge-warning");
                             statusElement.classList.add("badge-danger");
                             statusElement.innerHTML = "AgentState.IDLE";
-                            if (iconElement) {
-                                iconElement.classList.remove("text-success", "text-warning");
-                                iconElement.classList.add("text-muted");
-                                iconElement.classList.add("fas", "fa-phone-slash");
-                            }
                         }
                     }
                 }

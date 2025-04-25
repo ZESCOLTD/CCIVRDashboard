@@ -468,51 +468,41 @@
             <div class="row text-center">
 
                 @if ($activeAgents)
+                    <!-- Agent 1 -->
                     @foreach ($activeAgents as $activeAgent)
                         <div class="col-md-3 mb-3">
                             <div class="card shadow-sm">
                                 <div class="card-body">
                                     <h6>{{ $activeAgent->name }}</h6>
+                                    {{-- <p><i class="fas fa-phone-alt text-success"></i></p> --}}
+                                    @if ($activeAgent->status == 'Active')
+                                        <span class="badge badge-success"
+                                            id="{{ 'status-' . $activeAgent->endpoint }}">{{ $activeAgent->status }}</span>
+                                    @elseif ($activeAgent->status == 'On Hold')
+                                        <span class="badge badge-warning"
+                                            id="{{ 'status-' . $activeAgent->endpoint }}">{{ $activeAgent->status }}</span>
+                                    @elseif ($activeAgent->status == 'AgentState.IDLE')
+                                        <p><i class="fas fa-pause-circle text-warning"
+                                                id="{{ 'icon-' . $activeAgent->endpoint }}"></i></p>
+                                        <span class="badge badge-danger"
+                                            id="{{ 'status-' . $activeAgent->endpoint }}">{{ $activeAgent->status }}</span>
+                                    @else
+                                        <span class="badge badge-secondary"
+                                            id="{{ 'status-' . $activeAgent->endpoint }}">{{ $activeAgent->status }}</span>
+                                    @endif
 
-                                    {{-- Status + Icon --}}
-                                    <div class="d-flex align-items-center gap-2 mb-2">
-                                        @if ($activeAgent->status == 'Active')
-                                            <p><i class="fas fa-phone-alt text-success"
-                                                    id="{{ 'icon-' . $activeAgent->endpoint }}"></i></p>
-                                            <span class="badge badge-success"
-                                                id="{{ 'status-' . $activeAgent->endpoint }}">{{ $activeAgent->status }}</span>
-                                        @elseif ($activeAgent->status == 'On Hold')
-                                            <p><i class="fas fa-pause-circle text-warning"
-                                                    id="{{ 'icon-' . $activeAgent->endpoint }}"></i></p>
-                                            <span class="badge badge-warning"
-                                                id="{{ 'status-' . $activeAgent->endpoint }}">{{ $activeAgent->status }}</span>
-                                        @elseif ($activeAgent->status == 'IDLE')
-                                            <p><i class="fas fa-pause-circle text-warning"
-                                                    id="{{ 'icon-' . $activeAgent->endpoint }}"></i></p>
-                                            <span class="badge badge-danger"
-                                                id="{{ 'status-' . $activeAgent->endpoint }}">{{ $activeAgent->status }}</span>
-                                        @else
-                                            <p><i class="fas fa-phone-slash text-muted"
-                                                    id="{{ 'icon-' . $activeAgent->endpoint }}"></i></p>
-                                            <span class="badge badge-secondary"
-                                                id="{{ 'status-' . $activeAgent->endpoint }}">{{ $activeAgent->status }}</span>
-                                        @endif
-                                    </div>
-
-                                    {{-- Caller Info --}}
+                                    {{-- <span class="badge badge-success"
+                                        id="{{ 'status-' . $activeAgent->endpoint }}">{{ $activeAgent->status }}</span> --}}
                                     <p class="mt-2" id="{{ 'caller-' . $activeAgent->endpoint }}">
-                                        <strong>Caller:</strong> <span class="text-muted">N/A</span>
+                                        <strong>Caller:</strong> +1234567890
                                     </p>
-
-                                    {{-- Duration (optional real-time update) --}}
-                                    <p id="{{ 'duration-' . $activeAgent->endpoint }}">
-                                        <strong>Duration:</strong> 00:00:00
-                                    </p>
+                                    <p><strong>Duration:</strong> 00:07:30</p>
                                 </div>
                             </div>
                         </div>
                     @endforeach
                 @endif
+
 
 
                 {{-- <!-- Agent 2 -->
@@ -991,132 +981,108 @@
         });
     </script> --}}
 
-    <script>
-        window.addEventListener('load', function() {
-            const ws_address = document.getElementById("ws_endpoint");
-            const ws_socket = document.getElementById("ws-info");
-            const socket = new WebSocket(ws_address.value);
+<script>
+    window.addEventListener('load', function () {
+        const wsAddress = document.getElementById("ws_endpoint")?.value;
+        const wsSocket = document.getElementById("ws-info");
 
-            socket.addEventListener("open", (event) => {
-                console.log("WebSocket connected to:", ws_address.value);
-                ws_socket.classList.remove("badge-danger");
-                ws_socket.classList.add("badge-success");
-                ws_socket.textContent = "Connected ..";
-                socket.send("Hello Server!");
-            });
+        if (!wsAddress) {
+            console.error("WebSocket endpoint not found.");
+            return;
+        }
 
-            socket.addEventListener("message", (event) => {
+        const socket = new WebSocket(wsAddress);
+
+        socket.addEventListener("open", () => {
+            console.log("WebSocket connected to:", wsAddress);
+            wsSocket?.classList.replace("badge-danger", "badge-success");
+            wsSocket.textContent = "Connected ..";
+            socket.send("Hello Server!");
+        });
+
+        socket.addEventListener("message", (event) => {
+            try {
                 const data = JSON.parse(event.data);
-                console.log("Received:", data);
-
                 if (!data.type) return;
 
                 if (data.type === "Dial") {
-                    const dialstring = data.dialstring;
-                    const callerNumber = data.peer?.caller?.number ?? "";
-                    const dialstatus = data.dialstatus ?? "";
+                    const endpoint = data.dialstring;
+                    const statusEl = document.getElementById("status-" + endpoint);
+                    const callerEl = document.getElementById("caller-" + endpoint);
+                    const durationEl = document.getElementById("duration-" + endpoint);
 
-                    const callerElement = document.getElementById('caller-' + dialstring);
-                    if (callerElement) {
-                        callerElement.innerHTML = callerNumber;
+                    if (callerEl && data.peer?.caller?.number) {
+                        callerEl.innerHTML = `<strong>Caller:</strong> ${data.peer.caller.number}`;
                     }
 
-                    const statusElement = document.getElementById('status-' + dialstring);
-                    const iconElement = document.getElementById('icon-' + dialstring);
-                    if (statusElement) {
-                        statusElement.classList.remove("badge-danger", "badge-warning", "badge-success");
+                    if (statusEl) {
+                        statusEl.classList.remove("badge-success", "badge-danger", "badge-warning", "badge-secondary");
 
-                        if (dialstatus === "NOANSWER") {
-                            statusElement.classList.add("badge-danger");
-                            statusElement.innerHTML = "AgentState.IDLE";
-                            if (iconElement) {
-                                iconElement.classList.remove("text-success", "text-warning");
-                                iconElement.classList.add("text-warning");
-                                iconElement.classList.add("fas", "fa-pause-circle");
-                            }
-                        } else if (dialstatus === "RINGING") {
-                            statusElement.classList.add("badge-warning");
-                            statusElement.innerHTML = "RINGING";
-                            if (iconElement) {
-                                iconElement.classList.remove("text-success", "text-warning");
-                                iconElement.classList.add("text-warning");
-                                iconElement.classList.add("fas", "fa-phone-alt");
-                            }
-                        } else if (dialstatus === "ANSWER") {
-                            statusElement.classList.add("badge-success");
-                            statusElement.innerHTML = "ANSWER";
-                            if (iconElement) {
-                                iconElement.classList.remove("text-warning", "text-muted");
-                                iconElement.classList.add("text-success");
-                                iconElement.classList.add("fas", "fa-phone-alt");
-                            }
-                        } else {
-                            // initial empty status or unknown
-                            statusElement.classList.add("badge-secondary");
-                            statusElement.innerHTML = "Calling...";
-                            if (iconElement) {
-                                iconElement.classList.remove("text-success", "text-warning", "text-muted");
-                                iconElement.classList.add("text-muted");
-                                iconElement.classList.add("fas", "fa-phone-alt");
-                            }
+                        switch (data.dialstatus) {
+                            case "NOANSWER":
+                                statusEl.classList.add("badge-danger");
+                                statusEl.textContent = "IDLE";
+                                break;
+                            case "RINGING":
+                                statusEl.classList.add("badge-warning");
+                                statusEl.textContent = "RINGING";
+                                break;
+                            case "ANSWER":
+                                statusEl.classList.add("badge-success");
+                                statusEl.textContent = "ANSWERED";
+                                // Optionally start a timer here
+                                break;
+                            default:
+                                statusEl.classList.add("badge-secondary");
+                                statusEl.textContent = data.dialstatus;
                         }
                     }
                 }
 
                 if (data.type === "StasisEnd") {
-                    const app_data = data.channel?.dialplan?.app_data ?? "";
-                    const parts = app_data.split(',');
+                    const appData = data.channel?.dialplan?.app_data;
+                    const parts = appData?.split(',') || [];
+                    let endpointId = parts[2]?.substring(6); // assumes prefix like `agent:123`
 
-                    let dialstring = "";
-                    if (parts.length >= 3) {
-                        // parts[2] should be the dialed extension, e.g. "PJSIP/6004"
-                        const dialedTarget = parts[2];
-                        const match = dialedTarget.match(/\/(\d+)/);
-                        if (match) {
-                            dialstring = match[1]; // Extracts "6004"
-                        }
-                    }
+                    if (endpointId) {
+                        const statusEl = document.getElementById("status-" + endpointId);
+                        const callerEl = document.getElementById("caller-" + endpointId);
+                        const durationEl = document.getElementById("duration-" + endpointId);
 
-                    if (dialstring) {
-                        console.log("StasisEnd for dialed extension:", dialstring);
-
-                        const callerElement = document.getElementById('caller-' + dialstring);
-                        if (callerElement) {
-                            callerElement.innerHTML = "";
+                        if (callerEl) {
+                            callerEl.innerHTML = `<strong>Caller:</strong> <span class="text-muted">N/A</span>`;
                         }
 
-                        const statusElement = document.getElementById('status-' + dialstring);
-                        const iconElement = document.getElementById('icon-' + dialstring);
-                        if (statusElement) {
-                            statusElement.classList.remove("badge-success", "badge-warning");
-                            statusElement.classList.add("badge-danger");
-                            statusElement.innerHTML = "AgentState.IDLE";
-                            if (iconElement) {
-                                iconElement.classList.remove("text-success", "text-warning");
-                                iconElement.classList.add("text-muted");
-                                iconElement.classList.add("fas", "fa-phone-slash");
-                            }
+                        if (statusEl) {
+                            statusEl.classList.remove("badge-success", "badge-warning", "badge-secondary");
+                            statusEl.classList.add("badge-danger");
+                            statusEl.textContent = "IDLE";
+                        }
+
+                        if (durationEl) {
+                            durationEl.innerHTML = `<strong>Duration:</strong> 00:00:00`;
                         }
                     }
                 }
 
-            });
-
-            socket.addEventListener("error", (event) => {
-                console.error("WebSocket error:", event);
-                ws_socket.classList.remove("badge-success");
-                ws_socket.classList.add("badge-danger");
-                ws_socket.textContent = "Web socket error";
-            });
-
-            socket.addEventListener("close", (event) => {
-                console.log("WebSocket closed:", event);
-                ws_socket.classList.remove("badge-success");
-                ws_socket.classList.add("badge-danger");
-                ws_socket.textContent = "Disconnected";
-            });
+            } catch (err) {
+                console.error("WebSocket message error:", err);
+            }
         });
-    </script>
+
+        socket.addEventListener("error", (event) => {
+            console.error("WebSocket error:", event);
+            wsSocket?.classList.replace("badge-success", "badge-danger");
+            wsSocket.textContent = "Web socket error";
+        });
+
+        socket.addEventListener("close", (event) => {
+            console.warn("WebSocket closed:", event);
+            wsSocket?.classList.replace("badge-success", "badge-danger");
+            wsSocket.textContent = "Web socket closed";
+        });
+    });
+</script>
 
     <script>
         // Function to format the timestamp with ZESCO colors
