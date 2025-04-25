@@ -6,6 +6,7 @@ use App\Models\CDR\CallDetailsRecordModel;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class CCAgent extends Model
 {
@@ -23,10 +24,10 @@ class CCAgent extends Model
         'status'
     ];
 
-    protected $with = [
-        'user'
-    ];
+    protected $with = ['user'];
 
+    // Add these to get auto-accessible in array/json output
+    protected $appends = ['is_online', 'last_seen'];
 
     public function myRecordings()
     {
@@ -37,8 +38,22 @@ class CCAgent extends Model
     {
         return $this->belongsTo(CallDetailsRecordModel::class, 'dst', 'endpoint');
     }
+
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id', 'id');
     }
+
+    // Add this accessor to show online status
+    public function getIsOnlineAttribute()
+    {
+        return $this->user_id ? Cache::has('user-is-online-' . $this->user_id) : false;
+    }
+
+    // Add this accessor to show last seen time
+    public function getLastSeenAttribute()
+    {
+        return $this->user_id ? Cache::get('last-seen-' . $this->user_id) : null;
+    }
 }
+

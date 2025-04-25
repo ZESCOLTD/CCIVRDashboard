@@ -17,732 +17,1015 @@
         </div>
 
         <!-- Main Dashboard Card -->
-        <div class="card mb-4 border-0 shadow-lg" style="border-radius: 10px; overflow: hidden;">
-            <div class="card-header py-3" style="background-color: #0f974b; color: white;">
+    <div class="card mb-4 border-0 shadow-lg" style="border-radius: 10px; overflow: hidden;">
+        <div class="card-header py-3" style="background-color: #0f974b; color: white;">
+            <div class="d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">
                     <i class="fas fa-user-shield mr-2"></i>
                     Supervisor Control Panel
                 </h5>
+                <div>
+                <span class="badge badge-light mr-2">
+                    <i class="fas fa-clock mr-1"></i> <span id="currentTime">Loading...</span>
+                </span>
+                    <span class="badge badge-light">
+                    <i class="fas fa-calendar-alt mr-1"></i> <span id="currentDate">Loading...</span>
+                </span>
+                </div>
             </div>
-            <div class="card-body" style="background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);">
-                <div class="row">
-                    <!-- Supervisor Information Column -->
-                    <div class="col-md-4 border-right pr-4" style="border-color: rgba(244, 158, 56, 0.3) !important;">
-                        <h6 class="card-subtitle mb-3" style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
-                            <i class="fas fa-user-tie mr-2"></i>Supervisor Information
-                        </h6>
-                        <div class="pl-3">
-                            <p class="mb-2">
-                                <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Name:</strong>
-                                <span style="color: #333;">{{ $user->name }}</span>
-                            </p>
-                            <p class="mb-2">
-                                <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Employee No:</strong>
-                                <span style="color: #333;">{{ $user->man_no }}</span>
-                            </p>
-                            <p class="mb-0">
-                                <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Status:</strong>
-
-                                <!-- Status Badge - update this part -->
-                                <span class="badge px-2 py-1" style="background-color: {{ $user->isOnline() ? '#0f974b' : '#6c757d' }}; color: white; font-size: 0.8rem;">
-                                <i class="fas {{ $user->isOnline() ? 'fa-wifi' : 'fa-clock' }} mr-1"></i>
-                                  {{ $user->isOnline() ? 'Online' : 'Offline' }}
-                                    @if($user->is_banned)
-                                        <i class="fas fa-ban ml-1"></i>
-                                    @endif
-                                  </span>
-                            </p>
-                        </div>
+        </div>
+        <div class="card-body" style="background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);">
+            <div class="row">
+                <!-- Supervisor Information Column -->
+                <div class="col-md-4 border-right pr-4" style="border-color: rgba(244, 158, 56, 0.3) !important;">
+                    <h6 class="card-subtitle mb-3" style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
+                        <i class="fas fa-user-tie mr-2"></i>Supervisor Information
+                    </h6>
+                    <div class="pl-3">
+                        <p class="mb-2">
+                            <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Name:</strong>
+                            <span style="color: #333;">{{ $user->name }}</span>
+                        </p>
+                        <p class="mb-2">
+                            <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Employee No:</strong>
+                            <span style="color: #333;">{{ $user->man_no }}</span>
+                        </p>
+                        <p class="mb-2">
+                            <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Department:</strong>
+                            <span style="color: #333;">Customer Support</span>
+                        </p>
+                        <p class="mb-0">
+                            <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Status:</strong>
+                            <span class="badge px-2 py-1" style="background-color: {{ $user->isOnline() ? '#0f974b' : '#6c757d' }}; color: white; font-size: 0.8rem;">
+                            <i class="fas {{ $user->isOnline() ? 'fa-wifi' : 'fa-clock' }} mr-1"></i>
+                            {{ $user->isOnline() ? 'Online' : 'Offline' }}
+                                @if($user->is_banned)
+                                    <i class="fas fa-ban ml-1"></i>
+                                @endif
+                        </span>
+                        </p>
                     </div>
+                </div>
 
-                    <!-- System Status Column -->
-                    <div class="col-md-4 border-right px-4" style="border-color: rgba(244, 158, 56, 0.3) !important;">
-                        <h6 class="card-subtitle mb-3" style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
-                            <i class="fas fa-server mr-2"></i>System Status
-                        </h6>
-                        <div class="pl-3">
-                            <div class="mb-3">
-                                <label style="color: #0f974b; display: block; margin-bottom: 2px;">
-                                    <i class="fas fa-plug mr-1"></i>Recorder Websocket:
-                                </label>
-                                <div class="d-flex align-items-center">
-                                    <input type="text" id="ws_endpoint" value='{{ $ws_server }}' hidden>
-                                    <span id="ws-info" class="badge px-2 py-1" style="background-color: #0f974b; color: white; font-size: 0.8rem;">
-                                    <i class="fas fa-check-circle mr-1"></i>Connected
-                                </span>
-                                    <i class="fas fa-info-circle ml-2" style="color: #f49e38; cursor: pointer;" data-toggle="tooltip" title="WebSocket connection status"></i>
-                                </div>
-                            </div>
-                            <div>
-                                <label style="color: #0f974b; display: block; margin-bottom: 2px;">
-                                    <i class="fas fa-exchange-alt mr-1"></i>Recorder Rest Interface:
-                                </label>
-                                <input class="form-control form-control-sm" type="text" id="api_endpoint" value='{{ $api_server }}'
-                                       style="border-color: #f49e38; color: #0f974b; background-color: rgba(244, 158, 56, 0.05);">
+                <!-- System Status Column -->
+                <div class="col-md-4 border-right px-4" style="border-color: rgba(244, 158, 56, 0.3) !important;">
+                    <h6 class="card-subtitle mb-3" style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
+                        <i class="fas fa-server mr-2"></i>System Status
+                    </h6>
+                    <div class="pl-3">
+                        <div class="mb-3">
+                            <label style="color: #0f974b; display: block; margin-bottom: 2px;">
+                                <i class="fas fa-plug mr-1"></i>Recorder Websocket:
+                            </label>
+                            <div class="d-flex align-items-center">
+                                <input type="text" id="ws_endpoint" value='{{ $ws_server }}' hidden>
+                                <span id="ws-info" class="badge px-2 py-1" style="background-color: #0f974b; color: white; font-size: 0.8rem;">
+                                <i class="fas fa-check-circle mr-1"></i>Connected
+                            </span>
+                                <i class="fas fa-info-circle ml-2" style="color: #f49e38; cursor: pointer;" data-toggle="tooltip" title="WebSocket connection status"></i>
                             </div>
                         </div>
+                        <div class="mb-3">
+                            <label style="color: #0f974b; display: block; margin-bottom: 2px;">
+                                <i class="fas fa-exchange-alt mr-1"></i>Recorder Rest Interface:
+                            </label>
+                            <input class="form-control form-control-sm" type="text" id="api_endpoint" value='{{ $api_server }}'
+                                   style="border-color: #f49e38; color: #0f974b; background-color: rgba(244, 158, 56, 0.05);">
+                        </div>
+                        <div>
+                            <label style="color: #0f974b; display: block; margin-bottom: 2px;">
+                                <i class="fas fa-database mr-1"></i>Database Status:
+                            </label>
+                            <span class="badge px-2 py-1" style="background-color: #0f974b; color: white; font-size: 0.8rem;">
+                            <i class="fas fa-check-circle mr-1"></i>Connected
+                        </span>
+                        </div>
                     </div>
+                </div>
 
-                    <!-- Current Team Overview Column -->
-                    <div class="col-md-4 pl-4">
-                        <h6 class="card-subtitle mb-3" style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
-                            <i class="fas fa-users mr-2"></i>Team Overview
-                        </h6>
-                        <div class="pl-3">
-                            <p class="mb-2">
-                                <strong style="color: #0f974b; min-width: 150px; display: inline-block;">Active Agents:</strong>
-                                <span style="color: #333;">5</span>
-                            </p>
-                            <p class="mb-2">
-                                <strong style="color: #0f974b; min-width: 150px; display: inline-block;">Calls in Progress:</strong>
-                                <span style="color: #333;">3</span>
-                            </p>
-                            <p class="mb-0">
-                                <strong style="color: #0f974b; min-width: 150px; display: inline-block;">Longest Call:</strong>
-                                <span style="color: #333;">00:12:45</span>
-                            </p>
+                <!-- Current Team Overview Column -->
+                <div class="col-md-4 pl-4">
+                    <h6 class="card-subtitle mb-3" style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
+                        <i class="fas fa-users mr-2"></i>Team Overview
+                    </h6>
+                    <div class="pl-3">
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                            <span style="color: #0f974b;">
+                                <i class="fas fa-user-check mr-1"></i>Active Agents:
+                            </span>
+                                <span style="color: #333;">5/18</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar" style="background-color: #0f974b; width: 28%;"></div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                            <span style="color: #0f974b;">
+                                <i class="fas fa-phone-alt mr-1"></i>Calls in Progress:
+                            </span>
+                                <span style="color: #333;">3/12</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar" style="background-color: #28a745; width: 25%;"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="d-flex justify-content-between mb-1">
+                            <span style="color: #0f974b;">
+                                <i class="fas fa-hourglass-half mr-1"></i>Queue Wait Time:
+                            </span>
+                                <span style="color: #333;">4:32</span>
+                            </div>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar" style="background-color: #fd7e14; width: 65%;"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="card-footer py-2" style="background-color: rgba(15, 151, 75, 0.1); border-top: 1px solid rgba(244, 158, 56, 0.3);">
+
+            <!-- Quick Action Buttons -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <h6 class="card-subtitle mb-3" style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
+                        <i class="fas fa-bolt mr-2"></i>Quick Actions
+                    </h6>
+                    <div class="d-flex flex-wrap">
+                        <button class="btn btn-sm mr-2 mb-2" style="background-color: #0f974b; color: white;">
+                            <i class="fas fa-broadcast-tower mr-1"></i> Broadcast Message
+                        </button>
+                        <button class="btn btn-sm mr-2 mb-2" style="background-color: #28a745; color: white;">
+                            <i class="fas fa-user-plus mr-1"></i> Add Agent
+                        </button>
+                        <button class="btn btn-sm mr-2 mb-2" style="background-color: #fd7e14; color: white;">
+                            <i class="fas fa-phone-volume mr-1"></i> Listen to Call
+                        </button>
+                        <button class="btn btn-sm mr-2 mb-2" style="background-color: #6f42c1; color: white;">
+                            <i class="fas fa-chart-pie mr-1"></i> Generate Report
+                        </button>
+                        <button class="btn btn-sm mr-2 mb-2" style="background-color: #dc3545; color: white;">
+                            <i class="fas fa-phone-slash mr-1"></i> End All Calls
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-footer py-2" style="background-color: rgba(15, 151, 75, 0.1); border-top: 1px solid rgba(244, 158, 56, 0.3);">
+            <div class="d-flex justify-content-between align-items-center">
                 <small class="text-muted">
                     <i class="fas fa-sync-alt mr-1" style="color: #f49e38;"></i>
                     Last updated: <span id="lastUpdated">Just now</span>
                     <span id="syncStatus" class="ml-2"></span>
                 </small>
+                <small class="text-muted">
+                    <i class="fas fa-shield-alt mr-1" style="color: #f49e38;"></i>
+                    System Version: 2.4.1 | Last Login: Today, 08:45 AM
+                </small>
             </div>
         </div>
+    </div>
     </div>
 
 {{--First Card Handling Code DO NOT DELETE--}}
 
 
     <!-- Key Metrics Overview -->
-    <div class="row">
-        <div class="col-md-3">
-            <div class="info-box bg-primary">
-                <span class="info-box-icon"><i class="fas fa-users"></i></span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Total Agents</span>
-                    <span class="info-box-number">15</span>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="info-box bg-success">
-                <span class="info-box-icon"><i class="fas fa-phone-alt"></i></span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Active Calls</span>
-                    <span class="info-box-number">10</span>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="info-box bg-danger">
-                <span class="info-box-icon"><i class="fas fa-exclamation-triangle"></i></span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Calls in Queue</span>
-                    <span class="info-box-number">5</span>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="info-box bg-warning">
-                <span class="info-box-icon"><i class="fas fa-clock"></i></span>
-                <div class="info-box-content">
-                    <span class="info-box-text">Average Wait Time</span>
-                    <span class="info-box-number">01:30</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Graph Placeholders for Supervisory Metrics -->
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card mb-4">
+<div class="container-fluid">
+    <!-- Supervisor Header Section -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Team Performance (Last 7 Days)</h5>
-                    <div style="height: 300px; background-color: #f2f2f2;">
-                        <!-- Placeholder for Team Performance Graph -->
-                        <p class="text-center text-muted">[Graph Placeholder]</p>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h4><i class="fas fa-user-shield mr-2"></i>Supervisor Dashboard</h4>
+                            <p class="mb-0"><strong>Supervisor:</strong> John Doe (ID: 12345)</p>
+                            <p class="mb-0"><strong>Status:</strong> <span class="badge badge-success">Online</span></p>
+                        </div>
+                        <div class="col-md-4 text-center">
+                            <h5>System Status</h5>
+                            <span class="badge badge-success mr-2"><i class="fas fa-plug"></i> WebSocket Connected</span>
+                            <span class="badge badge-success"><i class="fas fa-server"></i> API Connected</span>
+                        </div>
+                        <div class="col-md-4 text-right">
+                            <button class="btn btn-sm btn-outline-primary mr-2"><i class="fas fa-sync-alt"></i> Refresh</button>
+                            <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-cog"></i> Settings</button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card mb-4">
+    </div>
+
+    <!-- 1. Live Call Metrics -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-orange text-white">
+                    <h5><i class="fas fa-phone-volume mr-2"></i>Live Call Metrics</h5>
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title">Agent Availability</h5>
-                    <div style="height: 300px; background-color: #f2f2f2;">
-                        <!-- Placeholder for Agent Availability Graph -->
-                        <p class="text-center text-muted">[Graph Placeholder]</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Call Control Panel for Supervisory Actions -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-4">
-                    <h4>Manage Sessions</h4>
-                    <select class="form-control" wire:model="selectedSession" wire:change="changeSession">
-                        <option value="">Select Session</option>
-                        @foreach ($sessions as $session)
-                            <option value="{{ $session->id }}">{{ $session->name }}</option>
-                        @endforeach
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <button class="btn btn-danger btn-block" wire:click.prevent="endCall">End All Calls</button>
-                </div>
-                <div class="col-md-4">
-                    <button class="btn btn-secondary btn-block" wire:click.prevent="transferCall">Transfer All
-                        Calls</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Active Agent Monitoring with Icons -->
-    {{-- <div class="card mb-4">
-        <div class="card-body">
-            <h5 class="card-title">Active Agents</h5>
-            <div class="row text-center">
-                <!-- Agent 1 -->
-                <div class="col-md-3">
-                    <div class="card shadow-sm">
-                        <div class="card-body">
-                            <h6>Jane Smith</h6>
-                            <p><i class="fas fa-phone-alt text-success"></i></p>
-                            <span class="badge badge-success">Active</span>
-                            <p class="mt-2"><strong>Caller:</strong> +1234567890</p>
-                            <p><strong>Duration:</strong> 00:07:30</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Agent 2 -->
-                <div class="col-md-3">
-                    <div class="card shadow-sm">
-                        <div class="card-body">
-                            <h6>Michael Johnson</h6>
-                            <p><i class="fas fa-pause-circle text-warning"></i></p>
-                            <span class="badge badge-warning">On Hold</span>
-                            <p class="mt-2"><strong>Caller:</strong> +9876543210</p>
-                            <p><strong>Duration:</strong> 00:04:50</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Agent 3 -->
-                <div class="col-md-3">
-                    <div class="card shadow-sm">
-                        <div class="card-body">
-                            <h6>Emily Davis</h6>
-                            <p><i class="fas fa-exclamation-triangle text-danger"></i></p>
-                            <span class="badge badge-danger">Disconnected</span>
-                            <p class="mt-2"><strong>Caller:</strong> +1122334455</p>
-                            <p><strong>Duration:</strong> 00:03:25</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Agent 4 -->
-                <div class="col-md-3">
-                    <div class="card shadow-sm">
-                        <div class="card-body">
-                            <h6>Sarah Lee</h6>
-                            <p><i class="fas fa-phone-slash text-muted"></i></p>
-                            <span class="badge badge-secondary">Unavailable</span>
-                            <p class="mt-2"><strong>Caller:</strong> N/A</p>
-                            <p><strong>Duration:</strong> N/A</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> --}}
-
-    <div class="container mt-4">
-        <!-- Supervisor Information and Status -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <h5 class="card-title">Supervisor Information</h5>
-                        <p><strong>Supervisor Name:</strong> John Doe</p>
-                        <p><strong>Supervisor ID:</strong> 12345</p>
-                        <p><strong>Status:</strong> <span class="badge badge-success">Online</span></p>
-                    </div>
-                    <div class="col-md-4">
-                        <h5 class="card-title">System Status</h5>
-                        <label class="text-info">Recorder Websocket:</label>
-                        <input type="text" id="ws_endpoint" value='{{ $ws_server }}' hidden>
-                        <span id="ws-info" class="badge badge-success">Connected</span>
-                        <br>
-                        <label class="text-info">Recorder Rest Interface:</label>
-                        <input class="form-control text-success" type="text" id="api_endpoint"
-                            value='{{ $api_server }}'>
-                    </div>
-                    <div class="col-md-4">
-                        <h5 class="card-title">Current Team Overview</h5>
-                        <p><strong>Active Agents:</strong> 5</p>
-                        <p><strong>Total Calls in Progress:</strong> 3</p>
-                        <p><strong>Longest Call Duration:</strong> 00:12:45</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Key Metrics Overview -->
-        <div class="row">
-            <div class="col-md-3">
-                <div class="info-box bg-primary">
-                    <span class="info-box-icon"><i class="fas fa-users"></i></span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">Total Agents</span>
-                        <span class="info-box-number">15</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="info-box bg-success">
-                    <span class="info-box-icon"><i class="fas fa-phone-alt"></i></span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">Active Calls</span>
-                        <span class="info-box-number">10</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="info-box bg-danger">
-                    <span class="info-box-icon"><i class="fas fa-exclamation-triangle"></i></span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">Calls in Queue</span>
-                        <span class="info-box-number">5</span>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <div class="info-box bg-warning">
-                    <span class="info-box-icon"><i class="fas fa-clock"></i></span>
-                    <div class="info-box-content">
-                        <span class="info-box-text">Average Wait Time</span>
-                        <span class="info-box-number">01:30</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Graph Placeholders for Supervisory Metrics -->
-        <div class="row">
-            <div class="col-md-6">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Team Performance (Last 7 Days)</h5>
-                        <div style="height: 300px; background-color: #f2f2f2;">
-                            <!-- Placeholder for Team Performance Graph -->
-                            <p class="text-center text-muted">[Graph Placeholder]</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">Agent Availability</h5>
-                        <div style="height: 300px; background-color: #f2f2f2;">
-                            <!-- Placeholder for Agent Availability Graph -->
-                            <p class="text-center text-muted">[Graph Placeholder]</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Call Control Panel for Supervisory Actions -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-4">
-                        <h4>Manage Sessions</h4>
-                        <select class="form-control" wire:model="selectedSession" wire:change="changeSession">
-                            <option value="">Select Session</option>
-                            @foreach ($sessions as $session)
-                                <option value="{{ $session->id }}">{{ $session->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <button class="btn btn-danger btn-block" wire:click.prevent="endCall">End All Calls</button>
-                    </div>
-                    <div class="col-md-4">
-                        <button class="btn btn-secondary btn-block" wire:click.prevent="transferCall">Transfer All
-                            Calls</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Active Agent Monitoring with Icons -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title">Active Agents</h5>
-                <div class="row">
-                    <!-- Agent 1 -->
-                    <div class="col-md-4">
-                        <div class="agent-card mb-3 p-3 border rounded">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-user fa-2x mr-3 text-success"></i>
-                                <div>
-                                    <h6>Jane Smith</h6>
-                                    <p><i class="fas fa-phone-alt"></i> +1234567890</p>
-                                    <p><i class="fas fa-clock"></i> 00:07:30</p>
+                    <!-- Row 1 -->
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <div class="info-box bg-info">
+                                <span class="info-box-icon"><i class="fas fa-phone-alt"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Active Calls</span>
+                                    <span class="info-box-number">24</span>
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 70%"></div>
+                                    </div>
+                                    <span class="progress-description">70% of capacity</span>
                                 </div>
                             </div>
-                            <div class="mt-2">
-                                <span class="mr-2"><i class="fas fa-check-circle text-success"></i> Active</span>
-                            </div>
                         </div>
-                    </div>
-                    <!-- Agent 2 -->
-                    <div class="col-md-4">
-                        <div class="agent-card mb-3 p-3 border rounded">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-user fa-2x mr-3 text-warning"></i>
-                                <div>
-                                    <h6>Michael Johnson</h6>
-                                    <p><i class="fas fa-phone-alt"></i> +9876543210</p>
-                                    <p><i class="fas fa-clock"></i> 00:04:50</p>
+                        <div class="col-md-3">
+                            <div class="info-box bg-warning">
+                                <span class="info-box-icon"><i class="fas fa-hourglass-half"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Queue Calls</span>
+                                    <span class="info-box-number">8</span>
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 40%"></div>
+                                    </div>
+                                    <span class="progress-description">4 waiting > 1 min</span>
                                 </div>
                             </div>
-                            <div class="mt-2">
-                                <span class="mr-2"><i class="fas fa-pause-circle text-warning"></i> On Hold</span>
-                            </div>
                         </div>
-                    </div>
-                    <!-- Agent 3 -->
-                    <div class="col-md-4">
-                        <div class="agent-card mb-3 p-3 border rounded">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-user fa-2x mr-3 text-danger"></i>
-                                <div>
-                                    <h6>Emily Davis</h6>
-                                    <p><i class="fas fa-phone-alt"></i> +1122334455</p>
-                                    <p><i class="fas fa-clock"></i> 00:03:25</p>
+                        <div class="col-md-3">
+                            <div class="info-box bg-danger">
+                                <span class="info-box-icon"><i class="fas fa-clock"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Longest Wait</span>
+                                    <span class="info-box-number">04:32</span>
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 85%"></div>
+                                    </div>
+                                    <span class="progress-description">Above SLA</span>
                                 </div>
                             </div>
-                            <div class="mt-2">
-                                <span class="mr-2"><i class="fas fa-times-circle text-danger"></i>
-                                    Disconnected</span>
-                            </div>
                         </div>
-                    </div>
-                    <!-- Add more agents as needed -->
-                </div>
-            </div>
-        </div>
 
-
-        <!-- Active Agent Monitoring with Icons (30 Agents) -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title">Active Agents</h5>
-                <div class="row text-center">
-                    <!-- Agent 1 -->
-                    <div class="col-md-3 mb-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <h6>Jane Smith</h6>
-                                <p><i class="fas fa-phone-alt text-success"></i></p>
-                                <span class="badge badge-success">Active</span>
-                                <p class="mt-2"><strong>Caller:</strong> +1234567890</p>
-                                <p><strong>Duration:</strong> 00:07:30</p>
+                        <div class="col-md-3">
+                            <div class="info-box bg-success">
+                                <span class="info-box-icon"><i class="fas fa-check-circle"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Answered</span>
+                                    <span class="info-box-number">42</span>
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 90%"></div>
+                                    </div>
+                                    <span class="progress-description">Today</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Agent 2 -->
-                    <div class="col-md-3 mb-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <h6>Michael Johnson</h6>
-                                <p><i class="fas fa-pause-circle text-warning"></i></p>
-                                <span class="badge badge-warning">On Hold</span>
-                                <p class="mt-2"><strong>Caller:</strong> +9876543210</p>
-                                <p><strong>Duration:</strong> 00:04:50</p>
+                    <!-- Row 2 -->
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="info-box bg-secondary">
+                                <span class="info-box-icon"><i class="fas fa-times-circle"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Abandoned</span>
+                                    <span class="info-box-number">3</span>
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 15%"></div>
+                                    </div>
+                                    <span class="progress-description">Today</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="info-box bg-dark">
+                                <span class="info-box-icon"><i class="fas fa-ban"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Failed Calls</span>
+                                    <span class="info-box-number">5</span>
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 25%"></div>
+                                    </div>
+                                    <span class="progress-description">Today</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="info-box bg-purple">
+                                <span class="info-box-icon"><i class="fas fa-chart-line"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">SLA Compliance</span>
+                                    <span class="info-box-number">78%</span>
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 78%"></div>
+                                    </div>
+                                    <span class="progress-description">Target: 80%</span>
+                                </div>
+                            </div>
+                        </div>
+
+
+
+
+
+
+
+                        <div class="col-md-3">
+                            <div class="info-box bg-teal">
+                                <span class="info-box-icon"><i class="fas fa-tachometer-alt"></i></span>
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Efficiency Level</span>
+                                    <span class="info-box-number">88%</span>
+                                    <div class="progress">
+                                        <div class="progress-bar" style="width: 88%"></div>
+                                    </div>
+                                    <span class="progress-description">Target: 90%</span>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Agent 3 -->
-                    <div class="col-md-3 mb-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <h6>Emily Davis</h6>
-                                <p><i class="fas fa-exclamation-triangle text-danger"></i></p>
-                                <span class="badge badge-danger">Disconnected</span>
-                                <p class="mt-2"><strong>Caller:</strong> +1122334455</p>
-                                <p><strong>Duration:</strong> 00:03:25</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Agent 4 -->
-                    <div class="col-md-3 mb-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <h6>Sarah Lee</h6>
-                                <p><i class="fas fa-phone-slash text-muted"></i></p>
-                                <span class="badge badge-secondary">Unavailable</span>
-                                <p class="mt-2"><strong>Caller:</strong> N/A</p>
-                                <p><strong>Duration:</strong> N/A</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Agent 5 -->
-                    <div class="col-md-3 mb-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <h6>John Doe</h6>
-                                <p><i class="fas fa-phone-alt text-success"></i></p>
-                                <span class="badge badge-success">Active</span>
-                                <p class="mt-2"><strong>Caller:</strong> +9988776655</p>
-                                <p><strong>Duration:</strong> 00:06:10</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Agent 6 -->
-                    <div class="col-md-3 mb-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <h6>Mary Johnson</h6>
-                                <p><i class="fas fa-pause-circle text-warning"></i></p>
-                                <span class="badge badge-warning">On Hold</span>
-                                <p class="mt-2"><strong>Caller:</strong> +1029384756</p>
-                                <p><strong>Duration:</strong> 00:05:20</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Agent 7 -->
-                    <div class="col-md-3 mb-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <h6>Lisa White</h6>
-                                <p><i class="fas fa-phone-slash text-muted"></i></p>
-                                <span class="badge badge-secondary">Unavailable</span>
-                                <p class="mt-2"><strong>Caller:</strong> N/A</p>
-                                <p><strong>Duration:</strong> N/A</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Agent 8 -->
-                    <div class="col-md-3 mb-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <h6>Chris Evans</h6>
-                                <p><i class="fas fa-exclamation-triangle text-danger"></i></p>
-                                <span class="badge badge-danger">Disconnected</span>
-                                <p class="mt-2"><strong>Caller:</strong> +5647382910</p>
-                                <p><strong>Duration:</strong> 00:02:50</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Repeat similar structure for Agents 9 to 30 -->
-
-                    <!-- Agent 9 -->
-                    <div class="col-md-3 mb-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <h6>Paul Walker</h6>
-                                <p><i class="fas fa-phone-alt text-success"></i></p>
-                                <span class="badge badge-success">Active</span>
-                                <p class="mt-2"><strong>Caller:</strong> +1144778899</p>
-                                <p><strong>Duration:</strong> 00:04:45</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Agent 10 -->
-                    <div class="col-md-3 mb-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <h6>Susan Smith</h6>
-                                <p><i class="fas fa-pause-circle text-warning"></i></p>
-                                <span class="badge badge-warning">On Hold</span>
-                                <p class="mt-2"><strong>Caller:</strong> +9988776655</p>
-                                <p><strong>Duration:</strong> 00:04:30</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Agent 11 -->
-                    <div class="col-md-3 mb-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <h6>Peter Parker</h6>
-                                <p><i class="fas fa-phone-slash text-muted"></i></p>
-                                <span class="badge badge-secondary">Unavailable</span>
-                                <p class="mt-2"><strong>Caller:</strong> N/A</p>
-                                <p><strong>Duration:</strong> N/A</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Agent 12 -->
-                    <div class="col-md-3 mb-3">
-                        <div class="card shadow-sm">
-                            <div class="card-body">
-                                <h6>Natasha Romanoff</h6>
-                                <p><i class="fas fa-exclamation-triangle text-danger"></i></p>
-                                <span class="badge badge-danger">Disconnected</span>
-                                <p class="mt-2"><strong>Caller:</strong> +2233445566</p>
-                                <p><strong>Duration:</strong> 00:05:10</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- ... Continue for Agents 13 through 30 -->
-
-                </div>
-            </div>
-        </div>
-
-
-        <!-- Incoming Call Information -->
-        <div class="card mb-4">
-            <div class="card-header">
-                <h4>Incoming Call</h4>
-            </div>
-            <div class="card-body">
-                <pre id="json-call-data">[Call Data Placeholder]</pre>
-            </div>
-        </div>
-
-        <!-- Recent Calls -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title">Recent Calls</h5>
-                <table class="table table-striped">
-                    <thead>
-                        <tr>
-                            <th>Caller</th>
-                            <th>Duration</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>+9876543210</td>
-                            <td>00:05:20</td>
-                        </tr>
-                        <tr>
-                            <td>+1122334455</td>
-                            <td>00:02:45</td>
-                        </tr>
-                        <tr>
-                            <td>+9988776655</td>
-                            <td>00:04:10</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- WebSocket Data (For System Monitoring) -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <h5 class="card-title">WebSocket Data</h5>
-                <pre id="json-data">[WebSocket Data Placeholder]</pre>
-            </div>
-        </div>
-    </div>
-
-    <!-- Agent Login/Logout Section -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <h5 class="card-title">Agent Login/Logout</h5>
-
-            <!-- Login/Logout Form -->
-            <div class="row">
-                <div class="col-md-6">
-                    <label for="agentId">Agent ID:</label>
-                    <input type="text" id="agentId" class="form-control" placeholder="Enter Agent ID">
-                </div>
-                <div class="col-md-6">
-                    <label for="agentName">Agent Name:</label>
-                    <input type="text" id="agentName" class="form-control" placeholder="Enter Agent Name">
-                </div>
-            </div>
-
-            <div class="row mt-3">
-                <div class="col-md-6">
-                    <button class="btn btn-success btn-block" id="loginBtn" onclick="logInAgent()">Log In</button>
-                </div>
-                <div class="col-md-6">
-                    <button class="btn btn-danger btn-block" id="logoutBtn" onclick="logOutAgent()">Log Out</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Multiple Agent Login/Logout Section -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <h5 class="card-title">Multiple Agent Login/Logout</h5>
 
-            <!-- Select for multiple agents -->
-            <div class="row">
-                <div class="col-md-12">
-                    <label for="agentSelect">Select Agents:</label>
-                    <select id="agentSelect" class="form-control" multiple size="6"
-                        onchange="updateSelectedAgents()">
-                        <option value="1">John Doe (ID: 12345)</option>
-                        <option value="2">Jane Smith (ID: 67890)</option>
-                        <option value="3">Michael Johnson (ID: 54321)</option>
-                        <option value="4">Emily Davis (ID: 98765)</option>
-                        <option value="5">Chris Evans (ID: 11223)</option>
-                        <option value="6">Natasha Romanoff (ID: 44556)</option>
-                        <!-- Add more agents as needed -->
-                    </select>
-                    <small class="form-text text-muted">Hold down the Ctrl (Windows) or Command (Mac) key to select
-                        multiple agents.</small>
+    <!-- 2. Agent Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-users mr-2"></i>Agent Statistics</h5>
                 </div>
-            </div>
-
-            <!-- Display Selected Agents -->
-            <div class="row mt-3">
-                <div class="col-md-12">
-                    <h6>Selected Agents:</h6>
-                    <div id="selectedAgents" class="border p-2" style="min-height: 50px; background-color: #f9f9f9;">
-                        <p class="text-muted">No agents selected yet.</p>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="small-box bg-primary">
+                                <div class="inner">
+                                    <h3>18</h3>
+                                    <p>Agents Logged In</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-user-check"></i>
+                                </div>
+                                <a href="#" class="small-box-footer">View All <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="small-box bg-success">
+                                <div class="inner">
+                                    <h3>12</h3>
+                                    <p>Available</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-headset"></i>
+                                </div>
+                                <a href="#" class="small-box-footer">Details <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="small-box bg-warning">
+                                <div class="inner">
+                                    <h3>5</h3>
+                                    <p>On Break</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-coffee"></i>
+                                </div>
+                                <a href="#" class="small-box-footer">Break Log <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="small-box bg-secondary">
+                                <div class="inner">
+                                    <h3>1</h3>
+                                    <p>Offline</p>
+                                </div>
+                                <div class="icon">
+                                    <i class="fas fa-power-off"></i>
+                                </div>
+                                <a href="#" class="small-box-footer">Manage <i class="fas fa-arrow-circle-right"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="card-title"><i class="fas fa-stopwatch mr-2"></i>Average Talk Time</h6>
+                                </div>
+                                <div class="card-body text-center">
+                                    <h3>03:45</h3>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-success" style="width: 65%"></div>
+                                    </div>
+                                    <small>Target: < 4 minutes</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6 class="card-title"><i class="fas fa-pause-circle mr-2"></i>Average Hold Time</h6>
+                                </div>
+                                <div class="card-body text-center">
+                                    <h3>00:32</h3>
+                                    <div class="progress">
+                                        <div class="progress-bar bg-warning" style="width: 45%"></div>
+                                    </div>
+                                    <small>Target: < 30 seconds</small>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-
-            <!-- Login/Logout Buttons -->
-            <div class="row mt-3">
-                <div class="col-md-6">
-                    <button class="btn btn-success btn-block" id="loginMultipleBtn"
-                        onclick="logInMultipleAgents()">Log In Selected Agents</button>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5><i class="fas fa-chart-pie mr-2"></i>Agent Status Distribution</h5>
                 </div>
-                <div class="col-md-6">
-                    <button class="btn btn-danger btn-block" id="logoutMultipleBtn"
-                        onclick="logOutMultipleAgents()">Log Out Selected Agents</button>
+                <div class="card-body">
+                    <div style="height: 300px;">
+                        <canvas id="agentStatusChart"></canvas>
+                    </div>
+                    <div class="mt-3 text-center">
+                        <span class="mr-3"><i class="fas fa-circle text-success"></i> Available (12)</span>
+                        <span class="mr-3"><i class="fas fa-circle text-primary"></i> On Call (5)</span>
+                        <span class="mr-3"><i class="fas fa-circle text-warning"></i> On Break (5)</span>
+                        <span><i class="fas fa-circle text-secondary"></i> Offline (1)</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- 3. Call History & Trends -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5><i class="fas fa-chart-line mr-2"></i>Call History & Trends</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>Total Calls</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-4 text-center">
+                                            <h5>42</h5>
+                                            <small>Today</small>
+                                        </div>
+                                        <div class="col-md-4 text-center">
+                                            <h5>210</h5>
+                                            <small>This Week</small>
+                                        </div>
+                                        <div class="col-md-4 text-center">
+                                            <h5>850</h5>
+                                            <small>This Month</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>Call Volume by Hour</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div style="height: 200px;">
+                                        <canvas id="callVolumeChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>Call Distribution by Department</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3 text-center">
+                                            <h5>Sales</h5>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-danger" style="width: 45%">45%</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 text-center">
+                                            <h5>Support</h5>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-warning" style="width: 30%">30%</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 text-center">
+                                            <h5>Billing</h5>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-info" style="width: 15%">15%</div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 text-center">
+                                            <h5>Other</h5>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-secondary" style="width: 10%">10%</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Queue Statistics -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-warning text-white">
+                    <h5><i class="fas fa-list-ol mr-2"></i>Queue Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card">
+                                <div class="card-header bg-primary text-white">
+                                    <h6>Sales Queue</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p><i class="fas fa-phone mr-2"></i> Answered: 32</p>
+                                    <p><i class="fas fa-times mr-2"></i> Missed: 5</p>
+                                    <p><i class="fas fa-stopwatch mr-2"></i> Avg Answer: 00:28</p>
+                                    <p><i class="fas fa-check-circle mr-2"></i> SLA: 82%</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card">
+                                <div class="card-header bg-success text-white">
+                                    <h6>Support Queue</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p><i class="fas fa-phone mr-2"></i> Answered: 45</p>
+                                    <p><i class="fas fa-times mr-2"></i> Missed: 3</p>
+                                    <p><i class="fas fa-stopwatch mr-2"></i> Avg Answer: 00:35</p>
+                                    <p><i class="fas fa-check-circle mr-2"></i> SLA: 88%</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card">
+                                <div class="card-header bg-info text-white">
+                                    <h6>Billing Queue</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p><i class="fas fa-phone mr-2"></i> Answered: 18</p>
+                                    <p><i class="fas fa-times mr-2"></i> Missed: 2</p>
+                                    <p><i class="fas fa-stopwatch mr-2"></i> Avg Answer: 00:42</p>
+                                    <p><i class="fas fa-check-circle mr-2"></i> SLA: 75%</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card">
+                                <div class="card-header bg-secondary text-white">
+                                    <h6>General Queue</h6>
+                                </div>
+                                <div class="card-body">
+                                    <p><i class="fas fa-phone mr-2"></i> Answered: 12</p>
+                                    <p><i class="fas fa-times mr-2"></i> Missed: 1</p>
+                                    <p><i class="fas fa-stopwatch mr-2"></i> Avg Answer: 00:38</p>
+                                    <p><i class="fas fa-check-circle mr-2"></i> SLA: 85%</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Wallboard Dashboard -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-danger text-white">
+                    <h5><i class="fas fa-tv mr-2"></i>Wallboard Dashboard</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card bg-dark text-white">
+                                <div class="card-body text-center">
+                                    <h3><i class="fas fa-phone-alt"></i> Live Calls</h3>
+                                    <h1 class="display-4">24</h1>
+                                    <div class="mt-3">
+                                        <span class="badge badge-success mr-2">12 In Progress</span>
+                                        <span class="badge badge-warning">8 In Queue</span>
+                                        <span class="badge badge-danger">4 Waiting</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h4>Call Queue Heatmap</h4>
+                                    <div style="height: 200px;">
+                                        <canvas id="heatmapChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <h4>Agent Status Grid</h4>
+                                    <div class="agent-grid">
+                                        <span class="agent-status available">A</span>
+                                        <span class="agent-status busy">B</span>
+                                        <span class="agent-status available">C</span>
+                                        <span class="agent-status break">D</span>
+                                        <span class="agent-status available">E</span>
+                                        <span class="agent-status busy">F</span>
+                                        <span class="agent-status offline">G</span>
+                                        <span class="agent-status available">H</span>
+                                        <span class="agent-status busy">I</span>
+                                        <span class="agent-status available">J</span>
+                                        <span class="agent-status break">K</span>
+                                        <span class="agent-status available">L</span>
+                                    </div>
+                                    <div class="mt-2">
+                                        <span class="badge badge-success mr-2">Available</span>
+                                        <span class="badge badge-primary mr-2">Busy</span>
+                                        <span class="badge badge-warning mr-2">Break</span>
+                                        <span class="badge badge-secondary">Offline</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="text-center">Daily Call Stats</h5>
+                                    <div style="height: 250px;">
+                                        <canvas id="dailyStatsChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="text-center">Weekly Call Distribution</h5>
+                                    <div style="height: 250px;">
+                                        <canvas id="weeklyStatsChart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6. Reporting & Export -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-secondary text-white">
+                    <h5><i class="fas fa-file-export mr-2"></i>Reporting & Export</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>Generate Report</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label>Report Type</label>
+                                        <select class="form-control">
+                                            <option>Daily Summary</option>
+                                            <option>Weekly Summary</option>
+                                            <option>Agent Performance</option>
+                                            <option>Queue Performance</option>
+                                            <option>Call Volume Analysis</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Date Range</label>
+                                        <div class="input-group">
+                                            <input type="date" class="form-control">
+                                            <div class="input-group-append">
+                                                <span class="input-group-text">to</span>
+                                            </div>
+                                            <input type="date" class="form-control">
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-primary btn-block">Generate Report</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>Export Options</h6>
+                                </div>
+                                <div class="card-body text-center">
+                                    <button class="btn btn-outline-success mb-2 btn-block"><i class="fas fa-file-excel mr-2"></i> Export to Excel</button>
+                                    <button class="btn btn-outline-info mb-2 btn-block"><i class="fas fa-file-csv mr-2"></i> Export to CSV</button>
+                                    <button class="btn btn-outline-danger mb-2 btn-block"><i class="fas fa-file-pdf mr-2"></i> Export to PDF</button>
+                                    <button class="btn btn-outline-secondary btn-block"><i class="fas fa-envelope mr-2"></i> Email Report</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h6>Automated Reports</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="dailyReportSwitch" checked>
+                                            <label class="custom-control-label" for="dailyReportSwitch">Daily Summary</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="custom-control custom-switch">
+                                            <input type="checkbox" class="custom-control-input" id="weeklyReportSwitch">
+                                            <label class="custom-control-label" for="weeklyReportSwitch">Weekly Summary</label>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Recipients</label>
+                                        <input type="text" class="form-control" value="managers@company.com, supervisors@company.com">
+                                    </div>
+                                    <button class="btn btn-info btn-block">Save Settings</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Charts -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Agent Status Chart
+    const agentStatusCtx = document.getElementById('agentStatusChart').getContext('2d');
+    const agentStatusChart = new Chart(agentStatusCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Available', 'On Call', 'On Break', 'Offline'],
+            datasets: [{
+                data: [12, 5, 5, 1],
+                backgroundColor: [
+                    '#28a745',
+                    '#007bff',
+                    '#ffc107',
+                    '#6c757d'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            legend: {
+                display: false
+            }
+        }
+    });
+
+    // Call Volume Chart
+    const callVolumeCtx = document.getElementById('callVolumeChart').getContext('2d');
+    const callVolumeChart = new Chart(callVolumeCtx, {
+        type: 'bar',
+        data: {
+            labels: ['8-9', '9-10', '10-11', '11-12', '12-1', '1-2', '2-3', '3-4', '4-5'],
+            datasets: [{
+                label: 'Calls per Hour',
+                data: [5, 8, 12, 15, 10, 7, 9, 11, 6],
+                backgroundColor: 'rgba(40, 167, 69, 0.7)',
+                borderColor: 'rgba(40, 167, 69, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            legend: {
+                display: false
+            }
+        }
+    });
+
+    // Heatmap Chart
+    const heatmapCtx = document.getElementById('heatmapChart').getContext('2d');
+    const heatmapChart = new Chart(heatmapCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Sales', 'Support', 'Billing', 'General'],
+            datasets: [{
+                label: 'Current Queue',
+                data: [8, 5, 3, 2],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)'
+                ],
+                borderColor: [
+                    'rgba(255, 99, 132, 1)',
+                    'rgba(54, 162, 235, 1)',
+                    'rgba(255, 206, 86, 1)',
+                    'rgba(75, 192, 192, 1)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            },
+            legend: {
+                display: false
+            }
+        }
+    });
+
+    // Daily Stats Chart
+    const dailyStatsCtx = document.getElementById('dailyStatsChart').getContext('2d');
+    const dailyStatsChart = new Chart(dailyStatsCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Answered', 'Missed', 'Abandoned'],
+            datasets: [{
+                data: [42, 5, 3],
+                backgroundColor: [
+                    '#28a745',
+                    '#dc3545',
+                    '#ffc107'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            legend: {
+                position: 'right'
+            }
+        }
+    });
+
+    // Weekly Stats Chart
+    const weeklyStatsCtx = document.getElementById('weeklyStatsChart').getContext('2d');
+    const weeklyStatsChart = new Chart(weeklyStatsCtx, {
+        type: 'polarArea',
+        data: {
+            labels: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+            datasets: [{
+                data: [35, 42, 38, 45, 50],
+                backgroundColor: [
+                    'rgba(255, 99, 132, 0.7)',
+                    'rgba(54, 162, 235, 0.7)',
+                    'rgba(255, 206, 86, 0.7)',
+                    'rgba(75, 192, 192, 0.7)',
+                    'rgba(153, 102, 255, 0.7)'
+                ],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            legend: {
+                position: 'right'
+            }
+        }
+    });
+</script>
+
+<style>
+    .info-box {
+        border-radius: 5px;
+        color: white;
+        padding: 10px;
+        margin-bottom: 15px;
+        min-height: 90px;
+    }
+    .info-box-icon {
+        float: left;
+        font-size: 30px;
+        padding: 15px;
+    }
+    .info-box-content {
+        margin-left: 70px;
+    }
+    .info-box-text {
+        display: block;
+        font-size: 14px;
+    }
+    .info-box-number {
+        display: block;
+        font-size: 24px;
+        font-weight: bold;
+    }
+    .small-box {
+        border-radius: 5px;
+        color: white;
+        padding: 10px;
+        margin-bottom: 15px;
+        position: relative;
+    }
+    .small-box .icon {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 50px;
+        opacity: 0.3;
+    }
+    .small-box .inner {
+        padding: 10px;
+    }
+    .small-box h3 {
+        font-size: 24px;
+        margin: 0;
+    }
+    .small-box p {
+        margin: 0;
+    }
+    .small-box-footer {
+        display: block;
+        padding: 5px 10px;
+        color: white;
+        background: rgba(0,0,0,0.1);
+        text-decoration: none;
+    }
+    .agent-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+    .agent-status {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: white;
+    }
+    .agent-status.available {
+        background-color: #28a745;
+    }
+    .agent-status.busy {
+        background-color: #007bff;
+    }
+    .agent-status.break {
+        background-color: #ffc107;
+    }
+    .agent-status.offline {
+        background-color: #6c757d;
+    }
+    .bg-purple {
+        background-color: #6f42c1 !important;
+    }
+</style>
     @push('custom-scripts')
         <script>
             // WebSocket connection and event listeners as in the original code

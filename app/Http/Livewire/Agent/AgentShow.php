@@ -23,6 +23,7 @@ class AgentShow extends Component
     public $agent_status, $rec_title;
 
     public $from, $to;
+    public $agents;
 
     public $totalRecords;
 

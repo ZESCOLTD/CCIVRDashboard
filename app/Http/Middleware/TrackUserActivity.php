@@ -11,17 +11,18 @@ class TrackUserActivity
     public function handle($request, Closure $next)
     {
         if (Auth::check()) {
+            $userId = Auth::id();
             $expiresAt = now()->addMinutes(5);
-            Cache::put('user-is-online-' . Auth::id(), true, $expiresAt);
+
+            // Mark user as online
+            Cache::put("user-is-online-{$userId}", true, $expiresAt);
+
+            // Store last seen time
+            Cache::put("last-seen-{$userId}", now(), $expiresAt);
         }
+
         return $next($request);
     }
-
-    protected $middlewareGroups = [
-        'web' => [
-            // ... other middleware
-            \App\Http\Middleware\TrackUserActivity::class,
-        ],
-    ];
 }
+
 

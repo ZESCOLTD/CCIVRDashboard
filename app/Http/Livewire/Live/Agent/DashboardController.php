@@ -36,6 +36,7 @@ class DashboardController extends Component
     public $selectedTopic;
     public $selectedCustomer;
 
+
     public function mount($id)
     {
 
