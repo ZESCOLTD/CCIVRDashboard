@@ -511,11 +511,11 @@
                                             <small>Today</small>
                                         </div>
                                         <div class="col-md-4 text-center">
-                                            <h5>210</h5>
+                                            <h5>{{ $answeredCallsThisWeek }}</h5>
                                             <small>This Week</small>
                                         </div>
                                         <div class="col-md-4 text-center">
-                                            <h5>850</h5>
+                                            <h5>{{ $answeredCallsThisMonth }}</h5>
                                             <small>This Month</small>
                                         </div>
                                     </div>
@@ -1186,7 +1186,7 @@
         // WebSocket connection and event listeners as in the original code
         var ws_address = document.getElementById("ws_endpoint");
         var ws_socket = document.getElementById("ws-info");
-        const preElement = document.getElementById('json-data');
+        {{-- const preElement = document.getElementById('json-data');--}}
         const socket = new WebSocket(ws_address.value);
 
         socket.addEventListener("open", (event) => {

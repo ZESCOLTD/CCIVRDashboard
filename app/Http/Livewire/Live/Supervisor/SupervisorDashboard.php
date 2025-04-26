@@ -53,7 +53,15 @@ class SupervisorDashboard extends Component
 
     $loggedOut = CCAgent::whereNotIn('state', ['AgentState.LOGGEDIN', 'LOGGED_IN'])->count();
 
-
+// For the current week (starting Monday)
+$answeredCallsThisWeek = LiveRecordings::whereBetween('created_at', [
+    Carbon::now()->startOfWeek(), // or startOfWeek(Carbon::MONDAY)
+    Carbon::now()->endOfWeek()
+])->count();
+$answeredCallsThisMonth = LiveRecordings::whereBetween('created_at', [
+    Carbon::now()->startOfMonth(),
+    Carbon::now()->endOfMonth()
+])->count();
 
     // Count only LOGGED_IN agents who are also IDLE (grouped correctly)
     $loggedInAgentsCount = CCAgent::where(function ($query) {
@@ -77,6 +85,8 @@ class SupervisorDashboard extends Component
             'onBreak' => $onBreak,
             'loggedOut' => $loggedOut,
             'totalAgentCount' => $totalAgentCount,
+            'answeredCallsThisWeek' => $answeredCallsThisWeek,
+            'answeredCallsThisMonth' => $answeredCallsThisMonth,
         ]);
     }
 
