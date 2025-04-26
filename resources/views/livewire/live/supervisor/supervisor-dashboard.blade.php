@@ -321,7 +321,7 @@
                                 <span class="info-box-icon"><i class="fas fa-ban"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Failed Calls</span>
-                                    <span class="info-box-number">5</span>
+                                    <span class="info-box-number">{{$failedCalls}}</span>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: 25%"></div>
                                     </div>

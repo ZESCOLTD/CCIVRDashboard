@@ -51,6 +51,12 @@ class SupervisorDashboard extends Component
 
     $answeredCalls = LiveRecordings::whereDate('created_at', Carbon::today())->count();
 
+    $failedCalls = LiveRecordings::whereDate('created_at', Carbon::today())
+    ->whereDate('agent_no', "empty")
+
+    ->count();
+
+
     $loggedOut = CCAgent::whereNotIn('state', ['AgentState.LOGGEDIN', 'LOGGED_IN'])->count();
 
 // For the current week (starting Monday)
@@ -75,6 +81,8 @@ $answeredCallsThisMonth = LiveRecordings::whereBetween('created_at', [
      // answered calls in the last 30 minutes
      $answeredCallsLast30 = LiveRecordings::where('created_at', '>=', Carbon::now()->subMinutes(30))
      ->count();
+
+
 
  // available agents right now (as proxy for last-30min availability)
  $availableAgentsNow = CCAgent::where(function($q){
@@ -104,6 +112,7 @@ $answeredCallsThisMonth = LiveRecordings::whereBetween('created_at', [
             'answeredCallsThisWeek' => $answeredCallsThisWeek,
             'answeredCallsThisMonth' => $answeredCallsThisMonth,
             'answeredCallsLast30' => $answeredCallsLast30,
+            'failedCalls' => $failedCalls,
         ]);
     }
 
