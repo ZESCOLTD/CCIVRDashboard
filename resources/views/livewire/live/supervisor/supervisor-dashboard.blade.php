@@ -1346,7 +1346,7 @@
 
                     liveCalls=mixingBridges.length;
                     // Update DOM with the count (you can change this element ID)
-                    document.getElementById("activeCalls").textContent = `Mixing Bridges: ${mixingBridges.length}`;
+                    document.getElementById("activeCalls").textContent = `${mixingBridges.length}`;
                 })
                 .catch(error => {
                     console.error("Fetch error:", error);
