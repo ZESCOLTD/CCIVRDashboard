@@ -354,7 +354,7 @@
                                 <span class="info-box-icon"><i class="fas fa-tachometer-alt"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Efficiency Level</span>
-                                    <span class="info-box-number">88%</span>
+                                    <span class="info-box-number">{{$answeredCallsLast30}}%</span>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: 88%"></div>
                                     </div>
@@ -661,7 +661,7 @@
                                     <div class="mt-3">
                                         <span class="badge badge-success mr-2">{{ $activeCalls }} In Progress</span>
                                         <span class="badge badge-warning" id="inQueue">8 In Queue</span>
-                                        <span class="badge badge-danger">4 Waiting</span>
+                                        <span class="badge badge-danger" id="waiting">4 Waiting</span>
                                     </div>
                                 </div>
                             </div>
@@ -1187,7 +1187,7 @@
         var ws_address = document.getElementById("ws_endpoint");
         var ws_socket = document.getElementById("ws-info");
         {{-- const preElement = document.getElementById('json-data');--}}
-        const socket = new WebSocket(ws_address.value);
+        // const socket = new WebSocket(ws_address.value);
 
         socket.addEventListener("open", (event) => {
             console.log("WebSocket connection opened: ", ws_address);
@@ -1370,6 +1370,7 @@
                     // Update DOM with the count (you can change this element ID)
                     document.getElementById("inQueue").textContent = `Queue Bridges: ${holdingBridges.length}`;
                     document.getElementById("queue-calls").textContent = `${holdingBridges.length}`;
+                    document.getElementById("waiting").textContent = `${holdingBridges.length} waiting`;
 
 
 

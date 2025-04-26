@@ -71,6 +71,22 @@ $answeredCallsThisMonth = LiveRecordings::whereBetween('created_at', [
         $query->where('status', 'IDLE')
               ->orWhere('status', 'AgentState.IDLE');
     })->count();
+
+     // answered calls in the last 30 minutes
+     $answeredCallsLast30 = LiveRecordings::where('created_at', '>=', Carbon::now()->subMinutes(30))
+     ->count();
+
+ // available agents right now (as proxy for last-30min availability)
+ $availableAgentsNow = CCAgent::where(function($q){
+         $q->where('state','AgentState.LOGGEDIN')
+           ->orWhere('state','LOGGED_IN');
+     })->count();
+
+ // efficiency in last 30 minutes
+ $efficiencyLast30 = 0;
+ if ($availableAgentsNow > 0) {
+     $efficiencyLast30 = ($answeredCallsLast30 / $availableAgentsNow) * 100;
+ }
         //$ws_server = env("WS_SERVER_ENDPOINT");
         //dd([$api_server, $ws_server]);
         return view('livewire.live.supervisor.supervisor-dashboard', [
@@ -87,6 +103,7 @@ $answeredCallsThisMonth = LiveRecordings::whereBetween('created_at', [
             'totalAgentCount' => $totalAgentCount,
             'answeredCallsThisWeek' => $answeredCallsThisWeek,
             'answeredCallsThisMonth' => $answeredCallsThisMonth,
+            'answeredCallsLast30' => $answeredCallsLast30,
         ]);
     }
 
