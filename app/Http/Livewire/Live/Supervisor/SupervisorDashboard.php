@@ -44,6 +44,8 @@ class SupervisorDashboard extends Component
     $activeCalls = CCAgent::where('status', 'AgentState.ONCONVERSATION')
     ->count();
 
+    $totalAgentCount = CCAgent::count();
+
     $onBreak = CCAgent::where('status', 'AgentState.ONWITHDRAW')
     ->count();
 
@@ -74,6 +76,7 @@ class SupervisorDashboard extends Component
             'answeredCalls' => $answeredCalls,
             'onBreak' => $onBreak,
             'loggedOut' => $loggedOut,
+            'totalAgentCount' => $totalAgentCount,
         ]);
     }
 

@@ -124,7 +124,7 @@
                                 <span style="color: #0f974b;">
                                     <i class="fas fa-user-check mr-1"></i>Active Agents:
                                 </span>
-                                <span style="color: #333;">5/18</span>
+                                <span style="color: #333;" id="active-agents">{{$availableAgentsCount}}/{{$totalAgentCount}}</span>
                             </div>
                             <div class="progress" style="height: 8px;">
                                 <div class="progress-bar" style="background-color: #0f974b; width: 28%;"></div>
@@ -135,7 +135,7 @@
                                 <span style="color: #0f974b;">
                                     <i class="fas fa-phone-alt mr-1"></i>Calls in Progress:
                                 </span>
-                                <span style="color: #333;">3/12</span>
+                                <span style="color: #333;">{{$activeCalls}}/{{$availableAgentsCount}}</span>
                             </div>
                             <div class="progress" style="height: 8px;">
                                 <div class="progress-bar" style="background-color: #28a745; width: 25%;"></div>
@@ -263,7 +263,7 @@
                                 <span class="info-box-icon"><i class="fas fa-hourglass-half"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Queue Calls</span>
-                                    <span class="info-box-number">8</span>
+                                    <span class="info-box-number" id="queue-calls">8</span>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: 40%"></div>
                                     </div>
@@ -507,7 +507,7 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-4 text-center">
-                                            <h5>42</h5>
+                                            <h5>{{$answeredCalls}}</h5>
                                             <small>Today</small>
                                         </div>
                                         <div class="col-md-4 text-center">
@@ -1369,6 +1369,10 @@
 
                     // Update DOM with the count (you can change this element ID)
                     document.getElementById("inQueue").textContent = `Queue Bridges: ${holdingBridges.length}`;
+                    document.getElementById("queue-calls").textContent = `${holdingBridges.length}`;
+
+
+
                     liveCalls+=holdingBridges.length;
                     liveCallsElement.textContent = `${liveCalls}`;
                 })
