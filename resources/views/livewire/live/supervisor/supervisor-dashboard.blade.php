@@ -1,22 +1,22 @@
 <div class="container mt-4">
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h1 class="mb-0" style="color: #0f974b; font-weight: 600;">
-                        <i class="fas fa-tachometer-alt mr-2" style="color: #f49e38;"></i>
-                        ZESCO Call Centre Dashboard
-                    </h1>
-                    <div class="text-right">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="mb-0" style="color: #0f974b; font-weight: 600;">
+                    <i class="fas fa-tachometer-alt mr-2" style="color: #f49e38;"></i>
+                    ZESCO Call Centre Dashboard
+                </h1>
+                <div class="text-right">
                     <span class="badge px-3 py-2" style="background-color: #0f974b; color: white; font-size: 0.9rem;">
                         <i class="fas fa-circle mr-1"></i> Real-time Monitoring
                     </span>
-                    </div>
                 </div>
-                <hr style="border-top: 3px solid #f49e38; opacity: 0.7;">
             </div>
+            <hr style="border-top: 3px solid #f49e38; opacity: 0.7;">
         </div>
+    </div>
 
-        <!-- Main Dashboard Card -->
+    <!-- Main Dashboard Card -->
     <div class="card mb-4 border-0 shadow-lg" style="border-radius: 10px; overflow: hidden;">
         <div class="card-header py-3" style="background-color: #0f974b; color: white;">
             <div class="d-flex justify-content-between align-items-center">
@@ -25,12 +25,12 @@
                     Supervisor Control Panel
                 </h5>
                 <div>
-                <span class="badge badge-light mr-2">
-                    <i class="fas fa-clock mr-1"></i> <span id="currentTime">Loading...</span>
-                </span>
+                    <span class="badge badge-light mr-2">
+                        <i class="fas fa-clock mr-1"></i> <span id="currentTime">Loading...</span>
+                    </span>
                     <span class="badge badge-light">
-                    <i class="fas fa-calendar-alt mr-1"></i> <span id="currentDate">Loading...</span>
-                </span>
+                        <i class="fas fa-calendar-alt mr-1"></i> <span id="currentDate">Loading...</span>
+                    </span>
                 </div>
             </div>
         </div>
@@ -38,7 +38,8 @@
             <div class="row">
                 <!-- Supervisor Information Column -->
                 <div class="col-md-4 border-right pr-4" style="border-color: rgba(244, 158, 56, 0.3) !important;">
-                    <h6 class="card-subtitle mb-3" style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
+                    <h6 class="card-subtitle mb-3"
+                        style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
                         <i class="fas fa-user-tie mr-2"></i>Supervisor Information
                     </h6>
                     <div class="pl-3">
@@ -47,29 +48,33 @@
                             <span style="color: #333;">{{ $user->name }}</span>
                         </p>
                         <p class="mb-2">
-                            <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Employee No:</strong>
+                            <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Employee
+                                No:</strong>
                             <span style="color: #333;">{{ $user->man_no }}</span>
                         </p>
                         <p class="mb-2">
-                            <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Department:</strong>
+                            <strong
+                                style="color: #0f974b; min-width: 120px; display: inline-block;">Department:</strong>
                             <span style="color: #333;">Customer Support</span>
                         </p>
                         <p class="mb-0">
                             <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Status:</strong>
-                            <span class="badge px-2 py-1" style="background-color: {{ $user->isOnline() ? '#0f974b' : '#6c757d' }}; color: white; font-size: 0.8rem;">
-                            <i class="fas {{ $user->isOnline() ? 'fa-wifi' : 'fa-clock' }} mr-1"></i>
-                            {{ $user->isOnline() ? 'Online' : 'Offline' }}
-                                @if($user->is_banned)
+                            <span class="badge px-2 py-1"
+                                style="background-color: {{ $user->isOnline() ? '#0f974b' : '#6c757d' }}; color: white; font-size: 0.8rem;">
+                                <i class="fas {{ $user->isOnline() ? 'fa-wifi' : 'fa-clock' }} mr-1"></i>
+                                {{ $user->isOnline() ? 'Online' : 'Offline' }}
+                                @if ($user->is_banned)
                                     <i class="fas fa-ban ml-1"></i>
                                 @endif
-                        </span>
+                            </span>
                         </p>
                     </div>
                 </div>
 
                 <!-- System Status Column -->
                 <div class="col-md-4 border-right px-4" style="border-color: rgba(244, 158, 56, 0.3) !important;">
-                    <h6 class="card-subtitle mb-3" style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
+                    <h6 class="card-subtitle mb-3"
+                        style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
                         <i class="fas fa-server mr-2"></i>System Status
                     </h6>
                     <div class="pl-3">
@@ -79,42 +84,47 @@
                             </label>
                             <div class="d-flex align-items-center">
                                 <input type="text" id="ws_endpoint" value='{{ $ws_server }}' hidden>
-                                <span id="ws-info" class="badge px-2 py-1" style="background-color: #0f974b; color: white; font-size: 0.8rem;">
-                                <i class="fas fa-check-circle mr-1"></i>Connected
-                            </span>
-                                <i class="fas fa-info-circle ml-2" style="color: #f49e38; cursor: pointer;" data-toggle="tooltip" title="WebSocket connection status"></i>
+                                <span id="ws-info" class="badge px-2 py-1"
+                                    style="background-color: #0f974b; color: white; font-size: 0.8rem;">
+                                    <i class="fas fa-check-circle mr-1"></i>Connected
+                                </span>
+                                <i class="fas fa-info-circle ml-2" style="color: #f49e38; cursor: pointer;"
+                                    data-toggle="tooltip" title="WebSocket connection status"></i>
                             </div>
                         </div>
                         <div class="mb-3">
                             <label style="color: #0f974b; display: block; margin-bottom: 2px;">
                                 <i class="fas fa-exchange-alt mr-1"></i>Recorder Rest Interface:
                             </label>
-                            <input class="form-control form-control-sm" type="text" id="api_endpoint" value='{{ $api_server }}'
-                                   style="border-color: #f49e38; color: #0f974b; background-color: rgba(244, 158, 56, 0.05);">
+                            <input class="form-control form-control-sm" type="text" id="api_endpoint"
+                                value='{{ $api_server }}'
+                                style="border-color: #f49e38; color: #0f974b; background-color: rgba(244, 158, 56, 0.05);">
                         </div>
                         <div>
                             <label style="color: #0f974b; display: block; margin-bottom: 2px;">
                                 <i class="fas fa-database mr-1"></i>Database Status:
                             </label>
-                            <span class="badge px-2 py-1" style="background-color: #0f974b; color: white; font-size: 0.8rem;">
-                            <i class="fas fa-check-circle mr-1"></i>Connected
-                        </span>
+                            <span class="badge px-2 py-1"
+                                style="background-color: #0f974b; color: white; font-size: 0.8rem;">
+                                <i class="fas fa-check-circle mr-1"></i>Connected
+                            </span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Current Team Overview Column -->
                 <div class="col-md-4 pl-4">
-                    <h6 class="card-subtitle mb-3" style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
+                    <h6 class="card-subtitle mb-3"
+                        style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
                         <i class="fas fa-users mr-2"></i>Team Overview
                     </h6>
                     <div class="pl-3">
                         <div class="mb-3">
                             <div class="d-flex justify-content-between mb-1">
-                            <span style="color: #0f974b;">
-                                <i class="fas fa-user-check mr-1"></i>Active Agents:
-                            </span>
-                                <span style="color: #333;">5/18</span>
+                                <span style="color: #0f974b;">
+                                    <i class="fas fa-user-check mr-1"></i>Active Agents:
+                                </span>
+                                <span style="color: #333;" id="active-agents">{{$availableAgentsCount}}/{{$totalAgentCount}}</span>
                             </div>
                             <div class="progress" style="height: 8px;">
                                 <div class="progress-bar" style="background-color: #0f974b; width: 28%;"></div>
@@ -122,10 +132,10 @@
                         </div>
                         <div class="mb-3">
                             <div class="d-flex justify-content-between mb-1">
-                            <span style="color: #0f974b;">
-                                <i class="fas fa-phone-alt mr-1"></i>Calls in Progress:
-                            </span>
-                                <span style="color: #333;">3/12</span>
+                                <span style="color: #0f974b;">
+                                    <i class="fas fa-phone-alt mr-1"></i>Calls in Progress:
+                                </span>
+                                <span style="color: #333;">{{$activeCalls}}/{{$availableAgentsCount}}</span>
                             </div>
                             <div class="progress" style="height: 8px;">
                                 <div class="progress-bar" style="background-color: #28a745; width: 25%;"></div>
@@ -133,9 +143,9 @@
                         </div>
                         <div>
                             <div class="d-flex justify-content-between mb-1">
-                            <span style="color: #0f974b;">
-                                <i class="fas fa-hourglass-half mr-1"></i>Queue Wait Time:
-                            </span>
+                                <span style="color: #0f974b;">
+                                    <i class="fas fa-hourglass-half mr-1"></i>Queue Wait Time:
+                                </span>
                                 <span style="color: #333;">4:32</span>
                             </div>
                             <div class="progress" style="height: 8px;">
@@ -149,7 +159,8 @@
             <!-- Quick Action Buttons -->
             <div class="row mt-4">
                 <div class="col-12">
-                    <h6 class="card-subtitle mb-3" style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
+                    <h6 class="card-subtitle mb-3"
+                        style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
                         <i class="fas fa-bolt mr-2"></i>Quick Actions
                     </h6>
                     <div class="d-flex flex-wrap">
@@ -172,7 +183,8 @@
                 </div>
             </div>
         </div>
-        <div class="card-footer py-2" style="background-color: rgba(15, 151, 75, 0.1); border-top: 1px solid rgba(244, 158, 56, 0.3);">
+        <div class="card-footer py-2"
+            style="background-color: rgba(15, 151, 75, 0.1); border-top: 1px solid rgba(244, 158, 56, 0.3);">
             <div class="d-flex justify-content-between align-items-center">
                 <small class="text-muted">
                     <i class="fas fa-sync-alt mr-1" style="color: #f49e38;"></i>
@@ -186,12 +198,12 @@
             </div>
         </div>
     </div>
-    </div>
+</div>
 
-{{--First Card Handling Code DO NOT DELETE--}}
+{{-- First Card Handling Code DO NOT DELETE --}}
 
 
-    <!-- Key Metrics Overview -->
+<!-- Key Metrics Overview -->
 <div class="container-fluid">
     <!-- Supervisor Header Section -->
     <div class="row mb-4">
@@ -202,16 +214,20 @@
                         <div class="col-md-4">
                             <h4><i class="fas fa-user-shield mr-2"></i>Supervisor Dashboard</h4>
                             <p class="mb-0"><strong>Supervisor:</strong> John Doe (ID: 12345)</p>
-                            <p class="mb-0"><strong>Status:</strong> <span class="badge badge-success">Online</span></p>
+                            <p class="mb-0"><strong>Status:</strong> <span class="badge badge-success">Online</span>
+                            </p>
                         </div>
                         <div class="col-md-4 text-center">
                             <h5>System Status</h5>
-                            <span class="badge badge-success mr-2"><i class="fas fa-plug"></i> WebSocket Connected</span>
+                            <span class="badge badge-success mr-2"><i class="fas fa-plug"></i> WebSocket
+                                Connected</span>
                             <span class="badge badge-success"><i class="fas fa-server"></i> API Connected</span>
                         </div>
                         <div class="col-md-4 text-right">
-                            <button class="btn btn-sm btn-outline-primary mr-2"><i class="fas fa-sync-alt"></i> Refresh</button>
-                            <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-cog"></i> Settings</button>
+                            <button class="btn btn-sm btn-outline-primary mr-2"><i class="fas fa-sync-alt"></i>
+                                Refresh</button>
+                            <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-cog"></i>
+                                Settings</button>
                         </div>
                     </div>
                 </div>
@@ -234,7 +250,7 @@
                                 <span class="info-box-icon"><i class="fas fa-phone-alt"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Active Calls</span>
-                                    <span class="info-box-number">24</span>
+                                    <span class="info-box-number" id="activeCalls">{{ $activeCalls }}</span>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: 70%"></div>
                                     </div>
@@ -247,7 +263,7 @@
                                 <span class="info-box-icon"><i class="fas fa-hourglass-half"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Queue Calls</span>
-                                    <span class="info-box-number">8</span>
+                                    <span class="info-box-number" id="queue-calls">8</span>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: 40%"></div>
                                     </div>
@@ -274,7 +290,7 @@
                                 <span class="info-box-icon"><i class="fas fa-check-circle"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Answered</span>
-                                    <span class="info-box-number">42</span>
+                                    <span class="info-box-number">{{ $answeredCalls }}</span>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: 90%"></div>
                                     </div>
@@ -366,49 +382,54 @@
                         <div class="col-md-3">
                             <div class="small-box bg-primary">
                                 <div class="inner">
-                                    <h3>18</h3>
+                                    <h3>{{ $loggedInAgentsCount }}</h3>
                                     <p>Agents Logged In</p>
                                 </div>
                                 <div class="icon">
                                     <i class="fas fa-user-check"></i>
                                 </div>
-                                <a href="#" class="small-box-footer">View All <i class="fas fa-arrow-circle-right"></i></a>
+                                <a href="#" class="small-box-footer">View All <i
+                                        class="fas fa-arrow-circle-right"></i></a>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="small-box bg-success">
                                 <div class="inner">
-                                    <h3>12</h3>
+                                    <h3>{{ $availableAgentsCount }}</h3>
+
                                     <p>Available</p>
                                 </div>
                                 <div class="icon">
                                     <i class="fas fa-headset"></i>
                                 </div>
-                                <a href="#" class="small-box-footer">Details <i class="fas fa-arrow-circle-right"></i></a>
+                                <a href="#" class="small-box-footer">Details <i
+                                        class="fas fa-arrow-circle-right"></i></a>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="small-box bg-warning">
                                 <div class="inner">
-                                    <h3>5</h3>
+                                    <h3>{{ $onBreak }}</h3>
                                     <p>On Break</p>
                                 </div>
                                 <div class="icon">
                                     <i class="fas fa-coffee"></i>
                                 </div>
-                                <a href="#" class="small-box-footer">Break Log <i class="fas fa-arrow-circle-right"></i></a>
+                                <a href="#" class="small-box-footer">Break Log <i
+                                        class="fas fa-arrow-circle-right"></i></a>
                             </div>
                         </div>
                         <div class="col-md-3">
                             <div class="small-box bg-secondary">
                                 <div class="inner">
-                                    <h3>1</h3>
+                                    <h3>{{ $loggedOut }}</h3>
                                     <p>Offline</p>
                                 </div>
                                 <div class="icon">
                                     <i class="fas fa-power-off"></i>
                                 </div>
-                                <a href="#" class="small-box-footer">Manage <i class="fas fa-arrow-circle-right"></i></a>
+                                <a href="#" class="small-box-footer">Manage <i
+                                        class="fas fa-arrow-circle-right"></i></a>
                             </div>
                         </div>
                     </div>
@@ -430,7 +451,8 @@
                         <div class="col-md-6">
                             <div class="card">
                                 <div class="card-header">
-                                    <h6 class="card-title"><i class="fas fa-pause-circle mr-2"></i>Average Hold Time</h6>
+                                    <h6 class="card-title"><i class="fas fa-pause-circle mr-2"></i>Average Hold Time
+                                    </h6>
                                 </div>
                                 <div class="card-body text-center">
                                     <h3>00:32</h3>
@@ -455,10 +477,13 @@
                         <canvas id="agentStatusChart"></canvas>
                     </div>
                     <div class="mt-3 text-center">
-                        <span class="mr-3"><i class="fas fa-circle text-success"></i> Available (12)</span>
-                        <span class="mr-3"><i class="fas fa-circle text-primary"></i> On Call (5)</span>
-                        <span class="mr-3"><i class="fas fa-circle text-warning"></i> On Break (5)</span>
-                        <span><i class="fas fa-circle text-secondary"></i> Offline (1)</span>
+                        <span class="mr-3"><i class="fas fa-circle text-success"></i> Available
+                            ({{ $availableAgentsCount }})</span>
+                        <span class="mr-3"><i class="fas fa-circle text-primary"></i> On Call
+                            ({{ $activeCalls }})</span>
+                        <span class="mr-3"><i class="fas fa-circle text-warning"></i> On Break
+                            ({{ $onBreak }})</span>
+                        <span><i class="fas fa-circle text-secondary"></i> Offline ({{ $loggedOut }})</span>
                     </div>
                 </div>
             </div>
@@ -482,7 +507,7 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-4 text-center">
-                                            <h5>42</h5>
+                                            <h5>{{$answeredCalls}}</h5>
                                             <small>Today</small>
                                         </div>
                                         <div class="col-md-4 text-center">
@@ -632,10 +657,10 @@
                             <div class="card bg-dark text-white">
                                 <div class="card-body text-center">
                                     <h3><i class="fas fa-phone-alt"></i> Live Calls</h3>
-                                    <h1 class="display-4">24</h1>
+                                    <h1 class="display-4" id="liveCalls">24</h1>
                                     <div class="mt-3">
-                                        <span class="badge badge-success mr-2">12 In Progress</span>
-                                        <span class="badge badge-warning">8 In Queue</span>
+                                        <span class="badge badge-success mr-2">{{ $activeCalls }} In Progress</span>
+                                        <span class="badge badge-warning" id="inQueue">8 In Queue</span>
                                         <span class="badge badge-danger">4 Waiting</span>
                                     </div>
                                 </div>
@@ -751,10 +776,14 @@
                                     <h6>Export Options</h6>
                                 </div>
                                 <div class="card-body text-center">
-                                    <button class="btn btn-outline-success mb-2 btn-block"><i class="fas fa-file-excel mr-2"></i> Export to Excel</button>
-                                    <button class="btn btn-outline-info mb-2 btn-block"><i class="fas fa-file-csv mr-2"></i> Export to CSV</button>
-                                    <button class="btn btn-outline-danger mb-2 btn-block"><i class="fas fa-file-pdf mr-2"></i> Export to PDF</button>
-                                    <button class="btn btn-outline-secondary btn-block"><i class="fas fa-envelope mr-2"></i> Email Report</button>
+                                    <button class="btn btn-outline-success mb-2 btn-block"><i
+                                            class="fas fa-file-excel mr-2"></i> Export to Excel</button>
+                                    <button class="btn btn-outline-info mb-2 btn-block"><i
+                                            class="fas fa-file-csv mr-2"></i> Export to CSV</button>
+                                    <button class="btn btn-outline-danger mb-2 btn-block"><i
+                                            class="fas fa-file-pdf mr-2"></i> Export to PDF</button>
+                                    <button class="btn btn-outline-secondary btn-block"><i
+                                            class="fas fa-envelope mr-2"></i> Email Report</button>
                                 </div>
                             </div>
                         </div>
@@ -766,19 +795,24 @@
                                 <div class="card-body">
                                     <div class="form-group">
                                         <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="dailyReportSwitch" checked>
-                                            <label class="custom-control-label" for="dailyReportSwitch">Daily Summary</label>
+                                            <input type="checkbox" class="custom-control-input"
+                                                id="dailyReportSwitch" checked>
+                                            <label class="custom-control-label" for="dailyReportSwitch">Daily
+                                                Summary</label>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input" id="weeklyReportSwitch">
-                                            <label class="custom-control-label" for="weeklyReportSwitch">Weekly Summary</label>
+                                            <input type="checkbox" class="custom-control-input"
+                                                id="weeklyReportSwitch">
+                                            <label class="custom-control-label" for="weeklyReportSwitch">Weekly
+                                                Summary</label>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label>Recipients</label>
-                                        <input type="text" class="form-control" value="managers@company.com, supervisors@company.com">
+                                        <input type="text" class="form-control"
+                                            value="managers@company.com, supervisors@company.com">
                                     </div>
                                     <button class="btn btn-info btn-block">Save Settings</button>
                                 </div>
@@ -947,23 +981,28 @@
         margin-bottom: 15px;
         min-height: 90px;
     }
+
     .info-box-icon {
         float: left;
         font-size: 30px;
         padding: 15px;
     }
+
     .info-box-content {
         margin-left: 70px;
     }
+
     .info-box-text {
         display: block;
         font-size: 14px;
     }
+
     .info-box-number {
         display: block;
         font-size: 24px;
         font-weight: bold;
     }
+
     .small-box {
         border-radius: 5px;
         color: white;
@@ -971,6 +1010,7 @@
         margin-bottom: 15px;
         position: relative;
     }
+
     .small-box .icon {
         position: absolute;
         top: 10px;
@@ -978,28 +1018,34 @@
         font-size: 50px;
         opacity: 0.3;
     }
+
     .small-box .inner {
         padding: 10px;
     }
+
     .small-box h3 {
         font-size: 24px;
         margin: 0;
     }
+
     .small-box p {
         margin: 0;
     }
+
     .small-box-footer {
         display: block;
         padding: 5px 10px;
         color: white;
-        background: rgba(0,0,0,0.1);
+        background: rgba(0, 0, 0, 0.1);
         text-decoration: none;
     }
+
     .agent-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
         gap: 10px;
     }
+
     .agent-status {
         width: 40px;
         height: 40px;
@@ -1010,124 +1056,129 @@
         font-weight: bold;
         color: white;
     }
+
     .agent-status.available {
         background-color: #28a745;
     }
+
     .agent-status.busy {
         background-color: #007bff;
     }
+
     .agent-status.break {
         background-color: #ffc107;
     }
+
     .agent-status.offline {
         background-color: #6c757d;
     }
+
     .bg-purple {
         background-color: #6f42c1 !important;
     }
 </style>
-    @push('custom-scripts')
-        <script>
-            // WebSocket connection and event listeners as in the original code
-            var ws_address = document.getElementById("ws_endpoint");
-            var ws_socket = document.getElementById("ws-info");
-            const preElement = document.getElementById('json-data');
-            const incomingCall = document.getElementById('json-call-data');
-            const socket = new WebSocket(ws_address.value);
+@push('custom-scripts')
+    <script>
+        // WebSocket connection and event listeners as in the original code
+        var ws_address = document.getElementById("ws_endpoint");
+        var ws_socket = document.getElementById("ws-info");
+        const preElement = document.getElementById('json-data');
+        const incomingCall = document.getElementById('json-call-data');
+        const socket = new WebSocket(ws_address.value);
 
-            socket.addEventListener("open", (event) => {
-                console.log("WebSocket connection opened: ", ws_address);
-                ws_socket.classList.remove("badge-danger");
-                ws_socket.classList.add("badge-success");
-                ws_socket.textContent = "Connected ..";
-                socket.send("Hello Server!");
-            });
+        socket.addEventListener("open", (event) => {
+            console.log("WebSocket connection opened: ", ws_address);
+            ws_socket.classList.remove("badge-danger");
+            ws_socket.classList.add("badge-success");
+            ws_socket.textContent = "Connected ..";
+            socket.send("Hello Server!");
+        });
 
-            socket.addEventListener("message", (event) => {
-                preElement.style.fontSize = '12px';
-                var data = JSON.parse(event.data);
+        socket.addEventListener("message", (event) => {
+            preElement.style.fontSize = '12px';
+            var data = JSON.parse(event.data);
 
-                if (data.type == "StasisStart") {
-                    incomingCall.innerHTML = JSON.stringify(data.channel.caller, null, 4);
-                }
-                if (data.type == "StasisEnd") {
-                    incomingCall.innerHTML = "";
-                }
-                preElement.innerHTML = JSON.stringify(data, null, 4);
-                console.log("Message from server:", event.data);
-            });
-
-            socket.addEventListener("error", (event) => {
-                console.error("WebSocket error:", event);
-                ws_socket.classList.remove("badge-success");
-                ws_socket.classList.add("badge-danger");
-                ws_socket.textContent = "Web socket error";
-            });
-
-            socket.addEventListener("close", (event) => {
-                ws_socket.classList.remove("badge-success");
-                ws_socket.classList.add("badge-danger");
-                ws_socket.textContent = "Web socket error";
-                console.log("WebSocket connection closed:", event);
-            });
-        </script>
-
-        <script>
-            // Function to update the display of selected agents
-            function updateSelectedAgents() {
-                const agentSelect = document.getElementById("agentSelect");
-                const selectedAgents = Array.from(agentSelect.selectedOptions).map(option => option.text);
-                const selectedAgentsDiv = document.getElementById("selectedAgents");
-
-                if (selectedAgents.length > 0) {
-                    selectedAgentsDiv.innerHTML = `<ul>${selectedAgents.map(agent => `<li>${agent}</li>`).join('')}</ul>`;
-                } else {
-                    selectedAgentsDiv.innerHTML = '<p class="text-muted">No agents selected yet.</p>';
-                }
+            if (data.type == "StasisStart") {
+                incomingCall.innerHTML = JSON.stringify(data.channel.caller, null, 4);
             }
-
-            // Function to log in multiple agents
-            function logInMultipleAgents() {
-                const agentSelect = document.getElementById("agentSelect");
-                const selectedAgents = Array.from(agentSelect.selectedOptions).map(option => option.text);
-
-                if (selectedAgents.length > 0) {
-                    // Logic for logging in the selected agents (AJAX or WebSocket call)
-                    alert(`The following agents have been logged in: \n${selectedAgents.join(", ")}`);
-                    // Clear selection after login
-                    agentSelect.selectedIndex = -1;
-                    updateSelectedAgents(); // Update the displayed selected agents
-                } else {
-                    alert("Please select at least one agent to log in.");
-                }
+            if (data.type == "StasisEnd") {
+                incomingCall.innerHTML = "";
             }
+            preElement.innerHTML = JSON.stringify(data, null, 4);
+            console.log("Message from server:", event.data);
+        });
 
-            // Function to log out multiple agents
-            function logOutMultipleAgents() {
-                const agentSelect = document.getElementById("agentSelect");
-                const selectedAgents = Array.from(agentSelect.selectedOptions).map(option => option.text);
+        socket.addEventListener("error", (event) => {
+            console.error("WebSocket error:", event);
+            ws_socket.classList.remove("badge-success");
+            ws_socket.classList.add("badge-danger");
+            ws_socket.textContent = "Web socket error";
+        });
 
-                if (selectedAgents.length > 0) {
-                    // Logic for logging out the selected agents (AJAX or WebSocket call)
-                    alert(`The following agents have been logged out: \n${selectedAgents.join(", ")}`);
-                    // Clear selection after logout
-                    agentSelect.selectedIndex = -1;
-                    updateSelectedAgents(); // Update the displayed selected agents
-                } else {
-                    alert("Please select at least one agent to log out.");
-                }
+        socket.addEventListener("close", (event) => {
+            ws_socket.classList.remove("badge-success");
+            ws_socket.classList.add("badge-danger");
+            ws_socket.textContent = "Web socket error";
+            console.log("WebSocket connection closed:", event);
+        });
+    </script>
+
+    <script>
+        // Function to update the display of selected agents
+        function updateSelectedAgents() {
+            const agentSelect = document.getElementById("agentSelect");
+            const selectedAgents = Array.from(agentSelect.selectedOptions).map(option => option.text);
+            const selectedAgentsDiv = document.getElementById("selectedAgents");
+
+            if (selectedAgents.length > 0) {
+                selectedAgentsDiv.innerHTML = `<ul>${selectedAgents.map(agent => `<li>${agent}</li>`).join('')}</ul>`;
+            } else {
+                selectedAgentsDiv.innerHTML = '<p class="text-muted">No agents selected yet.</p>';
             }
-        </script>
-    @endpush
+        }
+
+        // Function to log in multiple agents
+        function logInMultipleAgents() {
+            const agentSelect = document.getElementById("agentSelect");
+            const selectedAgents = Array.from(agentSelect.selectedOptions).map(option => option.text);
+
+            if (selectedAgents.length > 0) {
+                // Logic for logging in the selected agents (AJAX or WebSocket call)
+                alert(`The following agents have been logged in: \n${selectedAgents.join(", ")}`);
+                // Clear selection after login
+                agentSelect.selectedIndex = -1;
+                updateSelectedAgents(); // Update the displayed selected agents
+            } else {
+                alert("Please select at least one agent to log in.");
+            }
+        }
+
+        // Function to log out multiple agents
+        function logOutMultipleAgents() {
+            const agentSelect = document.getElementById("agentSelect");
+            const selectedAgents = Array.from(agentSelect.selectedOptions).map(option => option.text);
+
+            if (selectedAgents.length > 0) {
+                // Logic for logging out the selected agents (AJAX or WebSocket call)
+                alert(`The following agents have been logged out: \n${selectedAgents.join(", ")}`);
+                // Clear selection after logout
+                agentSelect.selectedIndex = -1;
+                updateSelectedAgents(); // Update the displayed selected agents
+            } else {
+                alert("Please select at least one agent to log out.");
+            }
+        }
+    </script>
+@endpush
 
 
-    <!-- WebSocket Data (For System Monitoring) -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <h5 class="card-title">WebSocket Data</h5>
-            <pre id="json-data">[WebSocket Data Placeholder]</pre>
-        </div>
+<!-- WebSocket Data (For System Monitoring) -->
+<div class="card mb-4">
+    <div class="card-body">
+        <h5 class="card-title">WebSocket Data</h5>
+        <pre id="json-data">[WebSocket Data Placeholder]</pre>
     </div>
+</div>
 </div>
 
 @push('custom-scripts')
@@ -1187,7 +1238,8 @@
             const [time, period] = timeString.split(' ');
             const [hours, minutes, seconds] = time.split(':');
 
-            lastUpdated.innerHTML = `${hours}:<span style="color:#0f974b">${minutes}</span>:<span style="color:#f49e38">${seconds}</span> ${period}`;
+            lastUpdated.innerHTML =
+                `${hours}:<span style="color:#0f974b">${minutes}</span>:<span style="color:#f49e38">${seconds}</span> ${period}`;
 
             // Add rotating sync icon effect
             const syncIcon = document.querySelector('.fa-sync-alt');
@@ -1207,10 +1259,18 @@
         // Optional: Add sync status indicator
         function updateSyncStatus() {
             const statusElement = document.getElementById('syncStatus');
-            const statuses = [
-                {text: "Syncing data...", class: "text-info"},
-                {text: "Connection stable", class: "text-success"},
-                {text: "Real-time active", class: "text-primary"}
+            const statuses = [{
+                    text: "Syncing data...",
+                    class: "text-info"
+                },
+                {
+                    text: "Connection stable",
+                    class: "text-success"
+                },
+                {
+                    text: "Real-time active",
+                    class: "text-primary"
+                }
             ];
 
             let currentStatus = 0;
@@ -1248,7 +1308,8 @@
                     .then(data => {
                         const statusBadge = document.querySelector('#statusBadge');
                         if (statusBadge) {
-                            statusBadge.innerHTML = `<i class="fas ${data.online ? 'fa-wifi' : 'fa-clock'} mr-1"></i>${data.online ? 'Online' : 'Offline'}`;
+                            statusBadge.innerHTML =
+                                `<i class="fas ${data.online ? 'fa-wifi' : 'fa-clock'} mr-1"></i>${data.online ? 'Online' : 'Offline'}`;
                             statusBadge.style.backgroundColor = data.online ? '#0f974b' : '#6c757d';
                         }
                     });
@@ -1263,4 +1324,72 @@
         });
     </script>
 
+<script>
+    window.addEventListener('load', () => {
+        const apiUrl = "http://10.44.0.70:8088/ari/bridges?api_key=asterisk:asterisk";
+
+        const liveCallsElement = document.getElementById("liveCalls");
+        let liveCalls=0;
+        function fetchBridgeData() {
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("API Response:", data);
+
+                    // Filter bridges of type 'mixing'
+                    const mixingBridges = data.filter(bridge => bridge.bridge_type === 'mixing' && bridge.channels.length > 0);
+
+                    liveCalls=mixingBridges.length;
+                    // Update DOM with the count (you can change this element ID)
+                    document.getElementById("activeCalls").textContent = `Mixing Bridges: ${mixingBridges.length}`;
+                })
+                .catch(error => {
+                    console.error("Fetch error:", error);
+                });
+        }
+
+        function fetchHoldingBridgeData() {
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("API Response:", data);
+
+                    // Filter bridges of type 'mixing'
+                    const holdingBridges = data.filter(bridge => bridge.bridge_type === 'holding' && bridge.channels.length > 0);
+
+                    // Update DOM with the count (you can change this element ID)
+                    document.getElementById("inQueue").textContent = `Queue Bridges: ${holdingBridges.length}`;
+                    document.getElementById("queue-calls").textContent = `${holdingBridges.length}`;
+
+
+
+                    liveCalls+=holdingBridges.length;
+                    liveCallsElement.textContent = `${liveCalls}`;
+                })
+                .catch(error => {
+                    console.error("Fetch error:", error);
+                });
+        }
+
+
+        // Initial fetch
+        function prob() {
+            fetchBridgeData();
+            fetchHoldingBridgeData();
+        }
+
+        // Repeat every 5 seconds (5000 ms)
+        setInterval(prob, 5000);
+    });
+</script>
 @endpush
