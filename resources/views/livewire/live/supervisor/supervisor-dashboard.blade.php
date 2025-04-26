@@ -307,7 +307,7 @@
                                 <span class="info-box-icon"><i class="fas fa-times-circle"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Abandoned</span>
-                                    <span class="info-box-number">3</span>
+                                    <span class="info-box-number">{{$failedCalls}}</span>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: 15%"></div>
                                     </div>
@@ -1368,7 +1368,7 @@
                     const holdingBridges = data.filter(bridge => bridge.bridge_type === 'holding' && bridge.channels.length > 0);
 
                     // Update DOM with the count (you can change this element ID)
-                    document.getElementById("inQueue").textContent = `Queue Bridges: ${holdingBridges.length}`;
+                    document.getElementById("inQueue").textContent = `Queue calls: ${holdingBridges.length}`;
                     document.getElementById("queue-calls").textContent = `${holdingBridges.length}`;
                     document.getElementById("waiting").textContent = `${holdingBridges.length} waiting`;
 
