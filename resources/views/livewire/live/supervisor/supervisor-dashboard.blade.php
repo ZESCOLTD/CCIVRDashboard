@@ -124,7 +124,8 @@
                                 <span style="color: #0f974b;">
                                     <i class="fas fa-user-check mr-1"></i>Active Agents:
                                 </span>
-                                <span style="color: #333;" id="active-agents">{{$availableAgentsCount}}/{{$totalAgentCount}}</span>
+                                <span style="color: #333;"
+                                    id="active-agents">{{ $availableAgentsCount }}/{{ $totalAgentCount }}</span>
                             </div>
                             <div class="progress" style="height: 8px;">
                                 <div class="progress-bar" style="background-color: #0f974b; width: 28%;"></div>
@@ -135,7 +136,7 @@
                                 <span style="color: #0f974b;">
                                     <i class="fas fa-phone-alt mr-1"></i>Calls in Progress:
                                 </span>
-                                <span style="color: #333;">{{$activeCalls}}/{{$availableAgentsCount}}</span>
+                                <span style="color: #333;">{{ $activeCalls }}/{{ $availableAgentsCount }}</span>
                             </div>
                             <div class="progress" style="height: 8px;">
                                 <div class="progress-bar" style="background-color: #28a745; width: 25%;"></div>
@@ -307,7 +308,7 @@
                                 <span class="info-box-icon"><i class="fas fa-times-circle"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Abandoned</span>
-                                    <span class="info-box-number">{{$failedCalls}}</span>
+                                    <span class="info-box-number">{{ $failedCalls }}</span>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: 15%"></div>
                                     </div>
@@ -321,7 +322,7 @@
                                 <span class="info-box-icon"><i class="fas fa-ban"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Failed Calls</span>
-                                    <span class="info-box-number">{{$failedCalls}}</span>
+                                    <span class="info-box-number">{{ $failedCalls }}</span>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: 25%"></div>
                                     </div>
@@ -354,7 +355,7 @@
                                 <span class="info-box-icon"><i class="fas fa-tachometer-alt"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Efficiency Level</span>
-                                    <span class="info-box-number">{{$answeredCallsLast30}}%</span>
+                                    <span class="info-box-number">{{ $answeredCallsLast30 }}%</span>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: 88%"></div>
                                     </div>
@@ -507,7 +508,7 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-4 text-center">
-                                            <h5>{{$answeredCalls}}</h5>
+                                            <h5>{{ $answeredCalls }}</h5>
                                             <small>Today</small>
                                         </div>
                                         <div class="col-md-4 text-center">
@@ -1079,51 +1080,6 @@
 </style>
 @push('custom-scripts')
     <script>
-        // WebSocket connection and event listeners as in the original code
-        var ws_address = document.getElementById("ws_endpoint");
-        var ws_socket = document.getElementById("ws-info");
-        const preElement = document.getElementById('json-data');
-        const incomingCall = document.getElementById('json-call-data');
-        const socket = new WebSocket(ws_address.value);
-
-        socket.addEventListener("open", (event) => {
-            console.log("WebSocket connection opened: ", ws_address);
-            ws_socket.classList.remove("badge-danger");
-            ws_socket.classList.add("badge-success");
-            ws_socket.textContent = "Connected ..";
-            socket.send("Hello Server!");
-        });
-
-        socket.addEventListener("message", (event) => {
-            preElement.style.fontSize = '12px';
-            var data = JSON.parse(event.data);
-
-            if (data.type == "StasisStart") {
-                incomingCall.innerHTML = JSON.stringify(data.channel.caller, null, 4);
-            }
-            if (data.type == "StasisEnd") {
-                incomingCall.innerHTML = "";
-            }
-            preElement.innerHTML = JSON.stringify(data, null, 4);
-            console.log("Message from server:", event.data);
-        });
-
-        socket.addEventListener("error", (event) => {
-            console.error("WebSocket error:", event);
-            ws_socket.classList.remove("badge-success");
-            ws_socket.classList.add("badge-danger");
-            ws_socket.textContent = "Web socket error";
-        });
-
-        socket.addEventListener("close", (event) => {
-            ws_socket.classList.remove("badge-success");
-            ws_socket.classList.add("badge-danger");
-            ws_socket.textContent = "Web socket error";
-            console.log("WebSocket connection closed:", event);
-        });
-    </script>
-
-    <script>
         // Function to update the display of selected agents
         function updateSelectedAgents() {
             const agentSelect = document.getElementById("agentSelect");
@@ -1183,39 +1139,65 @@
 
 @push('custom-scripts')
     <script>
-        // WebSocket connection and event listeners as in the original code
-        var ws_address = document.getElementById("ws_endpoint");
-        var ws_socket = document.getElementById("ws-info");
-        {{-- const preElement = document.getElementById('json-data');--}}
-        // const socket = new WebSocket(ws_address.value);
+        window.addEventListener('DOMContentLoaded',
+        () => { // WebSocket connection and event listeners as in the original code
+            var ws_address = document.getElementById("ws_endpoint");
+            var ws_socket = document.getElementById("ws-info");
+            const preElement = document.getElementById('json-data');
+            const incomingCall = document.getElementById('json-call-data');
+            let socket = null;
 
-        socket.addEventListener("open", (event) => {
-            console.log("WebSocket connection opened: ", ws_address);
-            ws_socket.classList.remove("badge-danger");
-            ws_socket.classList.add("badge-success");
-            ws_socket.textContent = "Connected ..";
-            socket.send("Hello Server!");
-        });
+            function reConnect() {
+                socket = new WebSocket(ws_address.value);
 
-        socket.addEventListener("message", (event) => {
-            preElement.style.fontSize = '12px';
-            var data = JSON.parse(event.data);
-            preElement.innerHTML = JSON.stringify(data, null, 4);
-            console.log("Message from server:", event.data);
-        });
+                socket.addEventListener("open", (event) => {
+                    console.log("WebSocket connection opened: ", ws_address);
+                    ws_socket.classList.remove("badge-danger");
+                    ws_socket.classList.add("badge-success");
+                    ws_socket.textContent = "Connected ..";
 
-        socket.addEventListener("error", (event) => {
-            console.error("WebSocket error:", event);
-            ws_socket.classList.remove("badge-success");
-            ws_socket.classList.add("badge-danger");
-            ws_socket.textContent = "Web socket error";
-        });
+                });
 
-        socket.addEventListener("close", (event) => {
-            ws_socket.classList.remove("badge-success");
-            ws_socket.classList.add("badge-danger");
-            ws_socket.textContent = "Web socket error";
-            console.log("WebSocket connection closed:", event);
+                socket.addEventListener("message", (event) => {
+                    preElement.style.fontSize = '12px';
+                    var data = JSON.parse(event.data);
+
+                    if (data.type == "StasisStart") {
+                        incomingCall.innerHTML = JSON.stringify(data.channel.caller, null, 4);
+                    }
+                    if (data.type == "StasisEnd") {
+                        incomingCall.innerHTML = "";
+                    }
+                    preElement.innerHTML = JSON.stringify(data, null, 4);
+                    console.log("Message from server:", event.data);
+                });
+
+                socket.addEventListener("error", (event) => {
+                    console.error("WebSocket error:", event);
+                    ws_socket.classList.remove("badge-success");
+                    ws_socket.classList.add("badge-danger");
+                    ws_socket.textContent = "Web socket error";
+
+                    setTimeout(() => {
+                        reConnect();
+                    }, 5000); // Attempt to reconnect after 5 seconds
+                });
+
+                socket.addEventListener("close", (event) => {
+                    ws_socket.classList.remove("badge-success");
+                    ws_socket.classList.add("badge-danger");
+                    ws_socket.textContent = "Web socket error";
+                    console.log("WebSocket connection closed:", event);
+
+
+                    setTimeout(() => {
+                        reConnect();
+                    }, 5000); // Attempt to reconnect after 5 seconds
+                });
+
+            }
+
+            reConnect();
         });
     </script>
 
@@ -1324,73 +1306,77 @@
         });
     </script>
 
-<script>
-    window.addEventListener('load', () => {
-        const apiUrl = "http://10.44.0.70:8088/ari/bridges?api_key=asterisk:asterisk";
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const apiUrl = "http://10.44.0.70:8088/ari/bridges?api_key=asterisk:asterisk";
 
-        const liveCallsElement = document.getElementById("liveCalls");
-        let liveCalls=0;
-        function fetchBridgeData() {
-            fetch(apiUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Network response was not ok");
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log("API Response:", data);
+            const liveCallsElement = document.getElementById("liveCalls");
+            let liveCalls = 0;
 
-                    // Filter bridges of type 'mixing'
-                    const mixingBridges = data.filter(bridge => bridge.bridge_type === 'mixing' && bridge.channels.length > 0);
+            function fetchBridgeData() {
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log("API Response:", data);
 
-                    liveCalls=mixingBridges.length;
-                    // Update DOM with the count (you can change this element ID)
-                    document.getElementById("activeCalls").textContent = `${mixingBridges.length}`;
-                })
-                .catch(error => {
-                    console.error("Fetch error:", error);
-                });
-        }
+                        // Filter bridges of type 'mixing'
+                        const mixingBridges = data.filter(bridge => bridge.bridge_type === 'mixing' && bridge
+                            .channels.length > 0);
 
-        function fetchHoldingBridgeData() {
-            fetch(apiUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Network response was not ok");
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log("API Response:", data);
+                        liveCalls = mixingBridges.length;
+                        // Update DOM with the count (you can change this element ID)
+                        document.getElementById("activeCalls").textContent = `${mixingBridges.length}`;
+                    })
+                    .catch(error => {
+                        console.error("Fetch error:", error);
+                    });
+            }
 
-                    // Filter bridges of type 'mixing'
-                    const holdingBridges = data.filter(bridge => bridge.bridge_type === 'holding' && bridge.channels.length > 0);
+            function fetchHoldingBridgeData() {
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log("API Response:", data);
 
-                    // Update DOM with the count (you can change this element ID)
-                    document.getElementById("inQueue").textContent = `Queue calls: ${holdingBridges.length}`;
-                    document.getElementById("queue-calls").textContent = `${holdingBridges.length}`;
-                    document.getElementById("waiting").textContent = `${holdingBridges.length} waiting`;
+                        // Filter bridges of type 'mixing'
+                        const holdingBridges = data.filter(bridge => bridge.bridge_type === 'holding' && bridge
+                            .channels.length > 0);
 
-
-
-                    liveCalls+=holdingBridges.length;
-                    liveCallsElement.textContent = `${liveCalls}`;
-                })
-                .catch(error => {
-                    console.error("Fetch error:", error);
-                });
-        }
+                        // Update DOM with the count (you can change this element ID)
+                        document.getElementById("inQueue").textContent =
+                            `Queue calls: ${holdingBridges.length}`;
+                        document.getElementById("queue-calls").textContent = `${holdingBridges.length}`;
+                        document.getElementById("waiting").textContent = `${holdingBridges.length} waiting`;
 
 
-        // Initial fetch
-        function prob() {
-            fetchBridgeData();
-            fetchHoldingBridgeData();
-        }
 
-        // Repeat every 5 seconds (5000 ms)
-        setInterval(prob, 5000);
-    });
-</script>
+                        liveCalls += holdingBridges.length;
+                        liveCallsElement.textContent = `${liveCalls}`;
+                    })
+                    .catch(error => {
+                        console.error("Fetch error:", error);
+                    });
+            }
+
+
+            // Initial fetch
+            function prob() {
+                fetchBridgeData();
+                fetchHoldingBridgeData();
+            }
+
+            // Repeat every 5 seconds (5000 ms)
+            setInterval(prob, 5000);
+        });
+    </script>
 @endpush

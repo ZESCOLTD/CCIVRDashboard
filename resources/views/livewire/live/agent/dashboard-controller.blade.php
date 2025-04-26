@@ -56,30 +56,33 @@
                                     @switch($agent->status)
                                         @case('LOGGED_IN')
                                             <span class="badge bg-success"><i class="fas fa-circle me-1"></i>LOGGED IN</span>
-                                            @break
+                                        @break
 
                                         @case('LOGGED_OUT')
                                             <span class="badge bg-secondary"><i class="fas fa-circle me-1"></i>LOGGED OUT</span>
-                                            @break
+                                        @break
 
                                         @case('IDLE')
-                                            <span class="badge bg-warning text-dark"><i class="fas fa-circle me-1"></i>IDLE</span>
-                                            @break
+                                            <span class="badge bg-warning text-dark"><i
+                                                    class="fas fa-circle me-1"></i>IDLE</span>
+                                        @break
 
                                         @case('WITHDRAWN')
                                             <span class="badge bg-danger"><i class="fas fa-circle me-1"></i>WITHDRAWN</span>
-                                            @break
+                                        @break
 
                                         @case('WRAPPING_UP')
                                             <span class="badge bg-info"><i class="fas fa-circle me-1"></i>WRAPPING UP</span>
-                                            @break
+                                        @break
 
                                         @case('IN_CONVERSATION')
-                                            <span class="badge bg-primary"><i class="fas fa-circle me-1"></i>IN CONVERSATION</span>
-                                            @break
+                                            <span class="badge bg-primary"><i class="fas fa-circle me-1"></i>IN
+                                                CONVERSATION</span>
+                                        @break
 
                                         @default
-                                            <span class="badge bg-light text-dark"><i class="fas fa-circle me-1"></i>UNKNOWN</span>
+                                            <span class="badge bg-light text-dark"><i
+                                                    class="fas fa-circle me-1"></i>UNKNOWN</span>
                                     @endswitch
                                 </li>
                             </ul>
@@ -115,7 +118,8 @@
                                         </button>
                                     </div>
                                     <div class="small">
-                                        <div><i class="far fa-clock me-2"></i>From: {{ $currentSession->time_from }}</div>
+                                        <div><i class="far fa-clock me-2"></i>From: {{ $currentSession->time_from }}
+                                        </div>
                                         <div><i class="far fa-clock me-2"></i>To: {{ $currentSession->time_to }}</div>
                                     </div>
                                 @else
@@ -124,7 +128,7 @@
                                     </div>
                                     <script>
                                         document.addEventListener('DOMContentLoaded', function() {
-                                        @this.call('showModal');
+                                            @this.call('showModal');
                                         });
                                     </script>
                                 @endif
@@ -245,16 +249,16 @@
                     border-right: 1px solid #dee2e6 !important;
                 }
 
-                 :root {
-                     --primary-color: #f39c35;
-                     --primary-light: rgba(243, 156, 53, 0.1);
-                     --success-color: #28a745;
-                     --success-light: rgba(40, 167, 69, 0.1);
-                     --danger-color: #dc3545;
-                     --danger-light: rgba(220, 53, 69, 0.1);
-                     --warning-color: #ffc107;
-                     --warning-light: rgba(255, 193, 7, 0.1);
-                 }
+                :root {
+                    --primary-color: #f39c35;
+                    --primary-light: rgba(243, 156, 53, 0.1);
+                    --success-color: #28a745;
+                    --success-light: rgba(40, 167, 69, 0.1);
+                    --danger-color: #dc3545;
+                    --danger-light: rgba(220, 53, 69, 0.1);
+                    --warning-color: #ffc107;
+                    --warning-light: rgba(255, 193, 7, 0.1);
+                }
 
                 .stats-card {
                     border-radius: 10px;
@@ -263,12 +267,12 @@
                     align-items: center;
                     height: 100%;
                     transition: transform 0.3s ease;
-                    border: 1px solid rgba(0,0,0,0.05);
+                    border: 1px solid rgba(0, 0, 0, 0.05);
                 }
 
                 .stats-card:hover {
                     transform: translateY(-5px);
-                    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
                 }
 
                 .icon-circle {
@@ -360,7 +364,6 @@
                 .bg-warning {
                     background-color: var(--warning-color);
                 }
-
             </style>
 
             <!-- Key Metrics Overview -->
@@ -501,7 +504,7 @@
                     background: white;
                     border-radius: 8px;
                     z-index: 1050;
-                    border: 1px solid rgba(0,0,0,0.1);
+                    border: 1px solid rgba(0, 0, 0, 0.1);
                 }
 
                 .search-results .list-group-item {
@@ -680,32 +683,28 @@
                     <!-- Search Section -->
                     <div class="search-container position-relative mb-3">
                         <div class="input-group">
-                <span class="input-group-text bg-white border-end-0">
-                    <i class="fas fa-search text-muted"></i>
-                </span>
-                            <input
-                                type="text"
-                                class="form-control border-start-0 ps-0"
+                            <span class="input-group-text bg-white border-end-0">
+                                <i class="fas fa-search text-muted"></i>
+                            </span>
+                            <input type="text" class="form-control border-start-0 ps-0"
                                 wire:model.debounce.300ms="searchQuery"
                                 placeholder="Search knowledge base (e.g., billing, payments, technical issues)..."
-                                autocomplete="off"
-                                aria-label="Knowledge base search"
-                            >
+                                autocomplete="off" aria-label="Knowledge base search">
                         </div>
 
-                        @if(!empty($searchResults))
+                        @if (!empty($searchResults))
                             <div class="search-results shadow-lg mt-1">
                                 <div class="list-group">
-                                    @foreach($searchResults as $result)
+                                    @foreach ($searchResults as $result)
                                         <a href="#" class="list-group-item list-group-item-action py-3"
-                                           wire:click="selectTopic({{ $result['id'] }})"
-                                           data-bs-toggle="modal"
-                                           data-bs-target="#knowledgeModal">
+                                            wire:click="selectTopic({{ $result['id'] }})" data-bs-toggle="modal"
+                                            data-bs-target="#knowledgeModal">
                                             <div class="d-flex w-100 justify-content-between">
                                                 <h6 class="mb-1 text-primary">{{ $result['topic'] }}</h6>
                                                 <small class="text-muted">Click to view</small>
                                             </div>
-                                            <p class="mb-1 text-muted small">{{ Str::limit($result['description'], 120) }}</p>
+                                            <p class="mb-1 text-muted small">
+                                                {{ Str::limit($result['description'], 120) }}</p>
                                         </a>
                                     @endforeach
                                 </div>
@@ -746,18 +745,21 @@
             </div>
 
             <!-- Knowledge Modal -->
-            <div class="modal fade" id="knowledgeModal" tabindex="-1" aria-labelledby="knowledgeModalLabel" aria-hidden="true" wire:ignore.self>
+            <div class="modal fade" id="knowledgeModal" tabindex="-1" aria-labelledby="knowledgeModalLabel"
+                aria-hidden="true" wire:ignore.self>
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content border-0 shadow">
-                        @if($selectedTopic)
+                        @if ($selectedTopic)
                             <div class="modal-header bg-primary text-white">
                                 <div>
                                     <h5 class="modal-title" id="knowledgeModalLabel">
                                         <i class="fas fa-file-alt me-2"></i>{{ $selectedTopic->topic }}
                                     </h5>
-                                    <small class="text-white-50">Last updated: {{ $selectedTopic->updated_at->format('M d, Y') }}</small>
+                                    <small class="text-white-50">Last updated:
+                                        {{ $selectedTopic->updated_at->format('M d, Y') }}</small>
                                 </div>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" wire:click="$set('selectedTopic', null)"></button>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                    aria-label="Close" wire:click="$set('selectedTopic', null)"></button>
                             </div>
                             <div class="modal-body p-4">
                                 <div class="knowledge-content formatted-content">
@@ -791,13 +793,9 @@
                     <div class="search-box" style="width: 300px;">
                         <div class="input-group input-group-sm">
                             <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
-                            <input
-                                type="text"
-                                class="form-control border-start-0"
+                            <input type="text" class="form-control border-start-0"
                                 placeholder="Search by meter number or name..."
-                                wire:model.debounce.300ms="meter_number"
-                                wire:keydown.enter="searchCustomer"
-                            >
+                                wire:model.debounce.300ms="meter_number" wire:keydown.enter="searchCustomer">
                             <button class="btn btn-primary" type="button" wire:click="searchCustomer">
                                 <i class="fas fa-arrow-right"></i>
                             </button>
@@ -821,7 +819,7 @@
                                         </p>
                                     </div>
                                     <button class="btn btn-sm btn-outline-primary ms-auto"
-                                            wire:click="showCustomerModal('{{ $customer->meter_serial_no }}')">
+                                        wire:click="showCustomerModal('{{ $customer->meter_serial_no }}')">
                                         <i class="fas fa-expand me-1"></i> Full View
                                     </button>
                                 </div>
@@ -829,7 +827,8 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="info-section mb-4">
-                                            <h6 class="section-title"><i class="fas fa-home me-2"></i>Address Information</h6>
+                                            <h6 class="section-title"><i class="fas fa-home me-2"></i>Address
+                                                Information</h6>
                                             <div class="row">
                                                 <div class="col-6">
                                                     <p class="mb-1"><strong>Division:</strong></p>
@@ -855,7 +854,8 @@
                                         </div>
 
                                         <div class="info-section">
-                                            <h6 class="section-title"><i class="fas fa-phone me-2"></i>Contact Information</h6>
+                                            <h6 class="section-title"><i class="fas fa-phone me-2"></i>Contact
+                                                Information</h6>
                                             <div class="row">
                                                 <div class="col-6">
                                                     <p class="mb-1"><strong>Home Phone:</strong></p>
@@ -871,7 +871,8 @@
 
                                     <div class="col-md-6">
                                         <div class="info-section mb-4">
-                                            <h6 class="section-title"><i class="fas fa-bolt me-2"></i>Meter Information</h6>
+                                            <h6 class="section-title"><i class="fas fa-bolt me-2"></i>Meter
+                                                Information</h6>
                                             <div class="row">
                                                 <div class="col-6">
                                                     <p class="mb-1"><strong>Meter Make:</strong></p>
@@ -891,7 +892,8 @@
                                         </div>
 
                                         <div class="info-section">
-                                            <h6 class="section-title"><i class="fas fa-info-circle me-2"></i>Additional Information</h6>
+                                            <h6 class="section-title"><i
+                                                    class="fas fa-info-circle me-2"></i>Additional Information</h6>
                                             <div class="row">
                                                 <div class="col-6">
                                                     <p class="mb-1"><strong>Other Phone:</strong></p>
@@ -914,7 +916,8 @@
             </div>
 
             <!-- Customer Modal -->
-            <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel" aria-hidden="true" wire:ignore.self>
+            <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel"
+                aria-hidden="true" wire:ignore.self>
                 <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content border-0 shadow">
                         <div class="modal-header bg-primary text-white">
@@ -922,61 +925,62 @@
                                 <i class="fas fa-user-circle me-2"></i>
                                 Customer Details: {{ $selectedCustomer->meter_serial_no ?? '' }}
                             </h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            @if($selectedCustomer)
+                            @if ($selectedCustomer)
                                 <div class="table-responsive">
                                     <table class="table table-bordered">
                                         <tbody>
-                                        <tr>
-                                            <th width="20%">Customer Name</th>
-                                            <td width="30%">{{ $selectedCustomer->customer_name ?? '--' }}</td>
-                                            <th width="20%">Home Phone</th>
-                                            <td width="30%">{{ $selectedCustomer->home_phone ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Division</th>
-                                            <td>{{ $selectedCustomer->division ?? '--' }}</td>
-                                            <th>Town</th>
-                                            <td>{{ $selectedCustomer->town ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Service Point</th>
-                                            <td>{{ $selectedCustomer->service_point ?? '--' }}</td>
-                                            <th>Street</th>
-                                            <td>{{ $selectedCustomer->street ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Address</th>
-                                            <td>{{ $selectedCustomer->address ?? '--' }}</td>
-                                            <th>Landmark</th>
-                                            <td>{{ $selectedCustomer->landmark ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Meter Number</th>
-                                            <td>{{ $selectedCustomer->meter_serial_no ?? '--' }}</td>
-                                            <th>Meter Make</th>
-                                            <td>{{ $selectedCustomer->meter_make ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Tariff</th>
-                                            <td>{{ $selectedCustomer->tariff ?? '--' }}</td>
-                                            <th>Phase Type</th>
-                                            <td>{{ $selectedCustomer->phase_type ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Service Number</th>
-                                            <td>{{ $selectedCustomer->service_no ?? '--' }}</td>
-                                            <th>Phone Number</th>
-                                            <td>{{ $selectedCustomer->home_phone ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Other Number</th>
-                                            <td>{{ $selectedCustomer->buss_phone ?? '--' }}</td>
-                                            <th>Other Number</th>
-                                            <td>{{ $selectedCustomer->other_phone ?? '--' }}</td>
-                                        </tr>
+                                            <tr>
+                                                <th width="20%">Customer Name</th>
+                                                <td width="30%">{{ $selectedCustomer->customer_name ?? '--' }}</td>
+                                                <th width="20%">Home Phone</th>
+                                                <td width="30%">{{ $selectedCustomer->home_phone ?? '--' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Division</th>
+                                                <td>{{ $selectedCustomer->division ?? '--' }}</td>
+                                                <th>Town</th>
+                                                <td>{{ $selectedCustomer->town ?? '--' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Service Point</th>
+                                                <td>{{ $selectedCustomer->service_point ?? '--' }}</td>
+                                                <th>Street</th>
+                                                <td>{{ $selectedCustomer->street ?? '--' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Address</th>
+                                                <td>{{ $selectedCustomer->address ?? '--' }}</td>
+                                                <th>Landmark</th>
+                                                <td>{{ $selectedCustomer->landmark ?? '--' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Meter Number</th>
+                                                <td>{{ $selectedCustomer->meter_serial_no ?? '--' }}</td>
+                                                <th>Meter Make</th>
+                                                <td>{{ $selectedCustomer->meter_make ?? '--' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Tariff</th>
+                                                <td>{{ $selectedCustomer->tariff ?? '--' }}</td>
+                                                <th>Phase Type</th>
+                                                <td>{{ $selectedCustomer->phase_type ?? '--' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Service Number</th>
+                                                <td>{{ $selectedCustomer->service_no ?? '--' }}</td>
+                                                <th>Phone Number</th>
+                                                <td>{{ $selectedCustomer->home_phone ?? '--' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Other Number</th>
+                                                <td>{{ $selectedCustomer->buss_phone ?? '--' }}</td>
+                                                <th>Other Number</th>
+                                                <td>{{ $selectedCustomer->other_phone ?? '--' }}</td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -1031,12 +1035,12 @@
 
 
             <!-- WebSocket Data -->
-{{--            <div class="card mb-4">--}}
-{{--                <div class="card-body">--}}
-{{--                    <h5 class="card-title">WebSocket Data</h5>--}}
-{{--                    <pre id="json-data">[WebSocket Data Placeholder]</pre>--}}
-{{--                </div>--}}
-{{--            </div>--}}
+            {{--            <div class="card mb-4"> --}}
+            {{--                <div class="card-body"> --}}
+            {{--                    <h5 class="card-title">WebSocket Data</h5> --}}
+            {{--                    <pre id="json-data">[WebSocket Data Placeholder]</pre> --}}
+            {{--                </div> --}}
+            {{--            </div> --}}
 
 
 
@@ -1087,9 +1091,11 @@
     <script>
         const iframe = document.getElementById('myIframe');
         iframe.onload = function() {
-          iframe.contentWindow.postMessage({ man_no: {{ $agent->endpoint}} }, 'http://localhost:8000');
+            iframe.contentWindow.postMessage({
+                man_no: {{ $agent->endpoint }}
+            }, 'http://localhost:8000');
         };
-        </script>
+    </script>
 </div>
 
 @push('custom-scripts')
@@ -1127,57 +1133,73 @@
         });
     </script>
 
-<script>
-    window.addEventListener('load', function() {
-        // WebSocket connection and event listeners as in the original code
-        var ws_address = document.getElementById("ws_endpoint");
-        var ws_socket = document.getElementById("ws-info");
-        const preElement = document.getElementById('json-data');
-        const socket = new WebSocket(ws_address.value);
-        // ws://127.0.0.1:8001/ws
-        // const socket = new WebSocket("http://127.0.0.1:8001/ws");
-        socket.addEventListener("open", (event) => {
-            console.log("WebSocket connection opened: ", ws_address);
-            ws_socket.classList.remove("badge-danger");
-            ws_socket.classList.add("badge-success");
-            ws_socket.textContent = "Connected ..";
-            socket.send("Hello Server!");
-        });
-        socket.addEventListener("message", (event) => {
-            preElement.style.fontSize = '12px';
-            var data = JSON.parse(event.data);
-            preElement.innerHTML = JSON.stringify(data, null, 4);
-            console.log("Message from server:", event.data);
-        });
-        socket.addEventListener("error", (event) => {
-            console.error("WebSocket error:", event);
-            ws_socket.classList.remove("badge-success");
-            ws_socket.classList.add("badge-danger");
-            ws_socket.textContent = "Web socket error";
-        });
-        socket.addEventListener("close", (event) => {
-            ws_socket.classList.remove("badge-success");
-            ws_socket.classList.add("badge-danger");
-            ws_socket.textContent = "Web socket error";
-            console.log("WebSocket connection closed:", event);
-        });
-    })
-</script>
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            // WebSocket connection and event listeners as in the original code
+            var ws_address = document.getElementById("ws_endpoint");
+            var ws_socket = document.getElementById("ws-info");
+            const preElement = document.getElementById('json-data');
+            let socket = null
+            // ws://127.0.0.1:8001/ws
+            // const socket = new WebSocket("http://127.0.0.1:8001/ws");
+
+            function reConnect() {
+
+                socket = new WebSocket(ws_address.value);
+                socket.addEventListener("open", (event) => {
+                    console.log("WebSocket connection opened: ", ws_address);
+                    ws_socket.classList.remove("badge-danger");
+                    ws_socket.classList.add("badge-success");
+                    ws_socket.textContent = "Connected ..";
+                    socket.send("Hello Server!");
+                });
+                socket.addEventListener("message", (event) => {
+                    preElement.style.fontSize = '12px';
+                    var data = JSON.parse(event.data);
+                    preElement.innerHTML = JSON.stringify(data, null, 4);
+                    console.log("Message from server:", event.data);
+                });
+                socket.addEventListener("error", (event) => {
+                    console.error("WebSocket error:", event);
+                    ws_socket.classList.remove("badge-success");
+                    ws_socket.classList.add("badge-danger");
+                    ws_socket.textContent = "Web socket error";
+
+                    setTimeout(() => {
+                        reConnect();
+                    }, 5000); // Reconnect after 5 seconds
+                });
+                socket.addEventListener("close", (event) => {
+                    ws_socket.classList.remove("badge-success");
+                    ws_socket.classList.add("badge-danger");
+                    ws_socket.textContent = "Web socket error";
+                    console.log("WebSocket connection closed:", event);
+
+                    setTimeout(() => {
+                        reConnect();
+                    }, 5000); // Reconnect after 5 seconds
+                });
+
+            }
+
+            reConnect()
+        })
+    </script>
 
 
 
     <script>
         document.addEventListener('livewire:load', function() {
             // Close modal when clicking outside
-            document.getElementById('knowledgeModal').addEventListener('hidden.bs.modal', function () {
-            @this.set('selectedTopic', null);
+            document.getElementById('knowledgeModal').addEventListener('hidden.bs.modal', function() {
+                @this.set('selectedTopic', null);
             });
 
             // Close search results when clicking outside
             // Close search results when clicking outside
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('.search-container')) {
-                @this.set('searchQuery', '');
+                    @this.set('searchQuery', '');
                 }
             });
         });
@@ -1189,14 +1211,14 @@
             const searchInput = document.querySelector('[wire\\:model="meter_number"]');
             if (searchInput) {
                 searchInput.addEventListener('input', function() {
-                @this.searchCustomer();
+                    @this.searchCustomer();
                 });
             }
 
             // Modal events
             const customerModal = document.getElementById('customerModal');
-            customerModal.addEventListener('hidden.bs.modal', function () {
-            @this.set('selectedCustomer', null);
+            customerModal.addEventListener('hidden.bs.modal', function() {
+                @this.set('selectedCustomer', null);
             });
 
             // Listen for Livewire event to show modal
