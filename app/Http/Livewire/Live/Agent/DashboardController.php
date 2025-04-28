@@ -37,6 +37,8 @@ class DashboardController extends Component
     public $selectedCustomer;
 
 
+    protected $listeners = ['refresh' => '$refresh'];
+
     public function mount($id)
     {
 
@@ -56,7 +58,7 @@ class DashboardController extends Component
         // $this->server = config("constants.configs.API_SERVER_ENDPOINT");
     }
 
-//Search funtionality
+    //Search funtionality
     public function updatedSearchQuery($value)
     {
         $value = trim($value);
@@ -91,18 +93,18 @@ class DashboardController extends Component
         $this->searchResults = [];
     }
 
-//Search funtionality
+    //Search funtionality
 
 
 
-//    public function selectTopic($topicId)
-//    {
-//        $this->selectedTopic = KnowledgeBase::find($topicId);
-//        $this->searchQuery = $this->selectedTopic->topic;
-//        $this->searchResults = [];
-//    }
+    //    public function selectTopic($topicId)
+    //    {
+    //        $this->selectedTopic = KnowledgeBase::find($topicId);
+    //        $this->searchQuery = $this->selectedTopic->topic;
+    //        $this->searchResults = [];
+    //    }
 
-//    Search Result for Knowledge base
+    //    Search Result for Knowledge base
 
     public function changeSession()
     {
@@ -185,52 +187,6 @@ class DashboardController extends Component
         // Fetching the last five calls
         $lastFiveCalls = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')->latest('agent_number')->take(5)->get();
 
-        // $this->customer_details = Customer::where('meter_no', '=', $meter_no)->get();
-        //dd(Customer::where('meter_no', '=', 'Z01851393')->get());
-         //$query = Customer::query();
-//        $query = Customer::select([
-//            //'region',
-//            //'zone',
-//            'division',
-//            'service_no',
-//            'service_point',
-//            //'csc',
-//            //'tariff',
-//            'itinerary_assigned',
-//            //'declared_demand',
-//            'premise_id',
-//            'customer_name',
-//            'meter_no',
-//            'meter_serial_no',
-//            'meter_make',
-//            'meter_type_code',
-//            'meter_status',
-//            'phase_type',
-//            'phase_type',
-//            'voltage_type',
-//            'meter_rating',
-//            'meter_constant',
-//            'meter_instal_date',
-//            'town',
-//            'meter_type',
-//            'connection_type',
-//            //'province',
-//            //'township',
-//            //'street',
-//            //'address',
-//            // 'home_phone',
-//            // 'buss_phone',
-//            // 'other_phone',
-//        ]);
-
-//        if ($this->meter_number) {
-//            $meter_number = strtoupper($this->meter_number);
-//            $query->where(function ($query) use ($meter_number) {
-//                $query->where('meter_serial_no', '=', $meter_number);
-//            });
-//
-//            $this->customer_details = $query->get();
-//        }
 
         return view('livewire.live.agent.dashboard-controller', [
             'agent' => $this->agent,
@@ -245,57 +201,34 @@ class DashboardController extends Component
         ]);
     }
 
-    public function customerDetails($meter_no)
+        public function login()
     {
-        // "region" => "KITWE REGION"
-        // "zone" => "KITWE"
-        // "division" => "COPPERBELT PROVINCE"
-        // "service_no" => "3678784"
-        // "service_point" => "3219680"
-        // "csc" => "CSC - KITWE TOWN OFFICE"
-        // "tariff" => "PREPAYMENT RESIDENTIAL TARIFF"
-        // "itinerary_assigned" => "13032"
-        // "declared_demand" => "15"
-        // "premise_id" => "3283935"
-        // "customer_name" => "TEMBO     ANDERSON"
-        // "meter_no" => "Z01851393"
-        // "meter_serial_no" => "07076828628"
-        // "meter_make" => "LANDIS&GYR                                                                      "
-        // "meter_type_code" => "10-SA123"
-        // "meter_status" => "INSTALLED"
-        // "phase_type" => "1- Phase"
-        // "voltage_type" => "230-250V"
-        // "meter_rating" => "20-80"
-        // "meter_constant" => "1"
-        // "meter_instal_date" => "2011-06-22 00:00:00"
-        // "town" => "KITWE "
-        // "meter_type" => "PREPAYMENT"
-        // "connection_type" => "PREPAYMENT METER ( X1 )"
-        // "province" => "COPPERBELT PROVINCE"
-        // "township" => "NEW NDEKE"
-        // "street" => "KAKOSHI"
-        // "address" => "1940 B KAKOSHI ROAD , NEW NDEKE ."
-        // "home_phone" => " "
-        // "buss_phone" => " "
-        // "other_phone" => " "
 
-        $this->customer_details = Customer::where('meter_serial_no', '=', $meter_no)->get();
-    }
-
-    public function login()
-    {
-        $this->agent->state =  config('constants.agent_state.LOGGED_IN');
-        $this->agent->status =  config('constants.agent_status.IDLE');
-        $this->agent->save();
         $server = config("app.API_SERVER_ENDPOINT");
-        // try {
-        //     $response = Http::get($server . '?login=login&endpoint=' .  $this->agent_num);
-        //     // Set success message
-        //     session()->flash('message', 'Successfully logged in.');
-        // } catch (\Exception $e) {
-        //     // Set error message
-        //     session()->flash('error', 'Error: ' . $e->getMessage());
-        // }
+
+        try {
+            $response = Http::get($server . '/online/' . $this->agent_num);
+
+            $data = $response->json();
+
+            if ($data['status'] === true) {
+                // The agent is online
+                $this->agent->state = config('constants.agent_state.LOGGED_IN');
+                $this->agent->status = config('constants.agent_status.IDLE');
+                $this->agent->save();
+
+                $this->agent->refresh();
+
+                session()->flash('message', 'Successfully logged in: ' . $data['endpoint']);
+
+                $this->emitSelf('refresh');
+            } else {
+                // Agent is not online
+                session()->flash('error', 'Agent ' . $data['endpoint'] . ' is not online.');
+            }
+        } catch (\Exception $e) {
+            session()->flash('error', 'Error: ' . $e->getMessage());
+        }
     }
 
     public function status($status)
@@ -303,14 +236,6 @@ class DashboardController extends Component
         $this->agent->status = $status;
         $agent_status = $status;
         $this->agent->save();
-        // try {
-        //     $response = Http::get($this->server . '?status=' . $agent_status . '&endpoint=' .  $this->agent_num);
-        //     // Set success message
-        //     session()->flash('message', 'Connected successfully.');
-        // } catch (\Exception $e) {
-        //     // Set error message
-        //     session()->flash('error', 'Failed to connect: ' . $e->getMessage());
-        // }
     }
     public function logout()
     {
@@ -319,19 +244,7 @@ class DashboardController extends Component
         $this->agent->save();
 
         $this->agent->refresh();
-        // self::clearSession();
-
-        // try {
-
-        //     $response = Http::get($this->server . '?logout=logout&endpoint=' .  $this->agent_num);
-        //     // Save the selected session ID to the session
-
-        //     // Set success message
-        //     session()->flash('message', 'PBX credentials successfully updated.');
-        // } catch (\Exception $e) {
-        //     // Set error message
-        //     session()->flash('error', 'Failed to update PBX credentials: ' . $e->getMessage());
-        // }
+        $this->emitSelf('refresh');
     }
 
 
@@ -360,42 +273,3 @@ class DashboardController extends Component
         Auth::user()->myCallRecordings;
     }
 }
-
-// class CallManager extends \Livewire\Component
-// {
-//     public $sessions;
-//     public $selectedSession;
-//     public $currentSession;
-
-//     public function mount()
-//     {
-//         // Load all available sessions
-//         $this->sessions = \App\Models\Session::all();
-
-//         // Set selectedSession from application or browser session, if available
-//         $this->selectedSession = session('current_session_id', '');
-
-//         // Load the current session details if there's a selected session
-//         if ($this->selectedSession) {
-//             $this->currentSession = \App\Models\Session::find($this->selectedSession);
-//         }
-//     }
-
-//     public function changeSession()
-//     {
-//         // Save the selected session ID to the session
-//         Session::put('current_session_id', $this->selectedSession);
-
-//         // Reload the current session details
-//         $this->currentSession = \App\Models\Session::find($this->selectedSession);
-
-//         // Optionally, you can perform any additional logic or database updates here
-//     }
-
-//     public function render()
-//     {
-//         return view('livewire.call-manager');
-//     }
-// }
-
-

@@ -157,15 +157,15 @@
                                     <span class="ms-2">00:03:15</span>
                                 </div>
                                 <div class="mt-3">
-                                    @if ($this->agent->state == config('constants.agent_state.LOGGED_IN'))
-                                        <button wire:click="logout()" class="btn btn-danger w-100">
-                                            <i class="fas fa-sign-out-alt me-1"></i>Logout
+                                    <form wire:submit.prevent="{{ $this->agent->state == config('constants.agent_state.LOGGED_IN') ? 'logout' : 'login' }}">
+                                        <button type="submit" class="btn {{ $this->agent->state == config('constants.agent_state.LOGGED_IN') ? 'btn-danger' : 'btn-success' }} w-100">
+                                            @if ($this->agent->state == config('constants.agent_state.LOGGED_IN'))
+                                                <i class="fas fa-sign-out-alt me-1"></i>Logout
+                                            @else
+                                                <i class="fas fa-sign-in-alt me-1"></i>Login
+                                            @endif
                                         </button>
-                                    @else
-                                        <button wire:click="login()" class="btn btn-success w-100">
-                                            <i class="fas fa-sign-in-alt me-1"></i>Login
-                                        </button>
-                                    @endif
+                                    </form>
                                 </div>
                             </div>
                         </div>
@@ -795,8 +795,8 @@
                             <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
                             <input type="text" class="form-control border-start-0"
                                 placeholder="Search by meter number or name..."
-                                wire:model.debounce.300ms="meter_number" wire:keydown.enter="searchCustomer">
-                            <button class="btn btn-primary" type="button" wire:click="searchCustomer">
+                                wire:model.debounce.200ms="meter_number" wire:keydown.enter="searchCustomer">
+                            <button class="btn btn-primary" type="button">
                                 <i class="fas fa-arrow-right"></i>
                             </button>
                         </div>
