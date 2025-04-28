@@ -2,61 +2,57 @@
 
 namespace App\Http\Livewire\Live\Agent;
 
+use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use App\Models\Live\CCAgent;
 use App\Models\Live\CallSession;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use App\Models\Live\CallSessionToAgent;
-use Illuminate\Support\Facades\Session;
 use App\Models\CDR\CallDetailsRecordModel;
-use App\Http\Livewire\Reports\CallDetailRecords;
 use App\Models\Customer;
 use App\Models\Live\Recordings;
 use App\Models\User;
 use App\Models\KnowledgeBase;
+use App\Models\Complaint;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
-
 
 class DashboardController extends Component
 {
-    public $agent_num, $set_number, $user;
-    public $agent;
-    public $agent_status;
+    public $agent_num, $set_number, $user, $agent, $agent_status;
+    public $meter_number, $service_no, $complaint_no, $meter_serial_no;
+    public $complaint_status_desc, $landmark, $meter_no;
 
-    public $sessions;
-    public $selectedSession;
-    public $currentSession;
-    public $server;
-    public $customer_details;
-    public $meter_number;
+    public $sessions, $selectedSession, $currentSession, $server;
+    public $customer_details = [];
+    public $complaints = [];
+    public $searchCustomer;
 
     public $searchQuery = '';
     public $searchResults = [];
     public $selectedTopic;
     public $selectedCustomer;
-
+    public $show_modal = false;
+    public $search_term;
+    public $searchCustomers;
+    public $loadCustomerDetails;
+    public $is_searching = false;
+    protected $rules = [
+        'search_term' => 'required|string|min:1|max:15',
+    ];
 
     public function mount($id)
     {
-
         $this->user = User::findOrFail($id);
-
-        // Load all available sessions
         $this->sessions = CallSession::all();
-
-        // Set selectedSession from application or browser session, if available
         $this->selectedSession = session('current_session_id', '');
 
-        // Load the current session details if there's a selected session
         if ($this->selectedSession) {
             $this->currentSession = CallSession::find($this->selectedSession);
         }
-
-        // $this->server = config("constants.configs.API_SERVER_ENDPOINT");
     }
 
-//Search funtionality
     public function updatedSearchQuery($value)
     {
         $value = trim($value);
@@ -64,8 +60,8 @@ class DashboardController extends Component
         if (strlen($value) >= 2) {
             $this->searchResults = KnowledgeBase::query()
                 ->where(function ($query) use ($value) {
-                    $query->where('topic', 'like', '%' . $value . '%')
-                        ->orWhere('description', 'like', '%' . $value . '%');
+                    $query->where('topic', 'like', "%$value%")
+                        ->orWhere('description', 'like', "%$value%");
                 })
                 ->select('id', 'topic', 'description')
                 ->limit(5)
@@ -79,270 +75,94 @@ class DashboardController extends Component
                 })
                 ->toArray();
         } else {
-            $this->searchResults = [];
-            $this->selectedTopic = null;
+            $this->reset(['searchResults', 'selectedTopic']);
         }
     }
 
     public function selectTopic($topicId)
     {
         $this->selectedTopic = KnowledgeBase::find($topicId);
-        $this->searchQuery = $this->selectedTopic->topic;
+        $this->searchQuery = $this->selectedTopic->topic ?? '';
         $this->searchResults = [];
     }
-
-//Search funtionality
-
-
-
-//    public function selectTopic($topicId)
-//    {
-//        $this->selectedTopic = KnowledgeBase::find($topicId);
-//        $this->searchQuery = $this->selectedTopic->topic;
-//        $this->searchResults = [];
-//    }
-
-//    Search Result for Knowledge base
 
     public function changeSession()
     {
         $this->currentSession = CallSession::find($this->selectedSession);
-        // Save the selected session ID to the session
         session(['current_session_id' => $this->selectedSession]);
         $this->dispatchBrowserEvent('hide-modal');
 
-        // Validate incoming request data
-        // $validatedData = $request->validate([
-        //     'agent_id' => 'required|integer',
-        //     'call_session_id' => 'required|string',
-        //     'status' => 'required|string',
-        //     'time_from' => 'required|date',
-        //     'time_to' => 'nullable|date',
-        //     'session_name' => 'required|string',
-        //     'username' => 'required|string',
-        // ]);
-
-        // Optionally, you can perform any additional logic or database updates here
-        // Find an existing record by call_session_id
-        $callSession = CallSessionToAgent::where('call_session_id', $this->currentSession->id)->first();
-
-        // if ($callSession) {
-        //     // Update the existing record
-        //     $callSession->update($validatedData);
-        //     return response()->json(['message' => 'Call session updated successfully.', 'data' => $callSession], 200);
-        // } else {
-
-        //     $user = Auth::user();
-        //     // Create a new record
-        //     $callSession = CallSessionToAgent::create(
-        //         [
-
-        //         'call_session_id' => $this->currentSession->id,
-        //         'status' => '1',
-        //         'time_from' => $this->currentSession->time_from,
-        //         'time_to' => $this->currentSession->time_to,
-        //         'session_name' => $this->currentSession->name,
-        //         'agent_id' => $user->id,
-        //         'agent_number' =>  $this->agent_num ,
-        //         'set_number' =>  $this->set_number ,
-        //         'username' => $user->name
-        //         ],
-        //         [
-
-        //             'call_session_id' => $this->currentSession->id,
-        //             'status' => '1',
-        //             'time_from' => $this->currentSession->time_from,
-        //             'time_to' => $this->currentSession->time_to,
-        //             'session_name' => $this->currentSession->name,
-        //             'agent_id' => $user->id,
-        //             'agent_number' =>  $this->agent_num ,
-        //             'set_number' =>  $this->set_number ,
-        //             'username' => $user->name
-        //         ]
-
-        // );
-        // }
-
-        // Set success message
-        session()->flash('message', 'Session saved successfully.');
+        session()->flash('message', 'Session changed successfully.');
     }
 
-    public function render()
+    public function updatedSearchTerm($value)
     {
-        $user = $this->user;
-        $this->agent = $user->myAgentDetails;
-        // dd($user->myAgentDetails);
-        $this->agent_num = $this->agent->endpoint;
-        $api_server = config("app.API_SERVER_ENDPOINT");
-        $ws_server = config("app.WS_SERVER_ENDPOINT");
-
-
-        $totalCalls = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')->count();
-        $answeredCalls = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')->count();
-        $missedCalls = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')->count();
-        $averageCallTime = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')->avg('duration_number');
-
-        // Fetching the last five calls
-        $lastFiveCalls = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')->latest('agent_number')->take(5)->get();
-
-        // $this->customer_details = Customer::where('meter_no', '=', $meter_no)->get();
-        //dd(Customer::where('meter_no', '=', 'Z01851393')->get());
-         //$query = Customer::query();
-//        $query = Customer::select([
-//            //'region',
-//            //'zone',
-//            'division',
-//            'service_no',
-//            'service_point',
-//            //'csc',
-//            //'tariff',
-//            'itinerary_assigned',
-//            //'declared_demand',
-//            'premise_id',
-//            'customer_name',
-//            'meter_no',
-//            'meter_serial_no',
-//            'meter_make',
-//            'meter_type_code',
-//            'meter_status',
-//            'phase_type',
-//            'phase_type',
-//            'voltage_type',
-//            'meter_rating',
-//            'meter_constant',
-//            'meter_instal_date',
-//            'town',
-//            'meter_type',
-//            'connection_type',
-//            //'province',
-//            //'township',
-//            //'street',
-//            //'address',
-//            // 'home_phone',
-//            // 'buss_phone',
-//            // 'other_phone',
-//        ]);
-
-//        if ($this->meter_number) {
-//            $meter_number = strtoupper($this->meter_number);
-//            $query->where(function ($query) use ($meter_number) {
-//                $query->where('meter_serial_no', '=', $meter_number);
-//            });
-//
-//            $this->customer_details = $query->get();
-//        }
-
-        return view('livewire.live.agent.dashboard-controller', [
-            'agent' => $this->agent,
-            'api_server' => $api_server,
-            'ws_server' => $ws_server,
-            'totalCalls' => $totalCalls,
-            'answeredCalls' => $answeredCalls,
-            'missedCalls' => $missedCalls,
-            'averageCallTime' => gmdate('H:i:s', $averageCallTime),
-            'lastFiveCalls' => $lastFiveCalls,
-            'customer_details' => $this->customer_details
-        ]);
+        // Only search if term has at least 3 characters
+        if (strlen(trim($value)) >= 3) {
+            $this->is_searching = true;
+            $this->searchCustomers();
+        } else {
+            $this->reset(['customer_details', 'show_modal']);
+        }
     }
 
-    public function customerDetails($meter_no)
+    public function searchCustomers()
     {
-        // "region" => "KITWE REGION"
-        // "zone" => "KITWE"
-        // "division" => "COPPERBELT PROVINCE"
-        // "service_no" => "3678784"
-        // "service_point" => "3219680"
-        // "csc" => "CSC - KITWE TOWN OFFICE"
-        // "tariff" => "PREPAYMENT RESIDENTIAL TARIFF"
-        // "itinerary_assigned" => "13032"
-        // "declared_demand" => "15"
-        // "premise_id" => "3283935"
-        // "customer_name" => "TEMBO     ANDERSON"
-        // "meter_no" => "Z01851393"
-        // "meter_serial_no" => "07076828628"
-        // "meter_make" => "LANDIS&GYR                                                                      "
-        // "meter_type_code" => "10-SA123"
-        // "meter_status" => "INSTALLED"
-        // "phase_type" => "1- Phase"
-        // "voltage_type" => "230-250V"
-        // "meter_rating" => "20-80"
-        // "meter_constant" => "1"
-        // "meter_instal_date" => "2011-06-22 00:00:00"
-        // "town" => "KITWE "
-        // "meter_type" => "PREPAYMENT"
-        // "connection_type" => "PREPAYMENT METER ( X1 )"
-        // "province" => "COPPERBELT PROVINCE"
-        // "township" => "NEW NDEKE"
-        // "street" => "KAKOSHI"
-        // "address" => "1940 B KAKOSHI ROAD , NEW NDEKE ."
-        // "home_phone" => " "
-        // "buss_phone" => " "
-        // "other_phone" => " "
+        Log::info("errorMessage");
+        $this->validate();
+//       ($customer_details = Customer::where('service_no', $this->service_no)->orWhere('meter_serial_no', $this->service_no)->first();
+//        dd(Customer::where('meter_no', '=', '04281634057')->get());
+        $searchTerm = trim($this->search_term);
+        $upperSearchTerm = strtoupper($searchTerm);
 
-        $this->customer_details = Customer::where('meter_serial_no', '=', $meter_no)->get();
+        $this->customer_details = Customer::where(function($query) use ($searchTerm, $upperSearchTerm) {
+            $query->where('meter_serial_no', 'like', '%'.$upperSearchTerm.'%')
+                ->orWhere('service_no', 'like', '%'.$searchTerm.'%')
+                ->orWhere('complaint_no', 'like', '%'.$searchTerm.'%')
+                ->orWhere('customer_name', 'like', '%'.$searchTerm.'%');
+        })
+            ->orderBy('complaint_status_desc', 'asc')
+//            ->orderBy('created_at', 'desc')
+            ->take(50) // Limit results for performance
+            ->get();
+
+        $this->show_modal = count($this->customer_details) > 0;
+        $this->is_searching = false;
+    }
+
+    public function closeModal()
+    {
+       $this->reset(['show_modal', 'search_term', 'customer_details']);
     }
 
     public function login()
     {
-        $this->agent->state =  config('constants.agent_state.LOGGED_IN');
-        $this->agent->status =  config('constants.agent_status.IDLE');
-        $this->agent->save();
-        $server = config("app.API_SERVER_ENDPOINT");
-        // try {
-        //     $response = Http::get($server . '?login=login&endpoint=' .  $this->agent_num);
-        //     // Set success message
-        //     session()->flash('message', 'Successfully logged in.');
-        // } catch (\Exception $e) {
-        //     // Set error message
-        //     session()->flash('error', 'Error: ' . $e->getMessage());
-        // }
+        $this->agent->update([
+            'state' => config('constants.agent_state.LOGGED_IN'),
+            'status' => config('constants.agent_status.IDLE'),
+        ]);
     }
 
     public function status($status)
     {
-        $this->agent->status = $status;
-        $agent_status = $status;
-        $this->agent->save();
-        // try {
-        //     $response = Http::get($this->server . '?status=' . $agent_status . '&endpoint=' .  $this->agent_num);
-        //     // Set success message
-        //     session()->flash('message', 'Connected successfully.');
-        // } catch (\Exception $e) {
-        //     // Set error message
-        //     session()->flash('error', 'Failed to connect: ' . $e->getMessage());
-        // }
+        $this->agent->update([
+            'status' => $status,
+        ]);
     }
+
     public function logout()
     {
-        $this->agent->state =  config('constants.agent_state.LOGGED_OUT');
-        $this->agent->status =  config('constants.agent_status.LOGGED_OUT');
-        $this->agent->save();
-
-        $this->agent->refresh();
-        // self::clearSession();
-
-        // try {
-
-        //     $response = Http::get($this->server . '?logout=logout&endpoint=' .  $this->agent_num);
-        //     // Save the selected session ID to the session
-
-        //     // Set success message
-        //     session()->flash('message', 'PBX credentials successfully updated.');
-        // } catch (\Exception $e) {
-        //     // Set error message
-        //     session()->flash('error', 'Failed to update PBX credentials: ' . $e->getMessage());
-        // }
+        $this->agent->update([
+            'state' => config('constants.agent_state.LOGGED_OUT'),
+            'status' => config('constants.agent_status.LOGGED_OUT'),
+        ]);
     }
-
-
 
     public function saveSession()
     {
-        self::changeSession();
-        // Set success message
+        $this->changeSession();
         session()->flash('message', 'Session saved successfully.');
     }
-
 
     public function showModal()
     {
@@ -357,45 +177,29 @@ class DashboardController extends Component
 
     public function answeredCalls()
     {
-        Auth::user()->myCallRecordings;
+        return Auth::user()->myCallRecordings;
+    }
+
+    public function render()
+    {
+        $this->agent = $this->user->myAgentDetails;
+        $this->agent_num = $this->agent->endpoint ?? '';
+
+        $api_server = config('app.API_SERVER_ENDPOINT');
+        $ws_server = config('app.WS_SERVER_ENDPOINT');
+
+        $callsQuery = Recordings::where('agent_number', 'like', "%{$this->agent_num}%");
+
+        return view('livewire.live.agent.dashboard-controller', [
+            'agent' => $this->agent,
+            'api_server' => $api_server,
+            'ws_server' => $ws_server,
+            'totalCalls' => $callsQuery->count(),
+            'answeredCalls' => $callsQuery->count(), // You can later refine this if you separate answered vs missed
+            'missedCalls' => $callsQuery->count(),   // Likewise refine later
+            'averageCallTime' => gmdate('H:i:s', $callsQuery->avg('duration_number') ?: 0),
+            'lastFiveCalls' => $callsQuery->latest('agent_number')->take(5)->get(),
+            'customer_details' => $this->customer_details,
+        ]);
     }
 }
-
-// class CallManager extends \Livewire\Component
-// {
-//     public $sessions;
-//     public $selectedSession;
-//     public $currentSession;
-
-//     public function mount()
-//     {
-//         // Load all available sessions
-//         $this->sessions = \App\Models\Session::all();
-
-//         // Set selectedSession from application or browser session, if available
-//         $this->selectedSession = session('current_session_id', '');
-
-//         // Load the current session details if there's a selected session
-//         if ($this->selectedSession) {
-//             $this->currentSession = \App\Models\Session::find($this->selectedSession);
-//         }
-//     }
-
-//     public function changeSession()
-//     {
-//         // Save the selected session ID to the session
-//         Session::put('current_session_id', $this->selectedSession);
-
-//         // Reload the current session details
-//         $this->currentSession = \App\Models\Session::find($this->selectedSession);
-
-//         // Optionally, you can perform any additional logic or database updates here
-//     }
-
-//     public function render()
-//     {
-//         return view('livewire.call-manager');
-//     }
-// }
-
-

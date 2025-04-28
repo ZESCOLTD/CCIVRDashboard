@@ -94,21 +94,30 @@
 
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
+
             <section class="content-header">
-                <div class="container-fluid">
-                    <div class="row mb-2">
-                        <div class="col-sm-6">
-                            <h4>{{ Breadcrumbs::render() }}</h4>
-                        </div>
-                        <div class="col-sm-6">
-                            <ol class="breadcrumb float-sm-right">
-                                {{--                            <li class="breadcrumb-item"><a href="#">Home</a></li> --}}
-                                {{--                            <li class="breadcrumb-item active">Simple Tables</li> --}}
-                            </ol>
-                        </div>
+                <div class="d-flex justify-content-between align-items-center w-100" style="padding: 10px; background: #f8f9fa;">
+
+                    <!-- Clock Left -->
+                    <div id="clock" style="font-size: 24px; font-weight: bold;">
+                        00:00:00
                     </div>
-                </div><!-- /.container-fluid -->
+
+                    <!-- Day and Date Center -->
+                    <div id="day-date" style="font-size: 20px; font-weight: bold; text-align: center;">
+                        Monday, January 1, 2025
+                    </div>
+
+                    <!-- Temperature Right -->
+                    <div id="temperature" style="font-size: 20px; font-weight: bold; text-align: right;">
+                        Loading...
+                    </div>
+
+                </div>
             </section>
+
+
+
 
             <!-- Main content -->
             <section class="content">
@@ -208,6 +217,75 @@
             alert(event.detail.message);
         })
     </script> --}}
+    <script>
+        function updateDateTime() {
+            const now = new Date();
+
+            // Update Clock
+            const time = now.toLocaleTimeString();
+            document.getElementById('clock').innerText = time;
+
+            // Update Day and Date
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dayDate = now.toLocaleDateString('en-US', options);
+            document.getElementById('day-date').innerText = dayDate;
+        }
+
+        setInterval(updateDateTime, 1000);
+        updateDateTime(); // Run immediately on load
+
+        function fetchTemperature(lat, lon) {
+            const apiKey = '5eed76c09a1224c86de1630c63e99f78'; // Your API key
+            const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&appid=${apiKey}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.main && data.main.temp !== undefined) {
+                        const temp = data.main.temp;
+                        document.getElementById('temperature').innerText = `Temp: ${temp.toFixed(1)}°C`;
+                    } else {
+                        document.getElementById('temperature').innerText = "Temp: N/A";
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching temperature:', error);
+                    document.getElementById('temperature').innerText = "Temp: N/A";
+                });
+        }
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    fetchTemperature(lat, lon);
+                },
+                error => {
+                    console.error('Error getting location:', error);
+                    // Fallback to Lusaka coordinates if location access denied
+                    fetchTemperature(-15.3875, 28.3228);
+                }
+            );
+        } else {
+            console.error('Geolocation not supported');
+            // Fallback to Lusaka if geolocation not available
+            fetchTemperature(-15.3875, 28.3228);
+        }
+
+        setInterval(() => {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    position => {
+                        fetchTemperature(position.coords.latitude, position.coords.longitude);
+                    }
+                );
+            }
+        }, 300000); // 300,000 ms = 5 minutes
+
+    </script>
+
+
 </body>
 
 </html>
