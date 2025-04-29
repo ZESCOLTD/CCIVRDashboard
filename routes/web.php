@@ -30,12 +30,15 @@ use App\Http\Livewire\User\UserOverview\ListAllUsers;
 use App\Http\Livewire\User\UserOverview\CreateNewUser;
 use App\Http\Livewire\Live\Supervisor\SupervisorDashboard;
 use App\Http\Livewire\Live\Agent\DashboardController as AgentDashboardController;
+use App\Http\Livewire\Live\DialEventsComponent;
+use App\Http\Livewire\Live\StasisEndEventsComponent;
 use App\Http\Livewire\RolesAndPermissions\PermissionComponent;
 use App\Http\Livewire\RolesAndPermissions\RoleComponent;
 use App\Http\Livewire\RolesAndPermissions\UserComponent;
 use App\Http\Livewire\RolesAndPermissions\UserEditComponent;
 use App\Http\Livewire\Live\Supervisor\KnowledgeBaseManager;
 use App\Http\Livewire\RolesAndPermissions\UserManagement;
+use App\Models\Live\DialEventLog;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -85,6 +88,10 @@ Route::middleware(['auth', 'role:super-admin|admin|agent'])->group(function () {
     Route::get('live/dashboard', DashboardController::class)->name('live.dashboard');
     Route::get('live/recordings/show/{id}', RecordingsShow::class)->name('live.recordings.show');
     Route::get('live/recordings', Recordings::class)->name('live.recordings');
+    Route::get('live/callstats', DialEventsComponent::class)->name('live.callstats');
+
+    Route::get('live/stasis-end-stats', StasisEndEventsComponent::class)->name('live.stasis-end-stats');
+
 
     Route::get('live/agent/dashboard/{id}', AgentDashboardController::class)->name('live.agent.dashboard');
 

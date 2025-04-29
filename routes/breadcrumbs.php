@@ -159,3 +159,11 @@ Breadcrumbs::for('session.call-sessions.show', function ($trail, $id) {
 Breadcrumbs::for('live.transactionCodes', function ($trail) {
     $trail->push('Transaction codes', route('live.transactionCodes'));
 });
+
+Breadcrumbs::for('live.callstats', function ($trail) {
+    $trail->push('Call Statistics', route('live.callstats'));
+});
+
+Breadcrumbs::for('live.stasis-end-stats', function ($trail) {
+    $trail->push('Title Here', route('live.stasis-end-stats'));
+});
