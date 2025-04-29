@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 
+use App\Models\Live\DialEventLog;
+
 class DashboardController extends Component
 {
     public $agent_num, $set_number, $user, $agent, $agent_status;
@@ -30,7 +32,7 @@ class DashboardController extends Component
     public $searchCustomer;
 
 
-//    AGENT TIME OUT  LOGIC
+    //    AGENT TIME OUT  LOGIC
     public $onBreak = false;
 
     public $breakStartTime = null;
@@ -40,9 +42,9 @@ class DashboardController extends Component
     public $breakMinutes = 0;
 
 
-//    public $breakDuration = null;
+    //    public $breakDuration = null;
 
-//AGENT TIME OUT END LOGIC
+    //AGENT TIME OUT END LOGIC
 
     public $searchQuery = '';
     public $searchResults = [];
@@ -137,19 +139,19 @@ class DashboardController extends Component
     {
         Log::info("errorMessage");
         $this->validate();
-//       ($customer_details = Customer::where('service_no', $this->service_no)->orWhere('meter_serial_no', $this->service_no)->first();
-//        dd(Customer::where('meter_no', '=', '04281634057')->get());
+        //       ($customer_details = Customer::where('service_no', $this->service_no)->orWhere('meter_serial_no', $this->service_no)->first();
+        //        dd(Customer::where('meter_no', '=', '04281634057')->get());
         $searchTerm = trim($this->search_term);
         $upperSearchTerm = strtoupper($searchTerm);
 
-        $this->customer_details = Customer::where(function($query) use ($searchTerm, $upperSearchTerm) {
-            $query->where('meter_serial_no', 'like', '%'.$upperSearchTerm.'%')
-                ->orWhere('service_no', 'like', '%'.$searchTerm.'%')
-                ->orWhere('complaint_no', 'like', '%'.$searchTerm.'%')
-                ->orWhere('customer_name', 'like', '%'.$searchTerm.'%');
+        $this->customer_details = Customer::where(function ($query) use ($searchTerm, $upperSearchTerm) {
+            $query->where('meter_serial_no', 'like', '%' . $upperSearchTerm . '%')
+                ->orWhere('service_no', 'like', '%' . $searchTerm . '%')
+                ->orWhere('complaint_no', 'like', '%' . $searchTerm . '%')
+                ->orWhere('customer_name', 'like', '%' . $searchTerm . '%');
         })
             ->orderBy('complaint_status_desc', 'asc')
-//            ->orderBy('created_at', 'desc')
+            //            ->orderBy('created_at', 'desc')
             ->take(50) // Limit results for performance
             ->get();
 
@@ -159,7 +161,7 @@ class DashboardController extends Component
 
     public function closeModal()
     {
-       $this->reset(['show_modal', 'search_term', 'customer_details']);
+        $this->reset(['show_modal', 'search_term', 'customer_details']);
     }
 
     public function login()
@@ -217,13 +219,45 @@ class DashboardController extends Component
 
         $callsQuery = Recordings::where('agent_number', 'like', "%{$this->agent_num}%");
 
+        $calls = DialEventLog::orderBy('event_timestamp')
+            ->get()
+            ->groupBy(function ($event) {
+                return $event->dialstring . '_' . $event->peer_id;
+            });
+
+
+        $callResults = $calls->map(function ($events, $key) {
+            $sorted = $events->sortBy('event_timestamp');
+
+            $lastWithStatus = $sorted->reverse()->first(fn($e) => !empty($e->dialstatus));
+
+            if (!$lastWithStatus) return null;
+
+            return [
+                'dialstring' => $lastWithStatus->dialstring,
+                'caller_number' => $lastWithStatus->caller_number,
+                'status' => $lastWithStatus->dialstatus,
+                'timestamp' => $lastWithStatus->event_timestamp,
+            ];
+        })->filter(); // remove nulls
+
+
+        // dd($callResults);
+
+        $answered = count($callResults->where('status', 'ANSWER')
+        ->where('dialstring', $this->agent->endpoint));
+        $missed = count($callResults->where('status', 'NOANSWER')
+        ->where('dialstring', $this->agent->endpoint));
+
+        // dd($answered, $missed);
+
         return view('livewire.live.agent.dashboard-controller', [
             'agent' => $this->agent,
             'api_server' => $api_server,
             'ws_server' => $ws_server,
-            'totalCalls' => $callsQuery->count(),
-            'answeredCalls' => $callsQuery->count(), // You can later refine this if you separate answered vs missed
-            'missedCalls' => $callsQuery->count(),   // Likewise refine later
+            'totalCalls' => $answered+$missed,
+            'answeredCalls' => $answered, // You can later refine this if you separate answered vs missed
+            'missedCalls' => $missed,   // Likewise refine later
             'averageCallTime' => gmdate('H:i:s', $callsQuery->avg('duration_number') ?: 0),
             'lastFiveCalls' => $callsQuery->latest('agent_number')->take(5)->get(),
             'customer_details' => $this->customer_details,
@@ -233,7 +267,7 @@ class DashboardController extends Component
     protected $listeners = ['refreshComponent' => '$refresh'];
 
 
-//    Agent Time Out Logic start
+    //    Agent Time Out Logic start
     public function toggleBreak()
     {
         $limit = $this->getCurrentShiftLimit();
@@ -251,7 +285,6 @@ class DashboardController extends Component
             ]);
             $this->breakStartTime = now();
             $this->breakLimitReached = false;
-
         } else {
             // Resume from break
             $this->agent->update([
@@ -285,9 +318,9 @@ class DashboardController extends Component
     {
         $this->calculateBreakDuration();
     }
-//    Agent Time Out Logic start
+    //    Agent Time Out Logic start
 
-//   Shift Logic time management start
+    //   Shift Logic time management start
     private function getCurrentShiftLimit(): int
     {
         $now = now();
@@ -304,7 +337,7 @@ class DashboardController extends Component
         return 60;
     }
 
-//   Shift Logic time management start
+    //   Shift Logic time management start
 
     public function getBreakDurationProperty()
     {
@@ -327,6 +360,4 @@ class DashboardController extends Component
             $this->checkBreakLimit($seconds);
         }
     }
-
-
 }
