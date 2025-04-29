@@ -157,15 +157,77 @@
                                     <span class="ms-2">00:03:15</span>
                                 </div>
                                 <div class="mt-3">
-                                    <form wire:submit.prevent="{{ $this->agent->state == config('constants.agent_state.LOGGED_IN') ? 'logout' : 'login' }}">
-                                        <button type="submit" class="btn {{ $this->agent->state == config('constants.agent_state.LOGGED_IN') ? 'btn-danger' : 'btn-success' }} w-100">
+                                    {{-- <form
+                                        wire:submit.prevent="{{ $this->agent->state == config('constants.agent_state.LOGGED_IN') ? 'logout' : 'login' }}">
+
+                                        @if ($this->agent->state == config('constants.agent_state.LOGGED_IN'))
+                                        <button type="submit"
+                                            class="btn {{ $this->agent->state == config('constants.agent_state.LOGGED_IN') ? 'btn-danger' : 'btn-success' }} w-100">
+
+                                                <i class="fas fa-sign-out-alt me-1"></i>Logout
+
+                                                <i class="fas fa-sign-in-alt me-1"></i>Login
+
+                                        </button>
+                                        @else
+
+                                        <button type="submit"
+                                            class="btn {{ $this->agent->state == config('constants.agent_state.LOGGED_IN') ? 'btn-danger' : 'btn-success' }} w-100">
                                             @if ($this->agent->state == config('constants.agent_state.LOGGED_IN'))
                                                 <i class="fas fa-sign-out-alt me-1"></i>Logout
                                             @else
                                                 <i class="fas fa-sign-in-alt me-1"></i>Login
                                             @endif
                                         </button>
-                                    </form>
+
+                                        @endif
+                                    </form> --}}
+
+
+                                    @switch($agent->state)
+                                        @case(config('constants.agent_state.LOGGED_OUT'))
+                                        @case(config('constants.agent_state.WITHDRAWN'))
+                                            <form wire:submit.prevent="login">
+                                                <button type="submit" class="btn btn-success w-100">
+                                                    <i class="fas fa-sign-in-alt me-1"></i> Login
+                                                </button>
+                                            </form>
+                                        @break
+
+                                        @case(config('constants.agent_state.LOGGED_IN'))
+                                        @case(config('constants.agent_state.IDLE'))
+
+                                        @case(config('constants.agent_state.WRAPPING_UP'))
+                                            <div class="d-grid gap-2">
+                                                <form wire:submit.prevent="withdraw">
+                                                    <button type="submit" class="btn btn-warning w-100">
+                                                        <i class="fas fa-user-slash me-1"></i> Withdraw
+                                                    </button>
+                                                </form>
+                                                <form wire:submit.prevent="logout">
+                                                    <button type="submit" class="btn btn-danger w-100">
+                                                        <i class="fas fa-sign-out-alt me-1"></i> Logout
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        @break
+
+                                        @case(config('constants.agent_state.IN_CONVERSATION'))
+                                            <form wire:submit.prevent="logout">
+                                                <button type="submit" class="btn btn-danger w-100">
+                                                    <i class="fas fa-sign-out-alt me-1"></i> Logout
+                                                </button>
+                                            </form>
+                                        @break
+
+                                        @default
+                                            <form wire:submit.prevent="login">
+                                                <button type="submit" class="btn btn-success w-100">
+                                                    <i class="fas fa-sign-in-alt me-1"></i> Login
+                                                </button>
+                                            </form>
+                                    @endswitch
+
                                 </div>
                             </div>
                         </div>
@@ -1045,15 +1107,16 @@
 
 
 
+
             <!-- Session Selection Modal -->
             <div class="modal fade" id="sessionModal" tabindex="-1" role="dialog"
-                aria-labelledby="sessionModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false"
-                wire:ignore.self>
+                aria-labelledby="sessionModalLabel" aria-hidden="true" data-bs-backdrop="static"
+                data-bs-keyboard="false" wire:ignore.self>
+                selected {{ $selectedSession }}
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="sessionModalLabel">Select Session</h5>
-
                         </div>
                         <div class="modal-body">
                             <select class="form-control" wire:model="selectedSession" wire:change="changeSession">
@@ -1065,12 +1128,13 @@
                         </div>
                         <div class="modal-footer">
                             @if ($selectedSession == null)
-                                <button type="button" class="btn btn-primary disabled "
-                                    wire:click="saveSession">Save
-                                    changes ... </button>
+                                <button type="button" class="btn btn-primary disabled" wire:click="saveSession">Save
+                                    changes ...</button>
                             @else
-                                <button type="button" class="btn btn-primary" wire:click="saveSession">Save
-                                    changes</button>
+                                <button type="button" class="btn btn-primary" wire:click="saveSession"
+                                    data-bs-dismiss="modal">
+                                    Save changes
+                                </button>
                             @endif
                         </div>
                     </div>
@@ -1096,6 +1160,8 @@
             }, 'http://localhost:8000');
         };
     </script>
+
+
 </div>
 
 @push('custom-scripts')
@@ -1109,6 +1175,30 @@
 
 
     <script>
+        document.addEventListener('livewire:load', function() {
+            @this.on('openSessionModal', () => {
+                var sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
+                sessionModal.show();
+            });
+
+            @this.on('closeSessionModal', () => {
+                var sessionModal = bootstrap.Modal.getInstance(document.getElementById('sessionModal'));
+
+                console.log("Closing modal")
+                if (sessionModal) {
+                    sessionModal.hide();
+                }
+            });
+
+            // Automatically trigger open if selectedSession is null at page load
+            @if ($selectedSession == null)
+                var sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
+                sessionModal.show();
+            @endif
+        });
+    </script>
+
+    <script defer>
         document.addEventListener('livewire:load', function() {
             Livewire.on('highlightSearch', (query) => {
                 const elements = document.querySelectorAll('.search-result-text');
@@ -1124,7 +1214,7 @@
         });
     </script>
 
-    <script>
+    <script defer>
         Livewire.on('closeModal', () => {
             const modal = bootstrap.Modal.getInstance(document.getElementById('knowledgeModal'));
             if (modal) {
@@ -1135,6 +1225,7 @@
 
     <script>
         window.addEventListener('DOMContentLoaded', function() {
+
             // WebSocket connection and event listeners as in the original code
             var ws_address = document.getElementById("ws_endpoint");
             var ws_socket = document.getElementById("ws-info");

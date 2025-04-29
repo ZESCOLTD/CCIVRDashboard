@@ -199,10 +199,11 @@
 
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    @stack('custom-scripts')
 
     @livewireScripts
-    <script src="//unpkg.com/alpinejs" defer></script>
+    @stack('custom-scripts')
+
+    {{-- <script src="//unpkg.com/alpinejs" defer></script> --}}
     {{-- <script>
         window.addEventListener('showAlert', event => {
             alert(event.detail.message);

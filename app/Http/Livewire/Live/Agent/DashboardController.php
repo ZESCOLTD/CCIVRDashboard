@@ -41,7 +41,6 @@ class DashboardController extends Component
 
     public function mount($id)
     {
-
         $this->user = User::findOrFail($id);
 
         // Load all available sessions
@@ -50,12 +49,16 @@ class DashboardController extends Component
         // Set selectedSession from application or browser session, if available
         $this->selectedSession = session('current_session_id', '');
 
+        // Check if selectedSession is empty or null
+        // if (empty($this->selectedSession)) {
+        //     $this->dispatchBrowserEvent('show-session-modal'); // Emit event to show the modal
+        // }
+
         // Load the current session details if there's a selected session
         if ($this->selectedSession) {
             $this->currentSession = CallSession::find($this->selectedSession);
         }
-
-        // $this->server = config("constants.configs.API_SERVER_ENDPOINT");
+        // dd($this->currentSession);
     }
 
     //Search funtionality
@@ -111,7 +114,7 @@ class DashboardController extends Component
         $this->currentSession = CallSession::find($this->selectedSession);
         // Save the selected session ID to the session
         session(['current_session_id' => $this->selectedSession]);
-        $this->dispatchBrowserEvent('hide-modal');
+        // $this->dispatchBrowserEvent('hide-modal');
 
         // Validate incoming request data
         // $validatedData = $request->validate([
@@ -164,7 +167,7 @@ class DashboardController extends Component
 
         // );
         // }
-
+        $this->dispatchBrowserEvent('closeSessionModal');
         // Set success message
         session()->flash('message', 'Session saved successfully.');
     }
@@ -201,8 +204,13 @@ class DashboardController extends Component
         ]);
     }
 
-        public function login()
+    public function login()
     {
+
+        if (empty($this->selectedSession)) {
+            $this->dispatchBrowserEvent('show-session-modal'); // Emit event to show the modal
+            return;
+        }
 
         $server = config("app.API_SERVER_ENDPOINT");
 
@@ -244,14 +252,28 @@ class DashboardController extends Component
         $this->agent->save();
 
         $this->agent->refresh();
+        $this->clearSession();
         $this->emitSelf('refresh');
     }
+
+
+    public function withdraw()
+    {
+        $this->agent->state =  config('constants.agent_state.LOGGED_IN');
+        $this->agent->status =  config('constants.agent_status.WITHDRAWN');
+        $this->agent->save();
+
+        $this->agent->refresh();
+        $this->emitSelf('refresh');
+    }
+
 
 
 
     public function saveSession()
     {
         self::changeSession();
+        $this->dispatchBrowserEvent('closeSessionModal');
         // Set success message
         session()->flash('message', 'Session saved successfully.');
     }
