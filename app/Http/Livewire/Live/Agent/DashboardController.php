@@ -182,15 +182,39 @@ class DashboardController extends Component
         $ws_server = config("app.WS_SERVER_ENDPOINT");
 
 
-        $totalCalls = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')->count();
-        $answeredCalls = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')->count();
-        $missedCalls = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')->count();
-        $averageCallTime = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')->avg('duration_number');
+        // $totalCalls = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')->count();
+        // $answeredCalls = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num)->count();
+        // $missedCalls = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')->count();
+        // $averageCallTime = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')->avg('duration_number');
 
-        // Fetching the last five calls
-        $lastFiveCalls = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')->latest('agent_number')->take(5)->get();
+        // // Fetching the last five calls
+        // $lastFiveCalls = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')->latest('agent_number')->take(5)->get();
 
 
+        $lastFour = substr($this->agent_num, -4);
+        $today = now()->toDateString(); // or Carbon::today()
+
+        $totalCalls = Recordings::whereRaw('RIGHT(agent_number, 4) = ?', [$lastFour])
+            ->whereDate('created_at', $today)
+            ->count();
+
+        $answeredCalls = Recordings::whereRaw('RIGHT(agent_number, 4) = ?', [$lastFour])
+            ->whereDate('created_at', $today)
+            ->count();
+
+        $missedCalls = Recordings::whereRaw('RIGHT(agent_number, 4) = ?', [$lastFour])
+            ->whereDate('created_at', $today)
+            ->count();
+
+        $averageCallTime = Recordings::whereRaw('RIGHT(agent_number, 4) = ?', [$lastFour])
+            ->whereDate('created_at', $today)
+            ->avg('duration_number');
+
+        $lastFiveCalls = Recordings::whereRaw('RIGHT(agent_number, 4) = ?', [$lastFour])
+            ->whereDate('created_at', $today)
+            ->latest('created_at')
+            ->take(5)
+            ->get();
         return view('livewire.live.agent.dashboard-controller', [
             'agent' => $this->agent,
             'api_server' => $api_server,
@@ -276,6 +300,7 @@ class DashboardController extends Component
         $this->dispatchBrowserEvent('closeSessionModal');
         // Set success message
         session()->flash('message', 'Session saved successfully.');
+        $this->emitSelf('refresh');
     }
 
 

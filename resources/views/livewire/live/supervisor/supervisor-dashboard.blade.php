@@ -308,7 +308,7 @@
                                 <span class="info-box-icon"><i class="fas fa-times-circle"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Abandoned</span>
-                                    <span class="info-box-number">{{ $failedCalls }}</span>
+                                    <span class="info-box-number">{{ $abandonedCalls }}</span>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: 15%"></div>
                                     </div>
@@ -322,7 +322,7 @@
                                 <span class="info-box-icon"><i class="fas fa-ban"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Failed Calls</span>
-                                    <span class="info-box-number">{{ $failedCalls }}</span>
+                                    <span class="info-box-number">0</span>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: 25%"></div>
                                     </div>

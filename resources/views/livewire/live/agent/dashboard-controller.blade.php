@@ -164,31 +164,7 @@
                                     <span class="ms-2">00:03:15</span>
                                 </div>
                                 <div class="mt-3">
-                                    {{-- <form
-                                        wire:submit.prevent="{{ $this->agent->state == config('constants.agent_state.LOGGED_IN') ? 'logout' : 'login' }}">
 
-                                        @if ($this->agent->state == config('constants.agent_state.LOGGED_IN'))
-                                        <button type="submit"
-                                            class="btn {{ $this->agent->state == config('constants.agent_state.LOGGED_IN') ? 'btn-danger' : 'btn-success' }} w-100">
-
-                                                <i class="fas fa-sign-out-alt me-1"></i>Logout
-
-                                                <i class="fas fa-sign-in-alt me-1"></i>Login
-
-                                        </button>
-                                        @else
-
-                                        <button type="submit"
-                                            class="btn {{ $this->agent->state == config('constants.agent_state.LOGGED_IN') ? 'btn-danger' : 'btn-success' }} w-100">
-                                            @if ($this->agent->state == config('constants.agent_state.LOGGED_IN'))
-                                                <i class="fas fa-sign-out-alt me-1"></i>Logout
-                                            @else
-                                                <i class="fas fa-sign-in-alt me-1"></i>Login
-                                            @endif
-                                        </button>
-
-                                        @endif
-                                    </form> --}}
 
                                     @if (in_array($agent->status, ['LOGGED_OUT', 'WITHDRAWN']))
                                         <form wire:submit.prevent="login">
@@ -209,6 +185,12 @@
                                                 </button>
                                             </form>
                                         </div>
+                                    @else
+                                        <form wire:submit.prevent="login">
+                                            <button type="submit" class="btn btn-success w-100">
+                                                <i class="fas fa-sign-in-alt me-1"></i> Login
+                                            </button>
+                                        </form>
                                     @endif
                                 </div>
                             </div>
