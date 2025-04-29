@@ -17,189 +17,261 @@
     </div>
 
     <!-- Main Dashboard Card -->
-    <div class="card mb-4 border-0 shadow-lg" style="border-radius: 10px; overflow: hidden;">
-        <div class="card-header py-3" style="background-color: #0f974b; color: white;">
-            <div class="d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                    <i class="fas fa-user-shield mr-2"></i>
-                    Supervisor Control Panel
-                </h5>
-                <div>
-                    <span class="badge badge-light mr-2">
-                        <i class="fas fa-clock mr-1"></i> <span id="currentTime">Loading...</span>
-                    </span>
-                    <span class="badge badge-light">
-                        <i class="fas fa-calendar-alt mr-1"></i> <span id="currentDate">Loading...</span>
-                    </span>
-                </div>
-            </div>
-        </div>
-        <div class="card-body" style="background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);">
-            <div class="row">
-                <!-- Supervisor Information Column -->
-                <div class="col-md-4 border-right pr-4" style="border-color: rgba(244, 158, 56, 0.3) !important;">
-                    <h6 class="card-subtitle mb-3"
-                        style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
-                        <i class="fas fa-user-tie mr-2"></i>Supervisor Information
-                    </h6>
-                    <div class="pl-3">
-                        <p class="mb-2">
-                            <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Name:</strong>
-                            <span style="color: #333;">{{ $user->name }}</span>
-                        </p>
-                        <p class="mb-2">
-                            <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Employee
-                                No:</strong>
-                            <span style="color: #333;">{{ $user->man_no }}</span>
-                        </p>
-                        <p class="mb-2">
-                            <strong
-                                style="color: #0f974b; min-width: 120px; display: inline-block;">Department:</strong>
-                            <span style="color: #333;">Customer Support</span>
-                        </p>
-                        <p class="mb-0">
-                            <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Status:</strong>
-                            <span class="badge px-2 py-1"
-                                style="background-color: {{ $user->isOnline() ? '#0f974b' : '#6c757d' }}; color: white; font-size: 0.8rem;">
-                                <i class="fas {{ $user->isOnline() ? 'fa-wifi' : 'fa-clock' }} mr-1"></i>
-                                {{ $user->isOnline() ? 'Online' : 'Offline' }}
-                                @if ($user->is_banned)
-                                    <i class="fas fa-ban ml-1"></i>
-                                @endif
-                            </span>
-                        </p>
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card border-0 shadow-lg" style="border-radius: 10px; overflow: hidden;">
+                <div class="card-header py-3" style="background-color: #0f974b; color: white;">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">
+                            <i class="fas fa-user-shield mr-2"></i>
+                            Supervisor Control Panel
+                        </h5>
+                        <div>
+                        <span class="badge badge-light mr-2">
+                            <i class="fas fa-clock mr-1"></i> <span id="currentTime">Loading...</span>
+                        </span>
+                            <span class="badge badge-light">
+                            <i class="fas fa-calendar-alt mr-1"></i> <span id="currentDate">Loading...</span>
+                        </span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- System Status Column -->
-                <div class="col-md-4 border-right px-4" style="border-color: rgba(244, 158, 56, 0.3) !important;">
-                    <h6 class="card-subtitle mb-3"
-                        style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
-                        <i class="fas fa-server mr-2"></i>System Status
-                    </h6>
-                    <div class="pl-3">
-                        <div class="mb-3">
-                            <label style="color: #0f974b; display: block; margin-bottom: 2px;">
-                                <i class="fas fa-plug mr-1"></i>Recorder Websocket:
-                            </label>
-                            <div class="d-flex align-items-center">
-                                <input type="text" id="ws_endpoint" value='{{ $ws_server }}' hidden>
-                                <span id="ws-info" class="badge px-2 py-1"
-                                    style="background-color: #0f974b; color: white; font-size: 0.8rem;">
+                <div class="card-body" style="background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);">
+                    <div class="row">
+                        <!-- Supervisor Info (Left Column) -->
+                        <div class="col-md-4 border-right pr-4" style="border-color: rgba(244, 158, 56, 0.3) !important;">
+                            <h6 class="card-subtitle mb-3" style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
+                                <i class="fas fa-user-tie mr-2"></i>Supervisor Information
+                            </h6>
+                            <div class="pl-3">
+                                <p class="mb-2">
+                                    <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Name:</strong>
+                                    <span style="color: #333;">{{ $user->name }}</span>
+                                </p>
+                                <p class="mb-2">
+                                    <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Employee No:</strong>
+                                    <span style="color: #333;">{{ $user->man_no }}</span>
+                                </p>
+                                <p class="mb-2">
+                                    <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Department:</strong>
+                                    <span style="color: #333;">Customer Support</span>
+                                </p>
+                                <p class="mb-0">
+                                    <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Status:</strong>
+                                    <span class="badge px-2 py-1" style="background-color: {{ $user->isOnline() ? '#0f974b' : '#6c757d' }}; color: white; font-size: 0.8rem;">
+                                    <i class="fas {{ $user->isOnline() ? 'fa-wifi' : 'fa-clock' }} mr-1"></i>
+                                    {{ $user->isOnline() ? 'Online' : 'Offline' }}
+                                        @if ($user->is_banned)
+                                            <i class="fas fa-ban ml-1"></i>
+                                        @endif
+                                </span>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- System Status (Middle Column) -->
+                        <div class="col-md-4 border-right px-4" style="border-color: rgba(244, 158, 56, 0.3) !important;">
+                            <h6 class="card-subtitle mb-3" style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
+                                <i class="fas fa-server mr-2"></i>System Status
+                            </h6>
+                            <div class="pl-3">
+                                <div class="mb-3">
+                                    <label style="color: #0f974b; display: block; margin-bottom: 2px;">
+                                        <i class="fas fa-plug mr-1"></i>Recorder Websocket:
+                                    </label>
+                                    <div class="d-flex align-items-center">
+                                        <input type="text" id="ws_endpoint" value='{{ $ws_server }}' hidden>
+                                        <span id="ws-info" class="badge px-2 py-1" style="background-color: #0f974b; color: white; font-size: 0.8rem;">
+                                        <i class="fas fa-check-circle mr-1"></i>Connected
+                                    </span>
+                                        <i class="fas fa-info-circle ml-2" style="color: #f49e38; cursor: pointer;" data-toggle="tooltip" title="WebSocket connection status"></i>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <label style="color: #0f974b; display: block; margin-bottom: 2px;">
+                                        <i class="fas fa-exchange-alt mr-1"></i>Recorder Rest Interface:
+                                    </label>
+                                    <input class="form-control form-control-sm" type="text" id="api_endpoint" value='{{ $api_server }}' style="border-color: #f49e38; color: #0f974b; background-color: rgba(244, 158, 56, 0.05);">
+                                </div>
+                                <div>
+                                    <label style="color: #0f974b; display: block; margin-bottom: 2px;">
+                                        <i class="fas fa-database mr-1"></i>Database Status:
+                                    </label>
+                                    <span class="badge px-2 py-1" style="background-color: #0f974b; color: white; font-size: 0.8rem;">
                                     <i class="fas fa-check-circle mr-1"></i>Connected
                                 </span>
-                                <i class="fas fa-info-circle ml-2" style="color: #f49e38; cursor: pointer;"
-                                    data-toggle="tooltip" title="WebSocket connection status"></i>
+                                </div>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <label style="color: #0f974b; display: block; margin-bottom: 2px;">
-                                <i class="fas fa-exchange-alt mr-1"></i>Recorder Rest Interface:
-                            </label>
-                            <input class="form-control form-control-sm" type="text" id="api_endpoint"
-                                value='{{ $api_server }}'
-                                style="border-color: #f49e38; color: #0f974b; background-color: rgba(244, 158, 56, 0.05);">
+
+                        <!-- Team Overview (Right Column) -->
+                        <div class="col-md-4 pl-4">
+                            <h6 class="card-subtitle mb-3" style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
+                                <i class="fas fa-users mr-2"></i>Team Overview
+                            </h6>
+                            <div class="pl-3">
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                    <span style="color: #0f974b;">
+                                        <i class="fas fa-user-check mr-1"></i>Active Agents:
+                                    </span>
+                                        <span style="color: #333;" id="active-agents">{{$availableAgentsCount}}/{{$totalAgentCount}}</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar" style="background-color: #0f974b; width: {{ ($availableAgentsCount/$totalAgentCount)*100 }}%;"></div>
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                    <span style="color: #0f974b;">
+                                        <i class="fas fa-phone-alt mr-1"></i>Calls in Progress:
+                                    </span>
+                                        <span style="color: #333;">{{$activeCalls}}/{{$availableAgentsCount}}</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar" style="background-color: #28a745; width: {{ ($activeCalls/$availableAgentsCount)*100 }}%;"></div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="d-flex justify-content-between mb-1">
+                                    <span style="color: #0f974b;">
+                                        <i class="fas fa-hourglass-half mr-1"></i>Queue Wait Time:
+                                    </span>
+                                        <span style="color: #333;">4:32</span>
+                                    </div>
+                                    <div class="progress" style="height: 8px;">
+                                        <div class="progress-bar" style="background-color: #fd7e14; width: 65%;"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div>
-                            <label style="color: #0f974b; display: block; margin-bottom: 2px;">
-                                <i class="fas fa-database mr-1"></i>Database Status:
-                            </label>
-                            <span class="badge px-2 py-1"
-                                style="background-color: #0f974b; color: white; font-size: 0.8rem;">
-                                <i class="fas fa-check-circle mr-1"></i>Connected
-                            </span>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <h6 class="card-subtitle mb-3" style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
+                                <i class="fas fa-bolt mr-2"></i>Quick Actions
+                            </h6>
+                            <div class="d-flex flex-wrap">
+                                <button class="btn btn-sm mr-2 mb-2" style="background-color: #0f974b; color: white;" data-toggle="modal" data-target="#broadcastModal">
+                                    <i class="fas fa-broadcast-tower mr-1"></i> Broadcast Message
+                                </button>
+                                <button class="btn btn-sm mr-2 mb-2" style="background-color: #28a745; color: white;" data-toggle="modal" data-target="#agentManagementModal">
+                                    <i class="fas fa-user-plus mr-1"></i> Add Agent
+                                </button>
+                                <button class="btn btn-sm mr-2 mb-2" style="background-color: #fd7e14; color: white;">
+                                    <i class="fas fa-phone-volume mr-1"></i> Listen to Call
+                                </button>
+                                <button class="btn btn-sm mr-2 mb-2" style="background-color: #6f42c1; color: white;">
+                                    <i class="fas fa-chart-pie mr-1"></i> Generate Report
+                                </button>
+                                <button class="btn btn-sm mr-2 mb-2" style="background-color: #dc3545; color: white;">
+                                    <i class="fas fa-phone-slash mr-1"></i> End All Calls
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Current Team Overview Column -->
-                <div class="col-md-4 pl-4">
-                    <h6 class="card-subtitle mb-3"
-                        style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
-                        <i class="fas fa-users mr-2"></i>Team Overview
-                    </h6>
-                    <div class="pl-3">
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span style="color: #0f974b;">
-                                    <i class="fas fa-user-check mr-1"></i>Active Agents:
-                                </span>
-                                <span style="color: #333;"
-                                    id="active-agents">{{ $availableAgentsCount }}/{{ $totalAgentCount }}</span>
-                            </div>
-                            <div class="progress" style="height: 8px;">
-                                <div class="progress-bar" style="background-color: #0f974b; width: 28%;"></div>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <div class="d-flex justify-content-between mb-1">
-                                <span style="color: #0f974b;">
-                                    <i class="fas fa-phone-alt mr-1"></i>Calls in Progress:
-                                </span>
-                                <span style="color: #333;">{{ $activeCalls }}/{{ $availableAgentsCount }}</span>
-                            </div>
-                            <div class="progress" style="height: 8px;">
-                                <div class="progress-bar" style="background-color: #28a745; width: 25%;"></div>
-                            </div>
-                        </div>
-                        <div>
-                            <div class="d-flex justify-content-between mb-1">
-                                <span style="color: #0f974b;">
-                                    <i class="fas fa-hourglass-half mr-1"></i>Queue Wait Time:
-                                </span>
-                                <span style="color: #333;">4:32</span>
-                            </div>
-                            <div class="progress" style="height: 8px;">
-                                <div class="progress-bar" style="background-color: #fd7e14; width: 65%;"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+                <style>
+                    /* Smooth transitions and animations */
+                    #broadcastModal {
+                        transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+                    }
 
-            <!-- Quick Action Buttons -->
-            <div class="row mt-4">
-                <div class="col-12">
-                    <h6 class="card-subtitle mb-3"
-                        style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
-                        <i class="fas fa-bolt mr-2"></i>Quick Actions
-                    </h6>
-                    <div class="d-flex flex-wrap">
-                        <button class="btn btn-sm mr-2 mb-2" style="background-color: #0f974b; color: white;">
-                            <i class="fas fa-broadcast-tower mr-1"></i> Broadcast Message
-                        </button>
-                        <button class="btn btn-sm mr-2 mb-2" style="background-color: #28a745; color: white;">
-                            <i class="fas fa-user-plus mr-1"></i> Add Agent
-                        </button>
-                        <button class="btn btn-sm mr-2 mb-2" style="background-color: #fd7e14; color: white;">
-                            <i class="fas fa-phone-volume mr-1"></i> Listen to Call
-                        </button>
-                        <button class="btn btn-sm mr-2 mb-2" style="background-color: #6f42c1; color: white;">
-                            <i class="fas fa-chart-pie mr-1"></i> Generate Report
-                        </button>
-                        <button class="btn btn-sm mr-2 mb-2" style="background-color: #dc3545; color: white;">
-                            <i class="fas fa-phone-slash mr-1"></i> End All Calls
-                        </button>
+                    #broadcastModal .modal-content {
+                        transform: translateY(-20px);
+                        opacity: 0;
+                        transition: all 0.3s ease-out;
+                    }
+
+                    #broadcastModal.show .modal-content {
+                        transform: translateY(0);
+                        opacity: 1;
+                    }
+
+                    #broadcastIframe {
+                        opacity: 0;
+                    }
+
+                    /* Hover effects for buttons */
+                    .modal-footer button:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                        transition: all 0.2s ease;
+                    }
+
+                    .modal-header .close:hover {
+                        opacity: 1 !important;
+                        transform: rotate(90deg);
+                    }
+                </style>
+
+                <!-- Modal Structure -->
+                <div class="modal fade" id="broadcastModal" tabindex="-1" role="dialog" aria-labelledby="broadcastModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-xl" role="document" style="max-width: 1080px; height: 900px;">
+                        <div class="modal-content" style="height: 100%; border: none; border-radius: 10px; overflow: hidden; box-shadow: 0 10px 30px rgba(15, 151, 75, 0.3);">
+                            <!-- Modal Header with gradient -->
+                            <div class="modal-header" style="background: linear-gradient(135deg, #0f974b 0%, #0a7a3b 100%); color: white; border-bottom: 2px solid #f49e38; padding: 15px 20px;">
+                                <h5 class="modal-title" id="broadcastModalLabel" style="font-weight: 600; letter-spacing: 0.5px;">
+                                    <i class="fas fa-broadcast-tower mr-2"></i>Broadcast Message Center
+                                </h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close" style="color: white; text-shadow: none; opacity: 0.8; transition: all 0.3s;">
+                                    <span aria-hidden="true" style="font-size: 1.75rem;">&times;</span>
+                                </button>
+                            </div>
+
+                            <!-- Modal Body with perfect iframe dimensions -->
+                            <div class="modal-body" style="padding: 0; height: calc(100% - 110px);">
+                                <iframe src="http://sms.zesco.co.zm/zesco/push/rcc_broadcast_new.html"
+                                        frameborder="0"
+                                        style="width: 100%; height: 100%; transition: opacity 0.5s ease;"
+                                        id="broadcastIframe"
+                                        onload="this.style.opacity='1'"></iframe>
+                            </div>
+
+                            <!-- Enhanced Modal Footer -->
+                            <div class="modal-footer" style="background: linear-gradient(to right, #f8f9fa 0%, #e9ecef 100%); border-top: 1px solid rgba(244, 158, 56, 0.3); padding: 12px 20px;">
+                                <div class="d-flex justify-content-between w-100 align-items-center">
+                                    <small class="text-muted" style="color: #0f974b !important;">
+                                        <i class="fas fa-info-circle mr-1"></i> All messages are logged for security purposes
+                                    </small>
+                                    <div>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary mr-2" data-dismiss="modal" style="border-color: #6c757d; min-width: 90px;">
+                                            <i class="fas fa-times mr-1"></i> Close
+                                        </button>
+                                        <button type="button" class="btn btn-sm shadow-sm"
+                                                style="background: linear-gradient(to right, #0f974b 0%, #0a7a3b 100%); color: white; border: none; min-width: 150px;"
+                                                onclick="submitBroadcast()">
+                                            <i class="fas fa-paper-plane mr-1"></i> Send Broadcast
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="card-footer py-2"
-            style="background-color: rgba(15, 151, 75, 0.1); border-top: 1px solid rgba(244, 158, 56, 0.3);">
-            <div class="d-flex justify-content-between align-items-center">
-                <small class="text-muted">
-                    <i class="fas fa-sync-alt mr-1" style="color: #f49e38;"></i>
-                    Last updated: <span id="lastUpdated">Just now</span>
-                    <span id="syncStatus" class="ml-2"></span>
-                </small>
-                <small class="text-muted">
-                    <i class="fas fa-shield-alt mr-1" style="color: #f49e38;"></i>
-                    System Version: 2.4.1 | Last Login: Today, 08:45 AM
-                </small>
+
+
+                <!-- Card Footer -->
+                <div class="card-footer py-2" style="background-color: rgba(15, 151, 75, 0.1); border-top: 1px solid rgba(244, 158, 56, 0.3);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i class="fas fa-sync-alt mr-1" style="color: #f49e38;"></i>
+                            Last updated: <span id="lastUpdated">Just now</span>
+                            <span id="syncStatus" class="ml-2"></span>
+                        </small>
+                        <small class="text-muted">
+                            <i class="fas fa-shield-alt mr-1" style="color: #f49e38;"></i>
+                            System Version: 2.4.1 | Last Login: Today, 08:45 AM
+                        </small>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 {{-- First Card Handling Code DO NOT DELETE --}}
 
@@ -308,7 +380,7 @@
                                 <span class="info-box-icon"><i class="fas fa-times-circle"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Abandoned</span>
-                                    <span class="info-box-number">{{ $failedCalls }}</span>
+                                    <span class="info-box-number">3</span>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: 15%"></div>
                                     </div>
@@ -322,7 +394,7 @@
                                 <span class="info-box-icon"><i class="fas fa-ban"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Failed Calls</span>
-                                    <span class="info-box-number">{{ $failedCalls }}</span>
+                                    <span class="info-box-number">5</span>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: 25%"></div>
                                     </div>
@@ -355,7 +427,7 @@
                                 <span class="info-box-icon"><i class="fas fa-tachometer-alt"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Efficiency Level</span>
-                                    <span class="info-box-number">{{ $answeredCallsLast30 }}%</span>
+                                    <span class="info-box-number">88%</span>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: 88%"></div>
                                     </div>
@@ -508,15 +580,15 @@
                                 <div class="card-body">
                                     <div class="row">
                                         <div class="col-md-4 text-center">
-                                            <h5>{{ $answeredCalls }}</h5>
+                                            <h5>{{$answeredCalls}}</h5>
                                             <small>Today</small>
                                         </div>
                                         <div class="col-md-4 text-center">
-                                            <h5>{{ $answeredCallsThisWeek }}</h5>
+                                            <h5>210</h5>
                                             <small>This Week</small>
                                         </div>
                                         <div class="col-md-4 text-center">
-                                            <h5>{{ $answeredCallsThisMonth }}</h5>
+                                            <h5>850</h5>
                                             <small>This Month</small>
                                         </div>
                                     </div>
@@ -662,7 +734,7 @@
                                     <div class="mt-3">
                                         <span class="badge badge-success mr-2">{{ $activeCalls }} In Progress</span>
                                         <span class="badge badge-warning" id="inQueue">8 In Queue</span>
-                                        <span class="badge badge-danger" id="waiting">4 Waiting</span>
+                                        <span class="badge badge-danger">4 Waiting</span>
                                     </div>
                                 </div>
                             </div>
@@ -1080,6 +1152,51 @@
 </style>
 @push('custom-scripts')
     <script>
+        // WebSocket connection and event listeners as in the original code
+        var ws_address = document.getElementById("ws_endpoint");
+        var ws_socket = document.getElementById("ws-info");
+        const preElement = document.getElementById('json-data');
+        const incomingCall = document.getElementById('json-call-data');
+        const socket = new WebSocket(ws_address.value);
+
+        socket.addEventListener("open", (event) => {
+            console.log("WebSocket connection opened: ", ws_address);
+            ws_socket.classList.remove("badge-danger");
+            ws_socket.classList.add("badge-success");
+            ws_socket.textContent = "Connected ..";
+            socket.send("Hello Server!");
+        });
+
+        socket.addEventListener("message", (event) => {
+            preElement.style.fontSize = '12px';
+            var data = JSON.parse(event.data);
+
+            if (data.type == "StasisStart") {
+                incomingCall.innerHTML = JSON.stringify(data.channel.caller, null, 4);
+            }
+            if (data.type == "StasisEnd") {
+                incomingCall.innerHTML = "";
+            }
+            preElement.innerHTML = JSON.stringify(data, null, 4);
+            console.log("Message from server:", event.data);
+        });
+
+        socket.addEventListener("error", (event) => {
+            console.error("WebSocket error:", event);
+            ws_socket.classList.remove("badge-success");
+            ws_socket.classList.add("badge-danger");
+            ws_socket.textContent = "Web socket error";
+        });
+
+        socket.addEventListener("close", (event) => {
+            ws_socket.classList.remove("badge-success");
+            ws_socket.classList.add("badge-danger");
+            ws_socket.textContent = "Web socket error";
+            console.log("WebSocket connection closed:", event);
+        });
+    </script>
+
+    <script>
         // Function to update the display of selected agents
         function updateSelectedAgents() {
             const agentSelect = document.getElementById("agentSelect");
@@ -1128,76 +1245,50 @@
 @endpush
 
 
-<!-- WebSocket Data (For System Monitoring) -->
-<div class="card mb-4">
-    <div class="card-body">
-        <h5 class="card-title">WebSocket Data</h5>
-        <pre id="json-data">[WebSocket Data Placeholder]</pre>
-    </div>
-</div>
-</div>
+{{--<!-- WebSocket Data (For System Monitoring) -->--}}
+{{--<div class="card mb-4">--}}
+{{--    <div class="card-body">--}}
+{{--        <h5 class="card-title">WebSocket Data</h5>--}}
+{{--        <pre id="json-data">[WebSocket Data Placeholder]</pre>--}}
+{{--    </div>--}}
+{{--</div>--}}
+{{--</div>--}}
 
 @push('custom-scripts')
     <script>
-        window.addEventListener('DOMContentLoaded',
-        () => { // WebSocket connection and event listeners as in the original code
-            var ws_address = document.getElementById("ws_endpoint");
-            var ws_socket = document.getElementById("ws-info");
-            const preElement = document.getElementById('json-data');
-            const incomingCall = document.getElementById('json-call-data');
-            let socket = null;
+        // WebSocket connection and event listeners as in the original code
+        var ws_address = document.getElementById("ws_endpoint");
+        var ws_socket = document.getElementById("ws-info");
+        const preElement = document.getElementById('json-data');
+        const socket = new WebSocket(ws_address.value);
 
-            function reConnect() {
-                socket = new WebSocket(ws_address.value);
+        socket.addEventListener("open", (event) => {
+            console.log("WebSocket connection opened: ", ws_address);
+            ws_socket.classList.remove("badge-danger");
+            ws_socket.classList.add("badge-success");
+            ws_socket.textContent = "Connected ..";
+            socket.send("Hello Server!");
+        });
 
-                socket.addEventListener("open", (event) => {
-                    console.log("WebSocket connection opened: ", ws_address);
-                    ws_socket.classList.remove("badge-danger");
-                    ws_socket.classList.add("badge-success");
-                    ws_socket.textContent = "Connected ..";
+        socket.addEventListener("message", (event) => {
+            preElement.style.fontSize = '12px';
+            var data = JSON.parse(event.data);
+            preElement.innerHTML = JSON.stringify(data, null, 4);
+            console.log("Message from server:", event.data);
+        });
 
-                });
+        socket.addEventListener("error", (event) => {
+            console.error("WebSocket error:", event);
+            ws_socket.classList.remove("badge-success");
+            ws_socket.classList.add("badge-danger");
+            ws_socket.textContent = "Web socket error";
+        });
 
-                socket.addEventListener("message", (event) => {
-                    preElement.style.fontSize = '12px';
-                    var data = JSON.parse(event.data);
-
-                    if (data.type == "StasisStart") {
-                        incomingCall.innerHTML = JSON.stringify(data.channel.caller, null, 4);
-                    }
-                    if (data.type == "StasisEnd") {
-                        incomingCall.innerHTML = "";
-                    }
-                    preElement.innerHTML = JSON.stringify(data, null, 4);
-                    console.log("Message from server:", event.data);
-                });
-
-                socket.addEventListener("error", (event) => {
-                    console.error("WebSocket error:", event);
-                    ws_socket.classList.remove("badge-success");
-                    ws_socket.classList.add("badge-danger");
-                    ws_socket.textContent = "Web socket error";
-
-                    setTimeout(() => {
-                        reConnect();
-                    }, 5000); // Attempt to reconnect after 5 seconds
-                });
-
-                socket.addEventListener("close", (event) => {
-                    ws_socket.classList.remove("badge-success");
-                    ws_socket.classList.add("badge-danger");
-                    ws_socket.textContent = "Web socket error";
-                    console.log("WebSocket connection closed:", event);
-
-
-                    setTimeout(() => {
-                        reConnect();
-                    }, 5000); // Attempt to reconnect after 5 seconds
-                });
-
-            }
-
-            reConnect();
+        socket.addEventListener("close", (event) => {
+            ws_socket.classList.remove("badge-success");
+            ws_socket.classList.add("badge-danger");
+            ws_socket.textContent = "Web socket error";
+            console.log("WebSocket connection closed:", event);
         });
     </script>
 
@@ -1306,77 +1397,111 @@
         });
     </script>
 
+<script>
+    window.addEventListener('load', () => {
+        const apiUrl = "http://10.44.0.70:8088/ari/bridges?api_key=asterisk:asterisk";
+
+        const liveCallsElement = document.getElementById("liveCalls");
+        let liveCalls=0;
+        function fetchBridgeData() {
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("API Response:", data);
+
+                    // Filter bridges of type 'mixing'
+                    const mixingBridges = data.filter(bridge => bridge.bridge_type === 'mixing' && bridge.channels.length > 0);
+
+                    liveCalls=mixingBridges.length;
+                    // Update DOM with the count (you can change this element ID)
+                    document.getElementById("activeCalls").textContent = `Mixing Bridges: ${mixingBridges.length}`;
+                })
+                .catch(error => {
+                    console.error("Fetch error:", error);
+                });
+        }
+
+        function fetchHoldingBridgeData() {
+            fetch(apiUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok");
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("API Response:", data);
+
+                    // Filter bridges of type 'mixing'
+                    const holdingBridges = data.filter(bridge => bridge.bridge_type === 'holding' && bridge.channels.length > 0);
+
+                    // Update DOM with the count (you can change this element ID)
+                    document.getElementById("inQueue").textContent = `Queue Bridges: ${holdingBridges.length}`;
+                    document.getElementById("queue-calls").textContent = `${holdingBridges.length}`;
+
+
+
+                    liveCalls+=holdingBridges.length;
+                    liveCallsElement.textContent = `${liveCalls}`;
+                })
+                .catch(error => {
+                    console.error("Fetch error:", error);
+                });
+        }
+
+
+        // Initial fetch
+        function prob() {
+            fetchBridgeData();
+            fetchHoldingBridgeData();
+        }
+
+        // Repeat every 5 seconds (5000 ms)
+        setInterval(prob, 5000);
+    });
+</script>
     <script>
-        window.addEventListener('DOMContentLoaded', () => {
-            const apiUrl = "http://10.44.0.70:8088/ari/bridges?api_key=asterisk:asterisk";
-
-            const liveCallsElement = document.getElementById("liveCalls");
-            let liveCalls = 0;
-
-            function fetchBridgeData() {
-                fetch(apiUrl)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error("Network response was not ok");
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log("API Response:", data);
-
-                        // Filter bridges of type 'mixing'
-                        const mixingBridges = data.filter(bridge => bridge.bridge_type === 'mixing' && bridge
-                            .channels.length > 0);
-
-                        liveCalls = mixingBridges.length;
-                        // Update DOM with the count (you can change this element ID)
-                        document.getElementById("activeCalls").textContent = `${mixingBridges.length}`;
-                    })
-                    .catch(error => {
-                        console.error("Fetch error:", error);
-                    });
-            }
-
-            function fetchHoldingBridgeData() {
-                fetch(apiUrl)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error("Network response was not ok");
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log("API Response:", data);
-
-                        // Filter bridges of type 'mixing'
-                        const holdingBridges = data.filter(bridge => bridge.bridge_type === 'holding' && bridge
-                            .channels.length > 0);
-
-                        // Update DOM with the count (you can change this element ID)
-                        document.getElementById("inQueue").textContent =
-                            `Queue calls: ${holdingBridges.length}`;
-                        document.getElementById("queue-calls").textContent = `${holdingBridges.length}`;
-                        document.getElementById("waiting").textContent = `${holdingBridges.length} waiting`;
-
-
-
-                        liveCalls += holdingBridges.length;
-                        liveCallsElement.textContent = `${liveCalls}`;
-                    })
-                    .catch(error => {
-                        console.error("Fetch error:", error);
-                    });
-            }
-
-
-            // Initial fetch
-            function prob() {
-                fetchBridgeData();
-                fetchHoldingBridgeData();
-            }
-
-            // Repeat every 5 seconds (5000 ms)
-            setInterval(prob, 5000);
+        // Enhance modal show/hide with animations
+        $('#broadcastModal').on('show.bs.modal', function () {
+            setTimeout(() => {
+                $(this).addClass('show');
+            }, 10);
         });
+
+        $('#broadcastModal').on('hidden.bs.modal', function () {
+            $(this).removeClass('show');
+        });
+
+        function submitBroadcast() {
+            try {
+                const iframe = document.getElementById('broadcastIframe');
+                iframe.contentWindow.postMessage('submitBroadcast', 'http://sms.zesco.co.zm');
+
+                // Visual feedback
+                const btn = event.target;
+                btn.innerHTML = '<i class="fas fa-check mr-1"></i> Sending...';
+                btn.style.background = 'linear-gradient(to right, #28a745 0%, #1e7e34 100%)';
+
+                setTimeout(() => {
+                    $('#broadcastModal').modal('hide');
+                    // Show success toast
+                    showToast('Broadcast sent successfully!', 'success');
+                }, 1500);
+            } catch (e) {
+                showToast('Error sending broadcast', 'error');
+                console.error("Broadcast error:", e);
+            }
+        }
+
+        function showToast(message, type) {
+            // Implement your toast notification here
+            console.log(`${type}: ${message}`);
+        }
     </script>
+
 @endpush

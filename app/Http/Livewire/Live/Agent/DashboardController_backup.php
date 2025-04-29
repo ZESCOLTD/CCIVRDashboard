@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 
-class DashboardController extends Component
+class DashboardController_backup extends Component
 {
     public $agent_num, $set_number, $user, $agent, $agent_status;
     public $meter_number, $service_no, $complaint_no, $meter_serial_no;
