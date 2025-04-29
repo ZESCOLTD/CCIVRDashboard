@@ -29,6 +29,21 @@ class DashboardController extends Component
     public $complaints = [];
     public $searchCustomer;
 
+
+//    AGENT TIME OUT  LOGIC
+    public $onBreak = false;
+
+    public $breakStartTime = null;
+    public $totalBreakMinutesUsed = 0;
+    public $breakDuration = '00:00:00';
+    public $breakLimitReached = false;
+    public $breakMinutes = 0;
+
+
+//    public $breakDuration = null;
+
+//AGENT TIME OUT END LOGIC
+
     public $searchQuery = '';
     public $searchResults = [];
     public $selectedTopic;
@@ -44,14 +59,26 @@ class DashboardController extends Component
 
     public function mount($id)
     {
-        $this->user = User::findOrFail($id);
+        $this->agent = User::findOrFail($id);
+        $this->user = $this->agent;
+
         $this->sessions = CallSession::all();
         $this->selectedSession = session('current_session_id', '');
 
-        if ($this->selectedSession) {
-            $this->currentSession = CallSession::find($this->selectedSession);
+        // Check if the agent is already on break
+        if ($this->agent && $this->agent->status === config('constants.agent_status.ON_BREAK')) {
+            $this->onBreak = true;
+            $this->breakStartTime = $this->agent->updated_at;
+
+            // Calculate the initial duration on load
+            dd($seconds = now()->diffInSeconds($this->breakStartTime));
+            $this->breakDuration = gmdate('H:i:s', $seconds);
+
+            $this->checkBreakLimit($seconds);
         }
     }
+
+
 
     public function updatedSearchQuery($value)
     {
@@ -202,4 +229,104 @@ class DashboardController extends Component
             'customer_details' => $this->customer_details,
         ]);
     }
+
+    protected $listeners = ['refreshComponent' => '$refresh'];
+
+
+//    Agent Time Out Logic start
+    public function toggleBreak()
+    {
+        $limit = $this->getCurrentShiftLimit();
+
+        if ($this->agent->status !== config('constants.agent_status.ON_BREAK')) {
+            // Check if break limit has been reached
+            if ($this->totalBreakMinutesUsed >= $limit) {
+                $this->breakLimitReached = true;
+                return;
+            }
+
+            // Start break
+            $this->agent->update([
+                'status' => config('constants.agent_status.ON_BREAK'),
+            ]);
+            $this->breakStartTime = now();
+            $this->breakLimitReached = false;
+
+        } else {
+            // Resume from break
+            $this->agent->update([
+                'status' => config('constants.agent_status.IDLE'),
+            ]);
+
+            // Add break time to total
+            if ($this->breakStartTime) {
+                $elapsed = now()->diffInMinutes($this->breakStartTime);
+                $this->totalBreakMinutesUsed += $elapsed;
+            }
+
+            $this->breakStartTime = null;
+            $this->breakDuration = '00:00:00';
+
+            // Check if break limit has now been reached
+            if ($this->totalBreakMinutesUsed >= $limit) {
+                $this->breakLimitReached = true;
+            }
+        }
+    }
+
+    public function calculateBreakDuration()
+    {
+        if ($this->breakStartTime) {
+            $this->breakDuration = now()->diff($this->breakStartTime)->format('%H:%I:%S');
+        }
+    }
+
+    public function updated()
+    {
+        $this->calculateBreakDuration();
+    }
+//    Agent Time Out Logic start
+
+//   Shift Logic time management start
+    private function getCurrentShiftLimit(): int
+    {
+        $now = now();
+
+        if ($now->between($now->copy()->setTime(7, 0), $now->copy()->setTime(14, 0))) {
+            return 40; // First shift
+        }
+
+        if ($now->between($now->copy()->setTime(14, 0), $now->copy()->setTime(21, 0))) {
+            return 40; // Second shift
+        }
+
+        // Night shift: 21:00 to 07:00 (next day)
+        return 60;
+    }
+
+//   Shift Logic time management start
+
+    public function getBreakDurationProperty()
+    {
+        if ($this->agent->status === config('constants.agent_status.ON_BREAK') && $this->breakStartTime) {
+            $seconds = now()->diffInSeconds($this->breakStartTime);
+            $this->checkBreakLimit($seconds); // Optional to auto-lock
+
+            return gmdate('H:i:s', $seconds);
+        }
+
+        return '00:00:00';
+    }
+
+    public function updateBreakTimer()
+    {
+        if ($this->onBreak && $this->breakStartTime) {
+            $seconds = now()->diffInSeconds(\Carbon\Carbon::parse($this->breakStartTime));
+            $this->breakDuration = gmdate('H:i:s', $seconds);
+            $this->breakMinutes = floor($seconds / 60);
+            $this->checkBreakLimit($seconds);
+        }
+    }
+
+
 }

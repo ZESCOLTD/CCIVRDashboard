@@ -16,6 +16,7 @@ return [
         'LOGGED_IN' => 'LOGGED_IN',
         'LOGGED_OUT' => 'LOGGED_OUT',
         'IDLE' => 'IDLE',
+        'ON_BREAK'=>'ON_BREAK',
         'WITHDRAWN' => 'WITHDRAWN',
         'WRAPPING_UP' => 'WRAPPING_UP',
         'IN_CONVERSATION' => 'IN_CONVERSATION',
