@@ -58,7 +58,7 @@ Route::get('/audio/{file?}/{extension?}', [AudioController::class, 'embedAudio']
 
 Auth::routes();
 
-Route::middleware(['auth', 'role:super-admin|admin'])->group(function () {
+Route::middleware(['auth', 'role:super-admin|admin|agent'])->group(function () {
     Route::get('/', DashboardIndex::class)->name('reports.index');
     Route::get('/reports/index', DashboardIndex::class)->name('reports.index');
     Route::get('/users/profile', UserProfile::class)->name('user.profile');

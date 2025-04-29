@@ -51,9 +51,23 @@ class SupervisorDashboard extends Component
 
     $answeredCalls = LiveRecordings::whereDate('created_at', Carbon::today())->count();
 
+    $failedCalls = LiveRecordings::whereDate('created_at', Carbon::today())
+    ->whereDate('agent_no', "empty")
+
+    ->count();
+
+
     $loggedOut = CCAgent::whereNotIn('state', ['AgentState.LOGGEDIN', 'LOGGED_IN'])->count();
 
-
+// For the current week (starting Monday)
+$answeredCallsThisWeek = LiveRecordings::whereBetween('created_at', [
+    Carbon::now()->startOfWeek(), // or startOfWeek(Carbon::MONDAY)
+    Carbon::now()->endOfWeek()
+])->count();
+$answeredCallsThisMonth = LiveRecordings::whereBetween('created_at', [
+    Carbon::now()->startOfMonth(),
+    Carbon::now()->endOfMonth()
+])->count();
 
     // Count only LOGGED_IN agents who are also IDLE (grouped correctly)
     $loggedInAgentsCount = CCAgent::where(function ($query) {
@@ -63,6 +77,24 @@ class SupervisorDashboard extends Component
         $query->where('status', 'IDLE')
               ->orWhere('status', 'AgentState.IDLE');
     })->count();
+
+     // answered calls in the last 30 minutes
+     $answeredCallsLast30 = LiveRecordings::where('created_at', '>=', Carbon::now()->subMinutes(30))
+     ->count();
+
+
+
+ // available agents right now (as proxy for last-30min availability)
+ $availableAgentsNow = CCAgent::where(function($q){
+         $q->where('state','AgentState.LOGGEDIN')
+           ->orWhere('state','LOGGED_IN');
+     })->count();
+
+ // efficiency in last 30 minutes
+ $efficiencyLast30 = 0;
+ if ($availableAgentsNow > 0) {
+     $efficiencyLast30 = ($answeredCallsLast30 / $availableAgentsNow) * 100;
+ }
         //$ws_server = env("WS_SERVER_ENDPOINT");
         //dd([$api_server, $ws_server]);
         return view('livewire.live.supervisor.supervisor-dashboard', [
@@ -77,6 +109,10 @@ class SupervisorDashboard extends Component
             'onBreak' => $onBreak,
             'loggedOut' => $loggedOut,
             'totalAgentCount' => $totalAgentCount,
+            'answeredCallsThisWeek' => $answeredCallsThisWeek,
+            'answeredCallsThisMonth' => $answeredCallsThisMonth,
+            'answeredCallsLast30' => $answeredCallsLast30,
+            'failedCalls' => $failedCalls,
         ]);
     }
 
