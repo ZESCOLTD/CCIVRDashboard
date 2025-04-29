@@ -113,7 +113,12 @@
                                 @if ($currentSession)
                                     <div class="d-flex align-items-center mt-1 mb-2">
                                         <span class="badge bg-primary me-2">{{ $currentSession->name }}</span>
-                                        <button class="btn btn-sm btn-outline-primary" wire:click="showModal">
+                                        {{-- <button class="btn btn-sm btn-outline-primary" wire:click="showModal">
+                                            <i class="fas fa-exchange-alt"></i>
+                                        </button> --}}
+
+                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
+                                            data-bs-target="#sessionModal">
                                             <i class="fas fa-exchange-alt"></i>
                                         </button>
                                     </div>
@@ -128,7 +133,9 @@
                                     </div>
                                     <script>
                                         document.addEventListener('DOMContentLoaded', function() {
-                                            @this.call('showModal');
+
+                                            var sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
+                                            sessionModal.show();
                                         });
                                     </script>
                                 @endif
@@ -183,51 +190,26 @@
                                         @endif
                                     </form> --}}
 
-
-                                    @switch($agent->state)
-                                        @case(config('constants.agent_state.LOGGED_OUT'))
-                                        @case(config('constants.agent_state.WITHDRAWN'))
-                                            <form wire:submit.prevent="login">
-                                                <button type="submit" class="btn btn-success w-100">
-                                                    <i class="fas fa-sign-in-alt me-1"></i> Login
+                                    @if (in_array($agent->status, ['LOGGED_OUT', 'WITHDRAWN']))
+                                        <form wire:submit.prevent="login">
+                                            <button type="submit" class="btn btn-success w-100">
+                                                <i class="fas fa-sign-in-alt me-1"></i> Login
+                                            </button>
+                                        </form>
+                                    @elseif (in_array($agent->status, ['LOGGED_IN', 'IDLE', 'WRAPPING_UP', 'IN_CONVERSATION']))
+                                        <div class="d-grid gap-2">
+                                            <form wire:submit.prevent="withdraw">
+                                                <button type="submit" class="btn btn-warning w-100">
+                                                    <i class="fas fa-user-slash me-1"></i> Withdraw
                                                 </button>
                                             </form>
-                                        @break
-
-                                        @case(config('constants.agent_state.LOGGED_IN'))
-                                        @case(config('constants.agent_state.IDLE'))
-
-                                        @case(config('constants.agent_state.WRAPPING_UP'))
-                                            <div class="d-grid gap-2">
-                                                <form wire:submit.prevent="withdraw">
-                                                    <button type="submit" class="btn btn-warning w-100">
-                                                        <i class="fas fa-user-slash me-1"></i> Withdraw
-                                                    </button>
-                                                </form>
-                                                <form wire:submit.prevent="logout">
-                                                    <button type="submit" class="btn btn-danger w-100">
-                                                        <i class="fas fa-sign-out-alt me-1"></i> Logout
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        @break
-
-                                        @case(config('constants.agent_state.IN_CONVERSATION'))
                                             <form wire:submit.prevent="logout">
                                                 <button type="submit" class="btn btn-danger w-100">
                                                     <i class="fas fa-sign-out-alt me-1"></i> Logout
                                                 </button>
                                             </form>
-                                        @break
-
-                                        @default
-                                            <form wire:submit.prevent="login">
-                                                <button type="submit" class="btn btn-success w-100">
-                                                    <i class="fas fa-sign-in-alt me-1"></i> Login
-                                                </button>
-                                            </form>
-                                    @endswitch
-
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
