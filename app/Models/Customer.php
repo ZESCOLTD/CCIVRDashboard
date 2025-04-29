@@ -13,16 +13,13 @@ class Customer extends Model
     use HasFactory;
 
     protected $fillable = [
-        'service_no',
-        'meter_serial_no',
-        'complaint_no',
-        'landmark',
-        'phone_number',
-        'customer_name',
-        'complaint_type_code',
-        'complaint_type_desc',
-        'complaint_status_desc',
-
+          'complaint_no',
+    'landmark',
+    'phone_number',
+    'customer_name',
+    'complaint_type_code',
+    'complaint_type_desc',
+    'complaint_status_desc',
     ];
 }
 
