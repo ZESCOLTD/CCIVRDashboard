@@ -10,17 +10,50 @@ class DialEventsComponent extends Component
     public function render()
     {
         // $missedCallIds = DialEventLog::missed()->pluck('dialstring');
-//         $answered = DialEventLog::missed()->get();
+        //         $answered = DialEventLog::missed()->get();
 
-//         dd($answered);
+        //         dd($answered);
 
-// $missedCalls = DialEventLog::whereIn('dialstring', $missedCallIds)
-//     ->orderBy('event_timestamp', 'desc')
-//     ->get();
+        // $missedCalls = DialEventLog::whereIn('dialstring', $missedCallIds)
+        //     ->orderBy('event_timestamp', 'desc')
+        //     ->get();
+
+        $calls = DialEventLog::orderBy('event_timestamp')
+            ->get()
+            ->groupBy(function ($event) {
+                return $event->dialstring . '_' . $event->peer_id;
+            });
+
+
+        $callResults = $calls->map(function ($events, $key) {
+            $sorted = $events->sortBy('event_timestamp');
+
+            $lastWithStatus = $sorted->reverse()->first(fn($e) => !empty($e->dialstatus));
+
+            if (!$lastWithStatus) return null;
+
+            return [
+                'dialstring' => $lastWithStatus->dialstring,
+                'caller_number' => $lastWithStatus->caller_number,
+                'status' => $lastWithStatus->dialstatus,
+                'timestamp' => $lastWithStatus->event_timestamp,
+            ];
+        })->filter(); // remove nulls
+
+
+        // dd($callResults);
+
+        $answered = $callResults->where('status', 'ANSWER');
+        $missed = $callResults->where('status', 'NOANSWER');
+
+        // dd($answered);
+
         $dialEventLog = DialEventLog::paginate(10);
 
         return view('livewire.live.dial-events-component', [
             'dialEventLog' => $dialEventLog,
+            'answered' => $answered,
+            'missed' => $missed,
         ]);
     }
 

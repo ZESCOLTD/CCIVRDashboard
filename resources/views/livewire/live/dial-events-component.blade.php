@@ -1,4 +1,54 @@
 <div class="container">
+
+
+    <div class="container my-5">
+
+        <h2 class="text-success mb-3">Answered Calls</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover align-middle">
+                <thead class="table-success">
+                    <tr>
+                        <th scope="col">Caller</th>
+                        <th scope="col">To</th>
+                        <th scope="col">Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($answered as $call)
+                        <tr>
+                            <td>{{ $call['caller_number'] }}</td>
+                            <td>{{ $call['dialstring'] }}</td>
+                            <td>{{ $call['timestamp'] }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+        <h2 class="text-danger mt-5 mb-3">Missed Calls</h2>
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover align-middle">
+                <thead class="table-danger">
+                    <tr>
+                        <th scope="col">Caller</th>
+                        <th scope="col">To</th>
+                        <th scope="col">Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($missed as $call)
+                        <tr>
+                            <td>{{ $call['caller_number'] }}</td>
+                            <td>{{ $call['dialstring'] }}</td>
+                            <td>{{ $call['timestamp'] }}</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
     <h2>Dial Event Logs</h2>
     <table class="table table-striped table-bordered table-sm">
         <thead>
