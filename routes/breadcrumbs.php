@@ -167,3 +167,6 @@ Breadcrumbs::for('live.callstats', function ($trail) {
 Breadcrumbs::for('live.stasis-end-stats', function ($trail) {
     $trail->push('Title Here', route('live.stasis-end-stats'));
 });
+Breadcrumbs::for('live.stasis-start-stats', function ($trail) {
+    $trail->push('Title Here', route('live.stasis-start-stats'));
+});

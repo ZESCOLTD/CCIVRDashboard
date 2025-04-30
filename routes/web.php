@@ -32,6 +32,7 @@ use App\Http\Livewire\Live\Supervisor\SupervisorDashboard;
 use App\Http\Livewire\Live\Agent\DashboardController as AgentDashboardController;
 use App\Http\Livewire\Live\DialEventsComponent;
 use App\Http\Livewire\Live\StasisEndEventsComponent;
+use App\Http\Livewire\Live\StasisStartEventsComponent;
 use App\Http\Livewire\RolesAndPermissions\PermissionComponent;
 use App\Http\Livewire\RolesAndPermissions\RoleComponent;
 use App\Http\Livewire\RolesAndPermissions\UserComponent;
@@ -91,6 +92,7 @@ Route::middleware(['auth', 'role:super-admin|admin|agent'])->group(function () {
     Route::get('live/callstats', DialEventsComponent::class)->name('live.callstats');
 
     Route::get('live/stasis-end-stats', StasisEndEventsComponent::class)->name('live.stasis-end-stats');
+    Route::get('live/stasis-start-stats', StasisStartEventsComponent::class)->name('live.stasis-start-stats');
 
 
     Route::get('live/agent/dashboard/{id}', AgentDashboardController::class)->name('live.agent.dashboard');
