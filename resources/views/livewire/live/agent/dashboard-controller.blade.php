@@ -167,6 +167,12 @@
                                     <strong>Duration:</strong>
                                     <span class="ms-2">00:03:15</span>
                                 </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-stopwatch me-2 text-secondary"></i>
+                                    <strong>Calls in Queue:</strong>
+                                    <h3 id="queue-calls" wire:ignore>0</h3>
+                                </div>
+
 
                                 @if ($agent && $agent->status === config('constants.agent_status.ON_BREAK'))
                                     <div wire:poll.1s="updateBreakTimer">
@@ -497,7 +503,7 @@
 
 
                 <!-- Total Calls Card -->
-                <div class="col-md-3 mb-4">
+                {{-- <div class="col-md-3 mb-4">
                     <div class="stats-card bg-primary-light">
                         <div class="icon-circle bg-primary">
                             <i class="fas fa-phone-alt"></i>
@@ -510,7 +516,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> --}}
 
             </div>
 
@@ -1238,7 +1244,7 @@
                             }
 
                         // Update DOM with the count (you can change this element ID)
-                        document.getElementById("queue-calls").innerHTML = `${queueCalls}`;
+                        document.getElementById("queue-calls").innerHTML = ` ${queueCalls}`;
 
                         console.log("Holding Bridges:", queueCalls);
 
