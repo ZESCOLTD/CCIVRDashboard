@@ -75,6 +75,12 @@
                                             <span class="badge bg-info"><i class="fas fa-circle me-1"></i>WRAPPING UP</span>
                                             @break
 
+                                            @case('ON_BREAK')
+                                            <span class="badge bg-info"><i class="fas fa-circle me-1"></i>WRAPPING UP</span>
+                                            @break
+
+
+
                                         @case('IN_CONVERSATION'||'AgentState.ONCONVERSATION')
                                             <span class="badge bg-primary"><i class="fas fa-circle me-1"></i>IN
                                                 CONVERSATION</span>

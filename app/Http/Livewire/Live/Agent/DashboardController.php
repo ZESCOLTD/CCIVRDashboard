@@ -191,6 +191,9 @@ class DashboardController extends Component
     {
         $this->changeSession();
         session()->flash('message', 'Session saved successfully.');
+
+        $this->agent->refresh();
+        $this->emit('refreshComponent');
     }
 
     public function showModal()
