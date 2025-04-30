@@ -5,7 +5,8 @@ namespace App\Http\Livewire\Live\Supervisor;
 use App\Models\Live\CallSession;
 use Illuminate\Support\Facades\Auth;  // Correct Auth import
 use Illuminate\Support\Facades\Cache; // Correct import statement
-
+use App\Models\Live\StasisStartEvent;
+use Illuminate\Support\Facades\DB;
 use App\Models\Live\CCAgent;
 
 use App\Models\Live\Recordings as LiveRecordings;
@@ -90,11 +91,32 @@ $answeredCallsThisMonth = LiveRecordings::whereBetween('created_at', [
            ->orWhere('state','LOGGED_IN');
      })->count();
 
+     $abandoned = StasisStartEvent::from('stasis_start_events as callers')
+    ->where('callers.channel_name', 'like', 'PJSIP/mytrunk%')
+    ->where('callers.channel_state', '=', 'Ring')
+    ->whereNotExists(function ($query) {
+        $query->select(DB::raw(1))
+              ->from('stasis_start_events as callees')
+              ->whereRaw('callers.caller_number = callees.caller_number')
+              ->where('callees.channel_name', 'like', 'PJSIP/%')
+              ->where('callees.channel_name', 'not like', 'PJSIP/mytrunk%')
+              ->where('callees.channel_state', '=', 'Up');
+    })
+    ->where('callers.timestamp', '<', now()->subSeconds(15)) // abandonment threshold
+    ->select([
+        'callers.caller_number',
+        'callers.timestamp as call_time',
+        'callers.channel_name as caller_channel'
+    ])
+    ->count();
+
  // efficiency in last 30 minutes
  $efficiencyLast30 = 0;
  if ($availableAgentsNow > 0) {
      $efficiencyLast30 = ($answeredCallsLast30 / $availableAgentsNow) * 100;
  }
+
+
         //$ws_server = env("WS_SERVER_ENDPOINT");
         //dd([$api_server, $ws_server]);
         return view('livewire.live.supervisor.supervisor-dashboard', [
@@ -113,6 +135,8 @@ $answeredCallsThisMonth = LiveRecordings::whereBetween('created_at', [
             'answeredCallsThisMonth' => $answeredCallsThisMonth,
             'answeredCallsLast30' => $answeredCallsLast30,
             'failedCalls' => $failedCalls,
+            'abandoned' => $abandoned,
+            'efficiencyLast30' => $efficiencyLast30,
         ]);
     }
 

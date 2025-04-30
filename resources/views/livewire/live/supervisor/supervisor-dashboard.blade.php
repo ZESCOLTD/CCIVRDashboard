@@ -380,7 +380,7 @@
                                 <span class="info-box-icon"><i class="fas fa-times-circle"></i></span>
                                 <div class="info-box-content">
                                     <span class="info-box-text">Abandoned</span>
-                                    <span class="info-box-number">3</span>
+                                    <span class="info-box-number">{{$abandoned}}</span>
                                     <div class="progress">
                                         <div class="progress-bar" style="width: 15%"></div>
                                     </div>
