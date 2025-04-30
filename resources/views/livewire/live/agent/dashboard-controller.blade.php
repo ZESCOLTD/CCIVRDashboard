@@ -54,35 +54,35 @@
                                     <i class="fas fa-power-off me-2 text-secondary"></i>
                                     <strong>Status:</strong>
                                     @switch($agent->status)
-                                        @case('LOGGED_IN')
+                                        @case('LOGGED_IN'||'AgentState.LOGGEDIN')
                                             <span class="badge bg-success"><i class="fas fa-circle me-1"></i>LOGGED IN</span>
                                             @break
 
-                                        @case('LOGGED_OUT')
+                                        @case('LOGGED_OUT'||'AgentState.LOGGEDOUT')
                                             <span class="badge bg-secondary"><i class="fas fa-circle me-1"></i>LOGGED OUT</span>
                                             @break
 
-                                        @case('IDLE')
+                                        @case('IDLE'||'AgentState.IDLE')
                                             <span class="badge bg-warning text-dark"><i
                                                     class="fas fa-circle me-1"></i>IDLE</span>
                                             @break
 
-                                        @case('WITHDRAWN')
+                                        @case('WITHDRAWN'||'AgentState.WITHDRAWN')
                                             <span class="badge bg-danger"><i class="fas fa-circle me-1"></i>WITHDRAWN</span>
                                             @break
 
-                                        @case('WRAPPING_UP')
+                                        @case('WRAPPING_UP'||'AgentState.WRAPPINGUP')
                                             <span class="badge bg-info"><i class="fas fa-circle me-1"></i>WRAPPING UP</span>
                                             @break
 
-                                        @case('IN_CONVERSATION')
+                                        @case('IN_CONVERSATION'||'AgentState.ONCONVERSATION')
                                             <span class="badge bg-primary"><i class="fas fa-circle me-1"></i>IN
                                                 CONVERSATION</span>
                                             @break
 
                                         @default
                                             <span class="badge bg-light text-dark"><i
-                                                    class="fas fa-circle me-1"></i>UNKNOWN</span>
+                                                    class="fas fa-circle me-1"></i>{{ $agent->status }}</span>
                                     @endswitch
                                 </li>
                             </ul>
