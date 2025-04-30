@@ -54,37 +54,35 @@
                                     <i class="fas fa-power-off me-2 text-secondary"></i>
                                     <strong>Status:</strong>
                                     @switch($agent->status)
-                                        @case('LOGGED_IN'||'AgentState.LOGGEDIN')
+                                        @case('LOGGED_IN' || 'AgentState.LOGGEDIN')
                                             <span class="badge bg-success"><i class="fas fa-circle me-1"></i>LOGGED IN</span>
-                                            @break
+                                        @break
 
-                                        @case('LOGGED_OUT'||'AgentState.LOGGEDOUT')
+                                        @case('LOGGED_OUT' || 'AgentState.LOGGEDOUT')
                                             <span class="badge bg-secondary"><i class="fas fa-circle me-1"></i>LOGGED OUT</span>
-                                            @break
+                                        @break
 
-                                        @case('IDLE'||'AgentState.IDLE')
+                                        @case('IDLE' || 'AgentState.IDLE')
                                             <span class="badge bg-warning text-dark"><i
                                                     class="fas fa-circle me-1"></i>IDLE</span>
-                                            @break
+                                        @break
 
-                                        @case('WITHDRAWN'||'AgentState.WITHDRAWN')
+                                        @case('WITHDRAWN' || 'AgentState.WITHDRAWN')
                                             <span class="badge bg-danger"><i class="fas fa-circle me-1"></i>WITHDRAWN</span>
-                                            @break
+                                        @break
 
-                                        @case('WRAPPING_UP'||'AgentState.WRAPPINGUP')
+                                        @case('WRAPPING_UP' || 'AgentState.WRAPPINGUP')
                                             <span class="badge bg-info"><i class="fas fa-circle me-1"></i>WRAPPING UP</span>
-                                            @break
+                                        @break
 
-                                            @case('ON_BREAK')
+                                        @case('ON_BREAK')
                                             <span class="badge bg-info"><i class="fas fa-circle me-1"></i>WRAPPING UP</span>
-                                            @break
+                                        @break
 
-
-
-                                        @case('IN_CONVERSATION'||'AgentState.ONCONVERSATION')
+                                        @case('IN_CONVERSATION' || 'AgentState.ONCONVERSATION')
                                             <span class="badge bg-primary"><i class="fas fa-circle me-1"></i>IN
                                                 CONVERSATION</span>
-                                            @break
+                                        @break
 
                                         @default
                                             <span class="badge bg-light text-dark"><i
@@ -124,7 +122,7 @@
                                         </button> --}}
 
                                         <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
-                                                data-bs-target="#sessionModal">
+                                            data-bs-target="#sessionModal">
                                             <i class="fas fa-exchange-alt"></i>
                                         </button>
                                     </div>
@@ -176,8 +174,8 @@
                                             <i class="fas fa-stopwatch me-2 text-danger fw-bold fs-4"></i>
                                             <strong class="text-danger fs-5">Break Time Logger:</strong>
                                             <span class="ms-2 fw-bold text-danger fs-5">
-                                            {{ $breakDuration }}
-                                        </span>
+                                                {{ $breakDuration }}
+                                            </span>
                                         </div>
                                     </div>
                                 @elseif ($breakLimitReached)
@@ -204,7 +202,7 @@
                                             {{-- Break / Resume --}}
                                             <form wire:submit.prevent="toggleBreak" class="flex-fill">
                                                 <button type="submit"
-                                                        class="btn {{ $agent->status == 'ON_BREAK' ? 'btn-info' : 'btn-secondary' }} w-100">
+                                                    class="btn {{ $agent->status == 'ON_BREAK' ? 'btn-info' : 'btn-secondary' }} w-100">
                                                     <i class="fas fa-coffee me-1"></i>
                                                     {{ $agent->status == 'ON_BREAK' ? 'Resume' : 'Break' }}
                                                 </button>
@@ -497,6 +495,23 @@
                     </div>
                 </div>
 
+
+                <!-- Total Calls Card -->
+                <div class="col-md-3 mb-4">
+                    <div class="stats-card bg-primary-light">
+                        <div class="icon-circle bg-primary">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <div class="stats-content">
+                            <h6>Calls in queue</h6>
+                            <h3 id="queue-calls" wire:ignore>0</h3>
+                            <div class="trend up">
+                                <i class="fas fa-arrow-up"></i> 12% <span class="trend-text">vs yesterday</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
             <style>
@@ -723,9 +738,9 @@
                                 <i class="fas fa-search text-muted"></i>
                             </span>
                             <input type="text" class="form-control border-start-0 ps-0"
-                                   wire:model.debounce.300ms="searchQuery"
-                                   placeholder="Search knowledge base (e.g., billing, payments, technical issues)..."
-                                   autocomplete="off" aria-label="Knowledge base search">
+                                wire:model.debounce.300ms="searchQuery"
+                                placeholder="Search knowledge base (e.g., billing, payments, technical issues)..."
+                                autocomplete="off" aria-label="Knowledge base search">
                         </div>
 
                         @if (!empty($searchResults))
@@ -733,8 +748,8 @@
                                 <div class="list-group">
                                     @foreach ($searchResults as $result)
                                         <a href="#" class="list-group-item list-group-item-action py-3"
-                                           wire:click="selectTopic({{ $result['id'] }})" data-bs-toggle="modal"
-                                           data-bs-target="#knowledgeModal">
+                                            wire:click="selectTopic({{ $result['id'] }})" data-bs-toggle="modal"
+                                            data-bs-target="#knowledgeModal">
                                             <div class="d-flex w-100 justify-content-between">
                                                 <h6 class="mb-1 text-primary">{{ $result['topic'] }}</h6>
                                                 <small class="text-muted">Click to view</small>
@@ -782,7 +797,7 @@
 
             <!-- Knowledge Modal -->
             <div class="modal fade" id="knowledgeModal" tabindex="-1" aria-labelledby="knowledgeModalLabel"
-                 aria-hidden="true" wire:ignore.self>
+                aria-hidden="true" wire:ignore.self>
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content border-0 shadow">
                         @if ($selectedTopic)
@@ -795,7 +810,7 @@
                                         {{ $selectedTopic->updated_at->format('M d, Y') }}</small>
                                 </div>
                                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                        aria-label="Close" wire:click="$set('selectedTopic', null)"></button>
+                                    aria-label="Close" wire:click="$set('selectedTopic', null)"></button>
                             </div>
                             <div class="modal-body p-4">
                                 <div class="knowledge-content formatted-content">
@@ -830,8 +845,8 @@
                         <div class="input-group input-group-sm">
                             <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
                             <input type="text" class="form-control border-start-0"
-                                   placeholder="Search by meter number or name..."
-                                   wire:model.debounce.200ms="meter_number" wire:keydown.enter="searchCustomer">
+                                placeholder="Search by meter number or name..."
+                                wire:model.debounce.200ms="meter_number" wire:keydown.enter="searchCustomer">
                             <button class="btn btn-primary" type="button">
                                 <i class="fas fa-arrow-right"></i>
                             </button>
@@ -855,7 +870,7 @@
                                         </p>
                                     </div>
                                     <button class="btn btn-sm btn-outline-primary ms-auto"
-                                            wire:click="showCustomerModal('{{ $customer->meter_serial_no }}')">
+                                        wire:click="showCustomerModal('{{ $customer->meter_serial_no }}')">
                                         <i class="fas fa-expand me-1"></i> Full View
                                     </button>
                                 </div>
@@ -953,7 +968,7 @@
 
             <!-- Customer Modal -->
             <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel"
-                 aria-hidden="true" wire:ignore.self>
+                aria-hidden="true" wire:ignore.self>
                 <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content border-0 shadow">
                         <div class="modal-header bg-primary text-white">
@@ -962,61 +977,61 @@
                                 Customer Details: {{ $selectedCustomer->meter_serial_no ?? '' }}
                             </h5>
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
-                                    aria-label="Close"></button>
+                                aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             @if ($selectedCustomer)
                                 <div class="table-responsive">
                                     <table class="table table-bordered">
                                         <tbody>
-                                        <tr>
-                                            <th width="20%">Customer Name</th>
-                                            <td width="30%">{{ $selectedCustomer->customer_name ?? '--' }}</td>
-                                            <th width="20%">Home Phone</th>
-                                            <td width="30%">{{ $selectedCustomer->home_phone ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Division</th>
-                                            <td>{{ $selectedCustomer->division ?? '--' }}</td>
-                                            <th>Town</th>
-                                            <td>{{ $selectedCustomer->town ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Service Point</th>
-                                            <td>{{ $selectedCustomer->service_point ?? '--' }}</td>
-                                            <th>Street</th>
-                                            <td>{{ $selectedCustomer->street ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Address</th>
-                                            <td>{{ $selectedCustomer->address ?? '--' }}</td>
-                                            <th>Landmark</th>
-                                            <td>{{ $selectedCustomer->landmark ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Meter Number</th>
-                                            <td>{{ $selectedCustomer->meter_serial_no ?? '--' }}</td>
-                                            <th>Meter Make</th>
-                                            <td>{{ $selectedCustomer->meter_make ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Tariff</th>
-                                            <td>{{ $selectedCustomer->tariff ?? '--' }}</td>
-                                            <th>Phase Type</th>
-                                            <td>{{ $selectedCustomer->phase_type ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Service Number</th>
-                                            <td>{{ $selectedCustomer->service_no ?? '--' }}</td>
-                                            <th>Phone Number</th>
-                                            <td>{{ $selectedCustomer->home_phone ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Other Number</th>
-                                            <td>{{ $selectedCustomer->buss_phone ?? '--' }}</td>
-                                            <th>Other Number</th>
-                                            <td>{{ $selectedCustomer->other_phone ?? '--' }}</td>
-                                        </tr>
+                                            <tr>
+                                                <th width="20%">Customer Name</th>
+                                                <td width="30%">{{ $selectedCustomer->customer_name ?? '--' }}</td>
+                                                <th width="20%">Home Phone</th>
+                                                <td width="30%">{{ $selectedCustomer->home_phone ?? '--' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Division</th>
+                                                <td>{{ $selectedCustomer->division ?? '--' }}</td>
+                                                <th>Town</th>
+                                                <td>{{ $selectedCustomer->town ?? '--' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Service Point</th>
+                                                <td>{{ $selectedCustomer->service_point ?? '--' }}</td>
+                                                <th>Street</th>
+                                                <td>{{ $selectedCustomer->street ?? '--' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Address</th>
+                                                <td>{{ $selectedCustomer->address ?? '--' }}</td>
+                                                <th>Landmark</th>
+                                                <td>{{ $selectedCustomer->landmark ?? '--' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Meter Number</th>
+                                                <td>{{ $selectedCustomer->meter_serial_no ?? '--' }}</td>
+                                                <th>Meter Make</th>
+                                                <td>{{ $selectedCustomer->meter_make ?? '--' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Tariff</th>
+                                                <td>{{ $selectedCustomer->tariff ?? '--' }}</td>
+                                                <th>Phase Type</th>
+                                                <td>{{ $selectedCustomer->phase_type ?? '--' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Service Number</th>
+                                                <td>{{ $selectedCustomer->service_no ?? '--' }}</td>
+                                                <th>Phone Number</th>
+                                                <td>{{ $selectedCustomer->home_phone ?? '--' }}</td>
+                                            </tr>
+                                            <tr>
+                                                <th>Other Number</th>
+                                                <td>{{ $selectedCustomer->buss_phone ?? '--' }}</td>
+                                                <th>Other Number</th>
+                                                <td>{{ $selectedCustomer->other_phone ?? '--' }}</td>
+                                            </tr>
                                         </tbody>
                                     </table>
                                 </div>
@@ -1044,24 +1059,24 @@
                             <span class="info-box-text">Last Five Calls</span>
                             <table class="table table-striped">
                                 <thead>
-                                <tr>
-                                    <th>Agent number</th>
-                                    <th>Caller phone</th>
-                                    <th>Call date</th>
-                                    <th>Duration</th>
-                                    <th>Transaction code</th>
-                                </tr>
+                                    <tr>
+                                        <th>Agent number</th>
+                                        <th>Caller phone</th>
+                                        <th>Call date</th>
+                                        <th>Duration</th>
+                                        <th>Transaction code</th>
+                                    </tr>
                                 </thead>
                                 <tbody>
-                                @foreach ($lastFiveCalls as $call)
-                                    <tr>
-                                        <td>{{ $call->dst }}</td>
-                                        <td>{{ $call->phone_number }}</td>
-                                        <td>{{ $call->created_at ?? '--' }}</td>
-                                        <td>{{ $call->call_duration }}</td>
-                                        <td>{{ $call->disposition }}</td>
-                                    </tr>
-                                @endforeach
+                                    @foreach ($lastFiveCalls as $call)
+                                        <tr>
+                                            <td>{{ $call->dst }}</td>
+                                            <td>{{ $call->phone_number }}</td>
+                                            <td>{{ $call->created_at ?? '--' }}</td>
+                                            <td>{{ $call->call_duration }}</td>
+                                            <td>{{ $call->disposition }}</td>
+                                        </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -1084,8 +1099,8 @@
 
             <!-- Session Selection Modal -->
             <div class="modal fade" id="sessionModal" tabindex="-1" role="dialog"
-                 aria-labelledby="sessionModalLabel" aria-hidden="true" data-bs-backdrop="static"
-                 data-bs-keyboard="false" wire:ignore.self>
+                aria-labelledby="sessionModalLabel" aria-hidden="true" data-bs-backdrop="static"
+                data-bs-keyboard="false" wire:ignore.self>
                 selected {{ $selectedSession }}
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -1106,7 +1121,7 @@
                                     changes ...</button>
                             @else
                                 <button type="button" class="btn btn-primary" wire:click="saveSession"
-                                        data-bs-dismiss="modal">
+                                    data-bs-dismiss="modal">
                                     Save changes
                                 </button>
                             @endif
@@ -1150,24 +1165,24 @@
 
     <script>
         document.addEventListener('livewire:load', function() {
-        @this.on('openSessionModal', () => {
-            var sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
-            sessionModal.show();
-        });
+            @this.on('openSessionModal', () => {
+                var sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
+                sessionModal.show();
+            });
 
-        @this.on('closeSessionModal', () => {
-            var sessionModal = bootstrap.Modal.getInstance(document.getElementById('sessionModal'));
+            @this.on('closeSessionModal', () => {
+                var sessionModal = bootstrap.Modal.getInstance(document.getElementById('sessionModal'));
 
-            console.log("Closing modal")
-            if (sessionModal) {
-                sessionModal.hide();
-            }
-        });
+                console.log("Closing modal")
+                if (sessionModal) {
+                    sessionModal.hide();
+                }
+            });
 
             // Automatically trigger open if selectedSession is null at page load
             @if ($selectedSession == null)
-            var sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
-            sessionModal.show();
+                var sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
+                sessionModal.show();
             @endif
         });
     </script>
@@ -1198,19 +1213,57 @@
     </script>
 
     <script>
-        window.addEventListener('DOMContentLoaded', function() {
+        window.addEventListener('load', () => {
+            const apiUrl = "http://10.44.0.70:8088/ari/bridges?api_key=asterisk:asterisk";
+
+
+
+            function fetchHoldingBridgeData() {
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+
+                        // Filter bridges of type 'mixing'
+                        const holdingBridges = data.filter(bridge => bridge.bridge_type === 'holding' && bridge
+                            .channels.length > 0);
+                            var queueCalls=0;
+
+                            for(let i = 0; i < holdingBridges.length; i++) {
+                                queueCalls += holdingBridges[i].channels.length;
+                            }
+
+                        // Update DOM with the count (you can change this element ID)
+                        document.getElementById("queue-calls").innerHTML = `${queueCalls}`;
+
+                        console.log("Holding Bridges:", queueCalls);
+
+                    })
+                    .catch(error => {
+                        console.error("Fetch error:", error);
+                    });
+            }
+
+            fetchHoldingBridgeData();
+            setInterval(fetchHoldingBridgeData, 10000); // Fetch every 5 seconds
+
 
             // WebSocket connection and event listeners as in the original code
-            var ws_address = document.getElementById("ws_endpoint");
-            var ws_socket = document.getElementById("ws-info");
-            const preElement = document.getElementById('json-data');
-            let socket = null
+
             // ws://127.0.0.1:8001/ws
             // const socket = new WebSocket("http://127.0.0.1:8001/ws");
 
             function reConnect() {
 
-                socket = new WebSocket(ws_address.value);
+                var ws_address = document.getElementById("ws_endpoint");
+                var ws_socket = document.getElementById("ws-info");
+
+
+                const socket = new WebSocket(ws_address.value);
                 socket.addEventListener("open", (event) => {
                     console.log("WebSocket connection opened: ", ws_address);
                     ws_socket.classList.remove("badge-danger");
@@ -1219,10 +1272,9 @@
                     socket.send("Hello Server!");
                 });
                 socket.addEventListener("message", (event) => {
-                    preElement.style.fontSize = '12px';
                     var data = JSON.parse(event.data);
-                    preElement.innerHTML = JSON.stringify(data, null, 4);
-                    console.log("Message from server:", event.data);
+                    fetchHoldingBridgeData();
+                    Livewire.emit('refreshComponent');
                 });
                 socket.addEventListener("error", (event) => {
                     console.error("WebSocket error:", event);
@@ -1257,14 +1309,14 @@
         document.addEventListener('livewire:load', function() {
             // Close modal when clicking outside
             document.getElementById('knowledgeModal').addEventListener('hidden.bs.modal', function() {
-            @this.set('selectedTopic', null);
+                @this.set('selectedTopic', null);
             });
 
             // Close search results when clicking outside
             // Close search results when clicking outside
             document.addEventListener('click', function(e) {
                 if (!e.target.closest('.search-container')) {
-                @this.set('searchQuery', '');
+                    @this.set('searchQuery', '');
                 }
             });
         });
@@ -1276,14 +1328,14 @@
             const searchInput = document.querySelector('[wire\\:model="meter_number"]');
             if (searchInput) {
                 searchInput.addEventListener('input', function() {
-                @this.searchCustomer();
+                    @this.searchCustomer();
                 });
             }
 
             // Modal events
             const customerModal = document.getElementById('customerModal');
             customerModal.addEventListener('hidden.bs.modal', function() {
-            @this.set('selectedCustomer', null);
+                @this.set('selectedCustomer', null);
             });
 
             // Listen for Livewire event to show modal
