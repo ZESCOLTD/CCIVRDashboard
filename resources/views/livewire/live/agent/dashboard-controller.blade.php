@@ -24,6 +24,7 @@
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-orange text-white">
                     <h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>Agent Dashboard</h5>
+                    <h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>Agent Dashboard</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -486,6 +487,21 @@
                             <h3>{{ $averageCallTime }}</h3>
                             <div class="trend up">
                                 <i class="fas fa-arrow-up"></i> 2% <span class="trend-text">vs yesterday</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3 mb-4">
+                    <div class="stats-card bg-primary-light">
+                        <div class="icon-circle bg-primary">
+                            <i class="fas fa-phone-alt"></i>
+                        </div>
+                        <div class="stats-content">
+                            <h6>Total Calls</h6>
+                            <h3>{{ $totalCalls }}</h3>
+                            <div class="trend up">
+                                <i class="fas fa-arrow-up"></i> 12% <span class="trend-text">vs yesterday</span>
                             </div>
                         </div>
                     </div>
