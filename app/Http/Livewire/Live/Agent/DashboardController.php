@@ -220,6 +220,8 @@ class DashboardController extends Component
         $api_server = config('app.API_SERVER_ENDPOINT');
         $ws_server = config('app.WS_SERVER_ENDPOINT');
 
+        $today = now()->toDateString(); // or Carbon::today()
+
         $callsQuery = Recordings::where('agent_number', 'like', "%{$this->agent_num}%")
         ->whereDate('created_at', $today);
 

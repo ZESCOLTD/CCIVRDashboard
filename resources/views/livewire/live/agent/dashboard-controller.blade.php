@@ -497,51 +497,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-3 mb-4">
-                    <div class="stats-card bg-primary-light">
-                        <div class="icon-circle bg-primary">
-                            <i class="fas fa-phone-alt"></i>
-                        </div>
-                        <div class="stats-content">
-                            <h6>Total Calls</h6>
-                            <h3>{{ $totalCalls }}</h3>
-                            <div class="trend up">
-                                <i class="fas fa-arrow-up"></i> 12% <span class="trend-text">vs yesterday</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
-
-
-
-
-            <!-- Graph Placeholders -->
-            {{-- <div class="row">
-                <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Call Volume (Last 7 Days)</h5>
-                            <div style="height: 300px; background-color: #f2f2f2;">
-                                <!-- Placeholder for Call Volume Graph -->
-                                <p class="text-center text-muted">[Graph Placeholder]</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Agent Performance</h5>
-                            <div style="height: 300px; background-color: #f2f2f2;">
-                                <!-- Placeholder for Agent Performance Graph -->
-                                <p class="text-center text-muted">[Graph Placeholder]</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> --}}
-
 
             <style>
                 .search-suggestions {
