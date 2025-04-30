@@ -220,7 +220,8 @@ class DashboardController extends Component
         $api_server = config('app.API_SERVER_ENDPOINT');
         $ws_server = config('app.WS_SERVER_ENDPOINT');
 
-        $callsQuery = Recordings::where('agent_number', 'like', "%{$this->agent_num}%");
+        $callsQuery = Recordings::where('agent_number', 'like', "%{$this->agent_num}%")
+        ->whereDate('created_at', $today);
 
         $calls = DialEventLog::orderBy('event_timestamp')
             ->get()
