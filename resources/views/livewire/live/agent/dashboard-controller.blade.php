@@ -24,7 +24,6 @@
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-orange text-white">
                     <h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>Agent Dashboard</h5>
-                    <h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>Agent Dashboard</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
