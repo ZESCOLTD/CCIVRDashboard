@@ -79,7 +79,7 @@
                                         @case('AgentState.WRAPPINGUP')
 
                                         @case('ON_BREAK')
-                                            <span class="badge badge-info"><i class="fas fa-circle mr-1"></i>WRAPPING UP</span>
+                                            <span class="badge badge-info"><i class="fas fa-circle mr-1"></i>ON BREAK</span>
                                         @break
 
                                         @case('IN_CONVERSATION')
@@ -174,20 +174,28 @@
                                 </div>
 
                                 @if ($agent && $agent->status === config('constants.agent_status.ON_BREAK'))
-                                    <div wire:poll.1s="updateBreakTimer">
+                                    <div wire:poll.1s="calculateTotalBreakDuration">
                                         <div class="d-flex align-items-center mt-3">
                                             <i class="fas fa-stopwatch mr-2 text-danger font-weight-bold h4"></i>
-                                            <strong class="text-danger h5">Break Time Logger:</strong>
+                                            <strong class="text-danger h5">Total Break Time:</strong>
                                             <span class="ml-2 font-weight-bold text-danger h5">
-                                                {{ $breakDuration }}
+                                                {{ $totalBreakDuration }}
                                             </span>
                                         </div>
+
+                                        {{-- <div wire:poll.60s="calculateTotalBreakDuration">
+                                            Break Duration: {{ $breakDuration }}
+                                        </div> --}}
+
+                                        @if ($breakLimitReached)
+                                            <div class="text-danger font-weight-bold text-center mt-2">
+                                                ⚠️ Total break time exceeded 40 minutes for this shift.
+                                            </div>
+                                        @endif
                                     </div>
-                                    {{-- @elseif ($breakLimitReached)
-                                    <div class="text-danger font-weight-bold text-center mt-2">
-                                        Break limit for this shift has been reached
-                                    </div> --}}
                                 @endif
+
+
 
                                 <div class="mt-3">
                                     @if (in_array($agent->status, ['LOGGED_OUT', 'WITHDRAWN']))
@@ -198,7 +206,9 @@
                                         </form>
                                     @else
                                         <div class="d-flex">
-                                            <form wire:submit.prevent="status('ON_BREAK')" class="mr-2 flex-fill">
+                                            <form
+                                                wire:submit.prevent="{{ $agent->status == 'ON_BREAK' ? 'resume' : 'break' }}"
+                                                class="mr-2 flex-fill">
                                                 <button type="submit"
                                                     class="btn {{ $agent->status == 'ON_BREAK' ? 'btn-info' : 'btn-secondary' }} btn-block">
                                                     <i class="fas fa-coffee mr-1"></i>
@@ -1119,7 +1129,7 @@
             });
         });
     </script>
-     <script>
+    <script>
         document.addEventListener('livewire:load', function() {
             // Live search on input change
             const searchInput = document.querySelector('[wire\\:model="meter_number"]');
@@ -1167,95 +1177,94 @@
         });
     </script>
 
-<script>
-    window.addEventListener('load', () => {
-        const apiUrl = "http://10.44.0.70:8088/ari/bridges?api_key=asterisk:asterisk";
+    <script>
+        window.addEventListener('load', () => {
+            const apiUrl = "http://10.44.0.70:8088/ari/bridges?api_key=asterisk:asterisk";
 
 
 
-        function fetchHoldingBridgeData() {
-            fetch(apiUrl)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error("Network response was not ok");
-                    }
-                    return response.json();
-                })
-                .then(data => {
+            function fetchHoldingBridgeData() {
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
 
-                    // Filter bridges of type 'mixing'
-                    const holdingBridges = data.filter(bridge => bridge.bridge_type === 'holding' && bridge
-                        .channels.length > 0);
-                    var queueCalls = 0;
+                        // Filter bridges of type 'mixing'
+                        const holdingBridges = data.filter(bridge => bridge.bridge_type === 'holding' && bridge
+                            .channels.length > 0);
+                        var queueCalls = 0;
 
-                    for (let i = 0; i < holdingBridges.length; i++) {
-                        queueCalls += holdingBridges[i].channels.length;
-                    }
+                        for (let i = 0; i < holdingBridges.length; i++) {
+                            queueCalls += holdingBridges[i].channels.length;
+                        }
 
-                    // Update DOM with the count (you can change this element ID)
-                    document.getElementById("queue-calls").innerHTML = ` ${queueCalls}`;
+                        // Update DOM with the count (you can change this element ID)
+                        document.getElementById("queue-calls").innerHTML = ` ${queueCalls}`;
 
-                    console.log("Holding Bridges:", queueCalls);
+                        console.log("Holding Bridges:", queueCalls);
 
-                })
-                .catch(error => {
-                    console.error("Fetch error:", error);
+                    })
+                    .catch(error => {
+                        console.error("Fetch error:", error);
+                    });
+            }
+
+            fetchHoldingBridgeData();
+            setInterval(fetchHoldingBridgeData, 10000); // Fetch every 5 seconds
+
+
+            // WebSocket connection and event listeners as in the original code
+
+            // ws://127.0.0.1:8001/ws
+            // const socket = new WebSocket("http://127.0.0.1:8001/ws");
+
+            function reConnect() {
+
+                var ws_address = document.getElementById("ws_endpoint");
+                var ws_socket = document.getElementById("ws-info");
+
+
+                const socket = new WebSocket(ws_address.value);
+                socket.addEventListener("open", (event) => {
+                    console.log("WebSocket connection opened: ", ws_address);
+                    ws_socket.classList.remove("badge-danger");
+                    ws_socket.classList.add("badge-success");
+                    ws_socket.textContent = "Connected ..";
+                    socket.send("Hello Server!");
                 });
-        }
+                socket.addEventListener("message", (event) => {
+                    var data = JSON.parse(event.data);
+                    fetchHoldingBridgeData();
+                    Livewire.emit('refreshComponent');
+                });
+                socket.addEventListener("error", (event) => {
+                    console.error("WebSocket error:", event);
+                    ws_socket.classList.remove("badge-success");
+                    ws_socket.classList.add("badge-danger");
+                    ws_socket.textContent = "Web socket error";
 
-        fetchHoldingBridgeData();
-        setInterval(fetchHoldingBridgeData, 10000); // Fetch every 5 seconds
+                    setTimeout(() => {
+                        reConnect();
+                    }, 5000); // Reconnect after 5 seconds
+                });
+                socket.addEventListener("close", (event) => {
+                    ws_socket.classList.remove("badge-success");
+                    ws_socket.classList.add("badge-danger");
+                    ws_socket.textContent = "Web socket error";
+                    console.log("WebSocket connection closed:", event);
 
+                    setTimeout(() => {
+                        reConnect();
+                    }, 5000); // Reconnect after 5 seconds
+                });
 
-        // WebSocket connection and event listeners as in the original code
+            }
 
-        // ws://127.0.0.1:8001/ws
-        // const socket = new WebSocket("http://127.0.0.1:8001/ws");
-
-        function reConnect() {
-
-            var ws_address = document.getElementById("ws_endpoint");
-            var ws_socket = document.getElementById("ws-info");
-
-
-            const socket = new WebSocket(ws_address.value);
-            socket.addEventListener("open", (event) => {
-                console.log("WebSocket connection opened: ", ws_address);
-                ws_socket.classList.remove("badge-danger");
-                ws_socket.classList.add("badge-success");
-                ws_socket.textContent = "Connected ..";
-                socket.send("Hello Server!");
-            });
-            socket.addEventListener("message", (event) => {
-                var data = JSON.parse(event.data);
-                fetchHoldingBridgeData();
-                Livewire.emit('refreshComponent');
-            });
-            socket.addEventListener("error", (event) => {
-                console.error("WebSocket error:", event);
-                ws_socket.classList.remove("badge-success");
-                ws_socket.classList.add("badge-danger");
-                ws_socket.textContent = "Web socket error";
-
-                setTimeout(() => {
-                    reConnect();
-                }, 5000); // Reconnect after 5 seconds
-            });
-            socket.addEventListener("close", (event) => {
-                ws_socket.classList.remove("badge-success");
-                ws_socket.classList.add("badge-danger");
-                ws_socket.textContent = "Web socket error";
-                console.log("WebSocket connection closed:", event);
-
-                setTimeout(() => {
-                    reConnect();
-                }, 5000); // Reconnect after 5 seconds
-            });
-
-        }
-
-        reConnect()
-    })
-</script>
-
+            reConnect()
+        })
+    </script>
 @endpush

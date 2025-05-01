@@ -17,6 +17,10 @@ use App\Models\Live\Recordings;
 use App\Models\User;
 use App\Models\KnowledgeBase;
 use Illuminate\Support\Str;
+use App\Models\Live\DialEventLog;
+
+use App\Models\Live\AgentBreak; // ✅ Import the model
+use Carbon\Carbon;
 
 
 class AgentComponent extends Component
@@ -38,12 +42,28 @@ class AgentComponent extends Component
     public $selectedCustomer;
 
 
+    //    AGENT TIME OUT  LOGIC
+    public $onBreak = false;
+
+    public $breakStartTime = null;
+    public $totalBreakMinutesUsed = 0;
+    public $breakDuration = '00:00:00';
+    public $breakLimitReached = false;
+    public $breakMinutes = 0;
+
+    public $totalBreakDuration;
+
+
     protected $listeners = ['refresh' => '$refresh'];
 
     public function mount($id)
     {
         $this->user = User::findOrFail($id);
 
+
+        $user = $this->user;
+        $this->agent = $user->myAgentDetails;
+        $this->calculateTotalBreakDuration();
         // Load all available sessions
         $this->sessions = CallSession::all();
 
@@ -175,8 +195,6 @@ class AgentComponent extends Component
 
     public function render()
     {
-        $user = $this->user;
-        $this->agent = $user->myAgentDetails;
         // dd($user->myAgentDetails);
         $this->agent_num = $this->agent->endpoint;
         $api_server = config("app.API_SERVER_ENDPOINT");
@@ -192,40 +210,51 @@ class AgentComponent extends Component
         // $lastFiveCalls = Recordings::where('agent_number', 'LIKE', '%' . $this->agent_num . '%')->latest('agent_number')->take(5)->get();
 
 
-        $lastFour = substr($this->agent_num, -4);
         $today = now()->toDateString(); // or Carbon::today()
 
-        $totalCalls = Recordings::whereRaw('RIGHT(agent_number, 4) = ?', [$lastFour])
-            ->whereDate('created_at', $today)
-            ->count();
+        $callsQuery = Recordings::where('agent_number', 'like', "%{$this->agent_num}%")
+        ->whereDate('created_at', $today);
 
-        $answeredCalls = Recordings::whereRaw('RIGHT(agent_number, 4) = ?', [$lastFour])
-            ->whereDate('created_at', $today)
-            ->count();
+        $calls = DialEventLog::orderBy('event_timestamp')
+            ->get()
+            ->groupBy(function ($event) {
+                return $event->dialstring . '_' . $event->peer_id;
+            });
 
-        $missedCalls = Recordings::whereRaw('RIGHT(agent_number, 4) = ?', [$lastFour])
-            ->whereDate('created_at', $today)
-            ->count();
 
-        $averageCallTime = Recordings::whereRaw('RIGHT(agent_number, 4) = ?', [$lastFour])
-            ->whereDate('created_at', $today)
-            ->avg('duration_number');
+        $callResults = $calls->map(function ($events, $key) {
+            $sorted = $events->sortBy('event_timestamp');
 
-        $lastFiveCalls = Recordings::whereRaw('RIGHT(agent_number, 4) = ?', [$lastFour])
-            ->whereDate('created_at', $today)
-            ->latest('created_at')
-            ->take(5)
-            ->get();
+            $lastWithStatus = $sorted->reverse()->first(fn($e) => !empty($e->dialstatus));
+
+            if (!$lastWithStatus) return null;
+
+            return [
+                'dialstring' => $lastWithStatus->dialstring,
+                'caller_number' => $lastWithStatus->caller_number,
+                'status' => $lastWithStatus->dialstatus,
+                'timestamp' => $lastWithStatus->event_timestamp,
+            ];
+        })->filter(); // remove nulls
+
+
+        // dd($callResults);
+
+        $answered = count($callResults->where('status', 'ANSWER')
+        ->where('dialstring', $this->agent->endpoint));
+        $missed = count($callResults->where('status', 'NOANSWER')
+        ->where('dialstring', $this->agent->endpoint));
+
         return view('livewire.live.agent-component', [
             'agent' => $this->agent,
             'api_server' => $api_server,
             'ws_server' => $ws_server,
-            'totalCalls' => $totalCalls,
-            'answeredCalls' => $answeredCalls,
-            'missedCalls' => $missedCalls,
-            'averageCallTime' => gmdate('H:i:s', $averageCallTime),
-            'lastFiveCalls' => $lastFiveCalls,
-            'customer_details' => $this->customer_details
+            'totalCalls' => $answered+$missed,
+            'answeredCalls' => $answered, // You can later refine this if you separate answered vs missed
+            'missedCalls' => $missed,   // Likewise refine later
+            'averageCallTime' => gmdate('H:i:s', $callsQuery->avg('duration_number') ?: 0),
+            'lastFiveCalls' => $callsQuery->latest('agent_number')->take(5)->get(),
+            'customer_details' => $this->customer_details,
         ]);
     }
 
@@ -261,12 +290,73 @@ class AgentComponent extends Component
         }
     }
 
+    // public function status($status)
+    // {
+    //     dd($status);
+
+    //     if ($status === 'ON_BREAK') {
+    //         // Toggle between ON_BREAK and IDLE
+    //         $this->agent->status = $this->agent->status === 'ON_BREAK'
+    //             ? config('constants.agent_status.IDLE')
+    //             : config('constants.agent_status.ON_BREAK');
+    //     } else {
+    //         // Set any other status directly if needed
+    //         $this->agent->status = $status;
+    //     }
+    //     $this->agent->status = $status;
+    //     $agent_status = $status;
+    //     $this->agent->save();
+    //     $this->agent->refresh();
+    // }
+    public function break()
+    {
+        if (!$this->agent) return;
+
+        $this->agent->status = config('constants.agent_status.ON_BREAK');
+        $this->agent->save();
+
+        // Start new break
+        AgentBreak::create([
+            'agent_id' => $this->agent->id,
+            'started_at' => now(),
+        ]);
+
+        $this->agent = $this->agent->fresh();
+    }
+
+    public function resume()
+{
+    if (!$this->agent) return;
+
+    $this->agent->status = config('constants.agent_status.LOGGED_IN');
+    $this->agent->save();
+
+    // End the latest break
+    AgentBreak::where('agent_id', $this->agent->id)
+        ->whereNull('ended_at')
+        ->latest()
+        ->update(['ended_at' => now()]);
+
+    $this->agent = $this->agent->fresh();
+}
     public function status($status)
     {
-        $this->agent->status = $status;
-        $agent_status = $status;
+        if (!$this->agent) {
+            return;
+        }
+
+        if ($status === 'ON_BREAK') {
+            // Toggle between ON_BREAK and IDLE
+            $this->agent->status = $this->agent->status === 'ON_BREAK'
+                ? config('constants.agent_status.IDLE')
+                : config('constants.agent_status.ON_BREAK');
+        } else {
+            // Set any other status directly if needed
+            $this->agent->status = $status;
+        }
+
         $this->agent->save();
-        $this->agent->refresh();
+        $this->agent = $this->agent->fresh();
     }
     public function logout()
     {
@@ -319,5 +409,48 @@ class AgentComponent extends Component
     public function answeredCalls()
     {
         Auth::user()->myCallRecordings;
+    }
+
+
+public function updateBreakTimer()
+{
+
+    if (!$this->agent) return;
+
+    $totalSeconds = 0;
+
+
+    $breaks = AgentBreak::where('agent_id', $this->agent->id)->get();
+
+    foreach ($breaks as $break) {
+        $start = Carbon::parse($break->started_at);
+        $end = $break->ended_at ? Carbon::parse($break->ended_at) : now();
+        $totalSeconds += $end->diffInSeconds($start);
+    }
+
+    $hours = floor($totalSeconds / 3600);
+    $minutes = floor(($totalSeconds % 3600) / 60);
+    $seconds = $totalSeconds % 60;
+
+    $this->totalBreakDuration = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+
+    $this->breakLimitReached = $totalSeconds > 40 * 60;
+
+
+}
+
+public function calculateTotalBreakDuration()
+    {
+
+
+        $totalSeconds = AgentBreak::where('agent_id', $this->agent->id)
+            ->get()
+            ->reduce(function ($carry, $break) {
+                $end = $break->ended_at ?? now(); // still on break if ended_at is null
+                return $carry + $end->diffInSeconds($break->started_at);
+            }, 0);
+
+        $this->totalBreakDuration = gmdate('H:i:s', $totalSeconds);
+        // dd($this->totalBreakDuration);
     }
 }
