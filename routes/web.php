@@ -3,6 +3,7 @@
 use App\Models\Live\CallSession;
 use Illuminate\Support\Facades\Route;
 use App\Http\Livewire\Agent\AgentShow;
+use App\Http\Livewire\Live\AgentComponent;
 use App\Http\Livewire\Live\Recordings;
 use App\Http\Livewire\Configs\Contexts;
 use App\Http\Livewire\Live\ManageAgents;
@@ -19,6 +20,7 @@ use App\Http\Livewire\User\Suspend\SuspendForm;
 use App\Http\Livewire\Reports\CallDetailRecords;
 use App\Http\Livewire\User\Suspend\SuspendIndex;
 use App\Http\Livewire\Reports\CallSummaryRecords;
+use App\Http\Livewire\Qua\ReportsComponent;
 use App\Http\Livewire\User\Suspend\UnSuspendForm;
 use App\Http\Livewire\User\UserOverview\ShowUser;
 use App\Http\Livewire\User\Suspend\SuspendAllForm;
@@ -81,16 +83,19 @@ Route::middleware(['auth', 'role:super-admin|admin|agent'])->group(function () {
     Route::get('/reports/call/detail/records', CallDetailRecords::class)->name('reports.call.detail.records');
     Route::get('reports/show/cdr/{id}', CallDetailRecords::class)->name('reports.show.cdr');
     Route::get('reports/search', SearchCDR::class)->name('reports.search');
+    Route::get('reports/qua', ReportsComponent::class)->name('reports.qua');
 
     Route::get('live/dashboard', DashboardController::class)->name('live.dashboard');
     Route::get('live/recordings/show/{id}', RecordingsShow::class)->name('live.recordings.show');
     Route::get('live/recordings', Recordings::class)->name('live.recordings');
 
-    Route::get('live/agent/dashboard/{id}', AgentDashboardController::class)->name('live.agent.dashboard');
+    Route::get('live/agent/dashboard/{id}', AgentComponent::class)->name('live.agent.dashboard');
 
 
     Route::get('live/agent/manage', ManageAgents::class)->name('live.agent.manage');
     Route::get('live/agent/show/{id}', AgentShow::class)->name('live.agent.show');
+    // Route::get('live/agent/handler', AgentComponent::class)->name('live.agent.handler');
+
 
     //Route::get('live/agent/showagentnumber/{id}', AgentShow::class)->name('live.agent.show.agentnumber');
 

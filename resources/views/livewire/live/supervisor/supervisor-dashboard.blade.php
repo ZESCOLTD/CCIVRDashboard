@@ -460,7 +460,7 @@
                                     <span class="info-box-icon"><i class="fas fa-tachometer-alt"></i></span>
                                     <div class="info-box-content">
                                         <span class="info-box-text">Efficiency Level</span>
-                                        <span class="info-box-number">88%</span>
+                                        <span class="info-box-number">{{$efficiencyLast30}}%</span>
                                         <div class="progress">
                                             <div class="progress-bar" style="width: 88%"></div>
                                         </div>
@@ -547,7 +547,7 @@
                                         </h6>
                                     </div>
                                     <div class="card-body text-center">
-                                        <h3>03:45</h3>
+                                        <h3>{{ floor($averageDuration / 60) }}min: {{$averageDuration % 60}}sec</h3>
                                         <div class="progress">
                                             <div class="progress-bar bg-success" style="width: 65%"></div>
                                         </div>

@@ -113,10 +113,17 @@ $answeredCallsThisMonth = LiveRecordings::whereBetween('created_at', [
  // efficiency in last 30 minutes
  $efficiencyLast30 = 0;
  if ($availableAgentsNow > 0) {
-     $efficiencyLast30 = ($answeredCallsLast30 / $availableAgentsNow) * 100;
+     $efficiencyLast30 = ceil(($answeredCallsLast30 / $availableAgentsNow) * 100);
  }
 
-
+ $averageDuration = LiveRecordings::query()
+ ->whereNotNull('answerdate')
+ ->whereNotNull('hangupdate')
+ ->get()
+ ->map(function ($record) {
+     return Carbon::parse($record->hangupdate)->diffInSeconds(Carbon::parse($record->answerdate));
+ })
+ ->avg();
         //$ws_server = env("WS_SERVER_ENDPOINT");
         //dd([$api_server, $ws_server]);
         return view('livewire.live.supervisor.supervisor-dashboard', [
@@ -137,6 +144,7 @@ $answeredCallsThisMonth = LiveRecordings::whereBetween('created_at', [
             'failedCalls' => $failedCalls,
             'abandoned' => $abandoned,
             'efficiencyLast30' => $efficiencyLast30,
+            'averageDuration' => $averageDuration,
         ]);
     }
 
