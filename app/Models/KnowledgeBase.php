@@ -10,6 +10,8 @@ class KnowledgeBase extends Model
 {
     use HasFactory, SoftDeletes;
 
+    protected $table = 'technical';
+
     protected $fillable = [
         'topic',
         'description',

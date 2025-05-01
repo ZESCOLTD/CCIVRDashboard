@@ -502,22 +502,6 @@
                 </div>
 
 
-                <!-- Total Calls Card -->
-                {{-- <div class="col-md-3 mb-4">
-                    <div class="stats-card bg-primary-light">
-                        <div class="icon-circle bg-primary">
-                            <i class="fas fa-phone-alt"></i>
-                        </div>
-                        <div class="stats-content">
-                            <h6>Calls in queue</h6>
-                            <h3 id="queue-calls" wire:ignore>0</h3>
-                            <div class="trend up">
-                                <i class="fas fa-arrow-up"></i> 12% <span class="trend-text">vs yesterday</span>
-                            </div>
-                        </div>
-                    </div>
-                </div> --}}
-
             </div>
 
             <style>
@@ -1237,11 +1221,11 @@
                         // Filter bridges of type 'mixing'
                         const holdingBridges = data.filter(bridge => bridge.bridge_type === 'holding' && bridge
                             .channels.length > 0);
-                            var queueCalls=0;
+                        var queueCalls = 0;
 
-                            for(let i = 0; i < holdingBridges.length; i++) {
-                                queueCalls += holdingBridges[i].channels.length;
-                            }
+                        for (let i = 0; i < holdingBridges.length; i++) {
+                            queueCalls += holdingBridges[i].channels.length;
+                        }
 
                         // Update DOM with the count (you can change this element ID)
                         document.getElementById("queue-calls").innerHTML = ` ${queueCalls}`;
