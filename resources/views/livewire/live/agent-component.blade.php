@@ -160,7 +160,7 @@
                                 <div class="d-flex align-items-center mb-2">
                                     <i class="fas fa-user-circle mr-2 text-secondary"></i>
                                     <strong>Caller ID:</strong>
-                                    <span class="ml-2">+1234567890</span>
+                                    <span class="ml-2 text-info" id="incoming-call">+1234567890</span>
                                 </div>
                                 <div class="d-flex align-items-center">
                                     <i class="fas fa-stopwatch mr-2 text-secondary"></i>
@@ -1085,13 +1085,15 @@
         document.addEventListener('livewire:load', function() {
             console.log('[Livewire] livewire:load fired ✅');
 
-            // const selected = @json($selectedSession);
-            // if (!selected) {
-            //     const modal = new bootstrap.Modal(document.getElementById('sessionModal'));
 
-            //     modal.show();
 
-            // }
+        const iframe = document.getElementById('myIframe');
+        iframe.onload = function() {
+            iframe.contentWindow.postMessage({
+                man_no: {{ $agent->endpoint }}
+            }, 'http://localhost:8000');
+        };
+
         });
 
 
@@ -1239,7 +1241,17 @@
                 socket.addEventListener("message", (event) => {
                     var data = JSON.parse(event.data);
                     fetchHoldingBridgeData();
-                    Livewire.emit('refreshComponent');
+
+                    console.log("Incoming Call Data:", data);
+
+                    if(data.type==="Dial"
+                     && data.dialstring  =={{ $agent->endpoint }}
+                    ){
+                        // alert( incomingCall);
+
+                    document.getElementById("incoming-call").innerHTML = data.peer.caller.number;
+
+                   }
                 });
                 socket.addEventListener("error", (event) => {
                     console.error("WebSocket error:", event);
