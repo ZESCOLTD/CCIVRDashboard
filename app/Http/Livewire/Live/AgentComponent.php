@@ -19,6 +19,8 @@ use App\Models\KnowledgeBase;
 use Illuminate\Support\Str;
 use App\Models\Live\DialEventLog;
 
+use App\Models\Live\TransactionCode;
+
 use App\Models\Live\AgentBreak; // ✅ Import the model
 use Carbon\Carbon;
 
@@ -52,6 +54,8 @@ class AgentComponent extends Component
     public $breakMinutes = 0;
 
     public $totalBreakDuration;
+public $t_code;
+    public $transactionCodes;
 
 
     protected $listeners = ['refresh' => '$refresh'];
@@ -60,6 +64,7 @@ class AgentComponent extends Component
     {
         $this->user = User::findOrFail($id);
 
+        $this->transactionCodes = TransactionCode::all();
 
         $user = $this->user;
         $this->agent = $user->myAgentDetails;
@@ -290,24 +295,11 @@ class AgentComponent extends Component
         }
     }
 
-    // public function status($status)
-    // {
-    //     dd($status);
+    public function editTCode()
+    {
+        dd($this->t_code);
 
-    //     if ($status === 'ON_BREAK') {
-    //         // Toggle between ON_BREAK and IDLE
-    //         $this->agent->status = $this->agent->status === 'ON_BREAK'
-    //             ? config('constants.agent_status.IDLE')
-    //             : config('constants.agent_status.ON_BREAK');
-    //     } else {
-    //         // Set any other status directly if needed
-    //         $this->agent->status = $status;
-    //     }
-    //     $this->agent->status = $status;
-    //     $agent_status = $status;
-    //     $this->agent->save();
-    //     $this->agent->refresh();
-    // }
+    }
     public function break()
     {
         if (!$this->agent) return;

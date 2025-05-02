@@ -1078,6 +1078,59 @@
         </div>
     </div>
 
+    <!-- Modal -->
+    <!-- Modal -->
+<!-- Modal -->
+<div wire:ignore.self class="modal fade" id="updateTransactionCodeModal" tabindex="-1" role="dialog"
+    aria-labelledby="updateTransactionCodeModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="updateTransactionCodeModalLabel">Update Transaction Code</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span>×</span>
+                </button>
+            </div>
+            <form wire:submit.prevent="editTCode">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="transactionCode" class="form-label">Transaction Code</label>
+                        <select id="transactionCode" class="form-control" required wire:model="t_code">
+                            <option value="">--Choose--</option>
+                            @foreach ($transactionCodes as $transactionCode)
+                                <option value="{{ $transactionCode->code }}">{{ $transactionCode->code }} :
+                                    {{ $transactionCode->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+
+                    @if (session()->has('success'))
+                        <div class="alert alert-success" role="alert">
+                            {{ session()->get('success') }}
+                        </div>
+                    @endif
+                    @if (session()->has('error'))
+                        <div class="alert alert-danger" role="alert">
+                            {{ session()->get('error') }}
+                        </div>
+                    @endif
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-info">
+                        <span wire:loading wire:target="editTCode" class="spinner-border spinner-border-sm"
+                            role="status" aria-hidden="true"></span>
+                        Save
+                    </button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
 </div>
 
 @push('custom-scripts')
@@ -1087,12 +1140,12 @@
 
 
 
-        const iframe = document.getElementById('myIframe');
-        iframe.onload = function() {
-            iframe.contentWindow.postMessage({
-                man_no: {{ $agent->endpoint }}
-            }, 'http://localhost:8000');
-        };
+            const iframe = document.getElementById('myIframe');
+            iframe.onload = function() {
+                iframe.contentWindow.postMessage({
+                    man_no: {{ $agent->endpoint }}
+                }, 'http://localhost:8000');
+            };
 
         });
 
@@ -1239,44 +1292,51 @@
                     socket.send("Hello Server!");
                 });
                 socket.addEventListener("message", (event) => {
-                    var data = JSON.parse(event.data);
-                    fetchHoldingBridgeData();
+                        var data = JSON.parse(event.data);
+                        fetchHoldingBridgeData();
 
-                    console.log("Incoming Call Data:", data);
+                        console.log("Incoming Call Data:", data);
 
-                    if(data.type==="Dial"
-                     && data.dialstring  =={{ $agent->endpoint }}
-                    ){
-                        // alert( incomingCall);
+                        if (data.type === "Dial" &&
+                            data.dialstring == {{ $agent->endpoint }}
+                        ) {
+                            // alert( incomingCall);
 
-                    document.getElementById("incoming-call").innerHTML = data.peer.caller.number;
+                            document.getElementById("incoming-call").innerHTML = data.peer.caller.number;
 
-                   }
+                        }
+                         if (data.type === "StasisEnd")
+                     {
+                    //     // alert( incomingCall);
+
+                        const modal = new bootstrap.Modal(document.getElementById('updateTransactionCodeModal'));
+                        modal.show();
+                     }
                 });
-                socket.addEventListener("error", (event) => {
-                    console.error("WebSocket error:", event);
-                    ws_socket.classList.remove("badge-success");
-                    ws_socket.classList.add("badge-danger");
-                    ws_socket.textContent = "Web socket error";
+            socket.addEventListener("error", (event) => {
+                console.error("WebSocket error:", event);
+                ws_socket.classList.remove("badge-success");
+                ws_socket.classList.add("badge-danger");
+                ws_socket.textContent = "Web socket error";
 
-                    setTimeout(() => {
-                        reConnect();
-                    }, 5000); // Reconnect after 5 seconds
-                });
-                socket.addEventListener("close", (event) => {
-                    ws_socket.classList.remove("badge-success");
-                    ws_socket.classList.add("badge-danger");
-                    ws_socket.textContent = "Web socket error";
-                    console.log("WebSocket connection closed:", event);
+                setTimeout(() => {
+                    reConnect();
+                }, 5000); // Reconnect after 5 seconds
+            });
+            socket.addEventListener("close", (event) => {
+                ws_socket.classList.remove("badge-success");
+                ws_socket.classList.add("badge-danger");
+                ws_socket.textContent = "Web socket error";
+                console.log("WebSocket connection closed:", event);
 
-                    setTimeout(() => {
-                        reConnect();
-                    }, 5000); // Reconnect after 5 seconds
-                });
+                setTimeout(() => {
+                    reConnect();
+                }, 5000); // Reconnect after 5 seconds
+            });
 
-            }
+        }
 
-            reConnect()
+        reConnect()
         })
     </script>
 @endpush
