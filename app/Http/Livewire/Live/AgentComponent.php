@@ -56,9 +56,10 @@ class AgentComponent extends Component
     public $totalBreakDuration;
 public $t_code;
     public $transactionCodes;
+    public $recordFilename;
 
 
-    protected $listeners = ['refresh' => '$refresh'];
+    protected $listeners = ['refresh' => '$refresh','filename'=>'filename'];
 
     public function mount($id)
     {
@@ -126,14 +127,13 @@ public $t_code;
 
 
 
-    //    public function selectTopic($topicId)
-    //    {
-    //        $this->selectedTopic = KnowledgeBase::find($topicId);
-    //        $this->searchQuery = $this->selectedTopic->topic;
-    //        $this->searchResults = [];
-    //    }
+       public function filename($filename)
+       {
 
-    //    Search Result for Knowledge base
+        $this->recordFilename = $filename;
+
+       }
+
 
     public function changeSession()
     {
@@ -297,7 +297,13 @@ public $t_code;
 
     public function editTCode()
     {
-        dd($this->t_code);
+
+        // dd($this->t_code);
+        Recordings::where('file_name', $this->recordFilename)
+            ->update(['transaction_code' => $this->t_code]);
+        $this->t_code = null;
+        session()->flash('success', 'Transaction code updated successfully!');
+        // dd($this->recordFilename);
 
     }
     public function break()
