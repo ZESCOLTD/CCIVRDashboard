@@ -1321,14 +1321,16 @@
                                 console.log("agent:", agent);
                                 console.log("filename:", filename);
                                 Livewire.emit('filename', filename);
+
+                                const modal = new bootstrap.Modal(document.getElementById(
+                                    'updateTransactionCodeModal'));
+                                modal.show();
                             }
                         } else {
                             console.error("Error: app_data does not contain enough parts.");
                         }
 
-                        const modal = new bootstrap.Modal(document.getElementById(
-                            'updateTransactionCodeModal'));
-                        modal.show();
+
                     }
                 });
                 socket.addEventListener("error", (event) => {

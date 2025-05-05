@@ -326,7 +326,7 @@ public $t_code;
 {
     if (!$this->agent) return;
 
-    $this->agent->status = config('constants.agent_status.LOGGED_IN');
+    $this->agent->status = config('constants.agent_status.IDLE');
     $this->agent->save();
 
     // End the latest break
