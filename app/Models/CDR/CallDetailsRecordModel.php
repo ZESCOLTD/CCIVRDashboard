@@ -4,12 +4,13 @@ namespace App\Models\CDR;
 
 use App\Models\Configs\ConfigDestinationsModel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class CallDetailsRecordModel extends Authenticatable
+class CallDetailsRecordModel extends Model
 {
-    use HasFactory, Notifiable;
+    use HasFactory;
 
     protected $table = 'cdr';
     protected $connection = 'asterisk_mysql';

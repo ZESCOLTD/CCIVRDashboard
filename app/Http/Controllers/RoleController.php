@@ -26,7 +26,10 @@ class RoleController extends Controller
 
     public function create()
     {
-        return view('role-permission.role.create');
+dd(123);
+        return view('role-permission.role-component.create');
+
+
     }
 
     public function store(Request $request)

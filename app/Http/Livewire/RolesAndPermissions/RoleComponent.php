@@ -61,6 +61,8 @@ class RoleComponent extends Component
 
         session()->flash('status', 'Role Created Successfully');
         $this->resetInput();
+
+        dd('Store method executed'); // Add this line for debugging
     }
 
     public function edit($id)

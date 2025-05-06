@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('knowledge_bases', function (Blueprint $table) {
+        Schema::create('technicals', function (Blueprint $table) {
             $table->id();
-            $table->string('topic')->index();
-            $table->text('description');
-            $table->timestamp('last_updated')->useCurrent();
+            $table->string('topic');
+            $table->longText('description')->nullable();
             $table->timestamps();
 
-            $table->softDeletes();
+            $table->unique(['topic', 'description']); // More realistic than unique make only
         });
     }
 
@@ -27,9 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('knowledge_bases');
+        Schema::dropIfExists('technicals');
     }
 };
-
-
-

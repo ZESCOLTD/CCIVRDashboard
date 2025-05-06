@@ -33,7 +33,7 @@
                             <table class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
-                                        <th>Id</th>
+{{--                                        <th>Id</th>--}}
                                         <th>Name</th>
                                         <th width="40%">Action</th>
                                     </tr>
@@ -41,7 +41,7 @@
                                 <tbody>
                                     @foreach ($roles as $role)
                                     <tr>
-                                        <td>{{ $role->id }}</td>
+{{--                                        <td>{{ $role->id }}</td>--}}
                                         <td>{{ $role->name }}</td>
                                         <td>
                                             <!-- Add / Edit Permissions Button -->

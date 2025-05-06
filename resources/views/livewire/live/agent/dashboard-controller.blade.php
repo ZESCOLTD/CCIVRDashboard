@@ -5,19 +5,19 @@
             @if (session()->has('message'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     {{ session()->get('message') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
             @if (session()->has('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     {{ session()->get('success') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
             @if (session()->has('error'))
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     {{ session()->get('error') }}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
@@ -55,7 +55,8 @@
                                     <strong>Status:</strong>
                                     @switch($agent->status)
                                         @case('LOGGED_IN')
-                                            <span class="badge bg-success"><i class="fas fa-circle me-1"></i>LOGGED IN</span>
+                                            <span class="badge bg-success"><i
+                                                    class="fas fa-circle me-1"></i>LOGGED IN</span>
                                             @break
 
                                         @case('LOGGED_OUT')
@@ -68,11 +69,13 @@
                                             @break
 
                                         @case('WITHDRAWN')
-                                            <span class="badge bg-danger"><i class="fas fa-circle me-1"></i>WITHDRAWN</span>
+                                            <span class="badge bg-danger"><i
+                                                    class="fas fa-circle me-1"></i>WITHDRAWN</span>
                                             @break
 
                                         @case('WRAPPING_UP')
-                                            <span class="badge bg-info"><i class="fas fa-circle me-1"></i>WRAPPING UP</span>
+                                            <span class="badge bg-info"><i
+                                                    class="fas fa-circle me-1"></i>WRAPPING UP</span>
                                             @break
 
                                         @case('IN_CONVERSATION')
@@ -117,8 +120,8 @@
                                             <i class="fas fa-exchange-alt"></i>
                                         </button> --}}
 
-                                        <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal"
-                                                data-bs-target="#sessionModal">
+                                        <button class="btn btn-sm btn-outline-primary" data-toggle="modal"
+                                                data-target="#sessionModal">
                                             <i class="fas fa-exchange-alt"></i>
                                         </button>
                                     </div>
@@ -131,13 +134,6 @@
                                     <div class="alert alert-warning py-1 px-2 mt-2 small">
                                         <i class="fas fa-exclamation-triangle me-2"></i>No session selected
                                     </div>
-                                    <script>
-                                        document.addEventListener('DOMContentLoaded', function() {
-
-                                            var sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
-                                            sessionModal.show();
-                                        });
-                                    </script>
                                 @endif
                             </div>
                         </div>
@@ -181,9 +177,6 @@
                                 @endif
 
 
-
-
-
                                 <div class="mt-3">
                                     @if (in_array($agent->status, ['LOGGED_OUT', 'WITHDRAWN']))
                                         {{-- LOGIN BUTTON --}}
@@ -218,7 +211,6 @@
                                                 <small>On break for {{ $breakMinutes }} minute(s)</small>
                                             </div>
                                         @endif
-
 
                                     @endif
                                 </div>
@@ -428,7 +420,7 @@
             <!-- Key Metrics Overview -->
             <div class="row">
                 <!-- Total Calls Card -->
-                <div class="col-md-3 mb-4">
+                <div class="col-12 col-sm-6 col-md-3 mb-4">
                     <div class="stats-card bg-primary-light">
                         <div class="icon-circle bg-primary">
                             <i class="fas fa-phone-alt"></i>
@@ -444,7 +436,7 @@
                 </div>
 
                 <!-- Answered Calls Card -->
-                <div class="col-md-3 mb-4">
+                <div class="col-12 col-sm-6 col-md-3 mb-4">
                     <div class="stats-card bg-success-light">
                         <div class="icon-circle bg-success">
                             <i class="fas fa-check"></i>
@@ -460,7 +452,7 @@
                 </div>
 
                 <!-- Missed Calls Card -->
-                <div class="col-md-3 mb-4">
+                <div class="col-12 col-sm-6 col-md-3 mb-4">
                     <div class="stats-card bg-danger-light">
                         <div class="icon-circle bg-danger">
                             <i class="fas fa-times"></i>
@@ -476,7 +468,7 @@
                 </div>
 
                 <!-- Average Call Time Card -->
-                <div class="col-md-3 mb-4">
+                <div class="col-12 col-sm-6 col-md-3 mb-4">
                     <div class="stats-card bg-warning-light">
                         <div class="icon-circle bg-warning">
                             <i class="fas fa-clock"></i>
@@ -491,7 +483,6 @@
                     </div>
                 </div>
             </div>
-
 
 
 
@@ -539,7 +530,7 @@
                     background-color: #f8f9fa;
                 }
 
-                .knowledge-content {
+                .technical-content {
                     max-height: 400px;
                     overflow-y: auto;
                     background-color: #f8f9fa;
@@ -593,29 +584,29 @@
                     overflow: hidden;
                 }
 
-                .knowledge-content {
+                .technical-content {
                     line-height: 1.6;
                 }
 
-                .knowledge-content h4,
-                .knowledge-content h5 {
+                .technical-content h4,
+                .technical-content h5 {
                     color: var(--primary-color);
                     margin-top: 1.5rem;
                 }
 
-                .knowledge-content ul,
-                .knowledge-content ol {
+                .technical-content ul,
+                .technical-content ol {
                     padding-left: 1.5rem;
                 }
 
-                .knowledge-content pre {
+                .technical-content pre {
                     background: #f8f9fa;
                     padding: 1rem;
                     border-radius: 5px;
                     overflow-x: auto;
                 }
 
-                .knowledge-content code {
+                .technical-content code {
                     background: #f8f9fa;
                     padding: 0.2rem 0.4rem;
                     border-radius: 3px;
@@ -756,8 +747,8 @@
                                 <div class="list-group">
                                     @foreach ($searchResults as $result)
                                         <a href="#" class="list-group-item list-group-item-action py-3"
-                                           wire:click="selectTopic({{ $result['id'] }})" data-bs-toggle="modal"
-                                           data-bs-target="#knowledgeModal">
+                                           wire:click="selectTopic({{ $result['id'] }})" data-toggle="modal"
+                                           data-target="#technicalModal">
                                             <div class="d-flex w-100 justify-content-between">
                                                 <h6 class="mb-1 text-primary">{{ $result['topic'] }}</h6>
                                                 <small class="text-muted">Click to view</small>
@@ -780,53 +771,44 @@
                     </div>
 
                     <!-- Quick Access Categories -->
-                    <div class="quick-categories mt-4">
-                        <h6 class="text-muted mb-3">Popular Categories:</h6>
-                        <div class="d-flex flex-wrap gap-2">
+                    @if(!empty($popularTopics))
+                        @foreach($popularTopics as $popularTopic)
                             <button class="btn btn-sm btn-outline-secondary rounded-pill">
-                                <i class="fas fa-file-invoice-dollar me-1"></i> Billing
+                                <i class="fas fa-star me-1"></i> {{ $popularTopic->topic }}
                             </button>
-                            <button class="btn btn-sm btn-outline-secondary rounded-pill">
-                                <i class="fas fa-bolt me-1"></i> Outages
-                            </button>
-                            <button class="btn btn-sm btn-outline-secondary rounded-pill">
-                                <i class="fas fa-money-bill-wave me-1"></i> Payments
-                            </button>
-                            <button class="btn btn-sm btn-outline-secondary rounded-pill">
-                                <i class="fas fa-tools me-1"></i> Technical
-                            </button>
-                            <button class="btn btn-sm btn-outline-secondary rounded-pill">
-                                <i class="fas fa-id-card me-1"></i> Accounts
-                            </button>
-                        </div>
-                    </div>
+                        @endforeach
+                    @else
+                        <p>No popular topics found.</p>
+                    @endif
+
+
                 </div>
             </div>
 
             <!-- Knowledge Modal -->
-            <div class="modal fade" id="knowledgeModal" tabindex="-1" aria-labelledby="knowledgeModalLabel"
+            <div class="modal fade" id="technicalModal" tabindex="-1" aria-labelledby="technicalModalLabel"
                  aria-hidden="true" wire:ignore.self>
                 <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content border-0 shadow">
                         @if ($selectedTopic)
                             <div class="modal-header bg-primary text-white">
                                 <div>
-                                    <h5 class="modal-title" id="knowledgeModalLabel">
+                                    <h5 class="modal-title" id="technicalModalLabel">
                                         <i class="fas fa-file-alt me-2"></i>{{ $selectedTopic->topic }}
                                     </h5>
                                     <small class="text-white-50">Last updated:
                                         {{ $selectedTopic->updated_at->format('M d, Y') }}</small>
                                 </div>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                <button type="button" class="btn-close btn-close-white" data-dismiss="modal"
                                         aria-label="Close" wire:click="$set('selectedTopic', null)"></button>
                             </div>
                             <div class="modal-body p-4">
-                                <div class="knowledge-content formatted-content">
+                                <div class="technical-content formatted-content">
                                     {!! $selectedTopic->description !!}
                                 </div>
                             </div>
                             <div class="modal-footer bg-light">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">
                                     <i class="fas fa-times me-1"></i> Close
                                 </button>
                                 <button type="button" class="btn btn-primary">
@@ -840,257 +822,142 @@
                     </div>
                 </div>
             </div>
+
+
             <!-- Combined Call Control and Incoming Call Information Card -->
 
+{{--            <div class="input-group mb-3">--}}
+{{--                <input type="text" class="form-control"--}}
+{{--                       wire:paste.debounce.500ms="searchCustomers"--}}
+{{--                       wire:change.debounce.500ms="searchCustomers"--}}
+{{--                       placeholder="Search by Meter Serial, Service No, or Complaint No"--}}
+{{--                       wire:model="search_term">--}}
+{{--            </div>--}}
 
-
-            <!-- Combined Call Control and Incoming Call Information Card -->
-            <!-- Customer Details Card -->
             <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-orange text-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-user-circle me-2"></i>Customer Details</h5>
-                    <div class="search-box" style="width: 300px;">
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
-                            <input type="text" class="form-control border-start-0"
-                                   placeholder="Search by meter number or name..."
-                                   wire:model.debounce.200ms="meter_number" wire:keydown.enter="searchCustomer">
-                            <button class="btn btn-primary" type="button">
-                                <i class="fas fa-arrow-right"></i>
-                            </button>
-                        </div>
+                <div class="card-header bg-orange text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="fas fa-search me-2"></i>Customer Details Search</h5>
+                        <small class="text-white-50">Search by Meter Serial, Service No, or Complaint No</small>
                     </div>
                 </div>
-
                 <div class="card-body">
-                    @if ($customer_details && $customer_details->isNotEmpty())
-                        @foreach ($customer_details as $customer)
-                            <div class="customer-profile">
-                                <div class="d-flex align-items-center mb-4">
-                                    <div class="avatar bg-primary text-white me-3">
-                                        {{ substr($customer->customer_name ?? 'C', 0, 1) }}
-                                    </div>
-                                    <div>
-                                        <h4 class="mb-0">{{ $customer->customer_name ?? '--' }}</h4>
-                                        <p class="text-muted mb-0">
-                                            <i class="fas fa-map-marker-alt me-1"></i>
-                                            {{ $customer->address ?? '--' }}
-                                        </p>
-                                    </div>
-                                    <button class="btn btn-sm btn-outline-primary ms-auto"
-                                            wire:click="showCustomerModal('{{ $customer->meter_serial_no }}')">
-                                        <i class="fas fa-expand me-1"></i> Full View
-                                    </button>
-                                </div>
-
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="info-section mb-4">
-                                            <h6 class="section-title"><i class="fas fa-home me-2"></i>Address
-                                                Information</h6>
-                                            <div class="row">
-                                                <div class="col-6">
-                                                    <p class="mb-1"><strong>Division:</strong></p>
-                                                    <p class="mb-3">{{ $customer->division ?? '--' }}</p>
-
-                                                    <p class="mb-1"><strong>Service Point:</strong></p>
-                                                    <p class="mb-3">{{ $customer->service_point ?? '--' }}</p>
-
-                                                    <p class="mb-1"><strong>Meter #:</strong></p>
-                                                    <p class="mb-3">{{ $customer->meter_serial_no ?? '--' }}</p>
-                                                </div>
-                                                <div class="col-6">
-                                                    <p class="mb-1"><strong>Town:</strong></p>
-                                                    <p class="mb-3">{{ $customer->town ?? '--' }}</p>
-
-                                                    <p class="mb-1"><strong>Street:</strong></p>
-                                                    <p class="mb-3">{{ $customer->street ?? '--' }}</p>
-
-                                                    <p class="mb-1"><strong>Service #:</strong></p>
-                                                    <p class="mb-3">{{ $customer->service_no ?? '--' }}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="info-section">
-                                            <h6 class="section-title"><i class="fas fa-phone me-2"></i>Contact
-                                                Information</h6>
-                                            <div class="row">
-                                                <div class="col-6">
-                                                    <p class="mb-1"><strong>Home Phone:</strong></p>
-                                                    <p class="mb-3">{{ $customer->home_phone ?? '--' }}</p>
-                                                </div>
-                                                <div class="col-6">
-                                                    <p class="mb-1"><strong>Business Phone:</strong></p>
-                                                    <p class="mb-3">{{ $customer->buss_phone ?? '--' }}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="info-section mb-4">
-                                            <h6 class="section-title"><i class="fas fa-bolt me-2"></i>Meter
-                                                Information</h6>
-                                            <div class="row">
-                                                <div class="col-6">
-                                                    <p class="mb-1"><strong>Meter Make:</strong></p>
-                                                    <p class="mb-3">{{ $customer->meter_make ?? '--' }}</p>
-
-                                                    <p class="mb-1"><strong>Phase Type:</strong></p>
-                                                    <p class="mb-3">{{ $customer->phase_type ?? '--' }}</p>
-                                                </div>
-                                                <div class="col-6">
-                                                    <p class="mb-1"><strong>Tariff:</strong></p>
-                                                    <p class="mb-3">{{ $customer->tariff ?? '--' }}</p>
-
-                                                    <p class="mb-1"><strong>Landmark:</strong></p>
-                                                    <p class="mb-3">{{ $customer->landmark ?? '--' }}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="info-section">
-                                            <h6 class="section-title"><i
-                                                    class="fas fa-info-circle me-2"></i>Additional Information</h6>
-                                            <div class="row">
-                                                <div class="col-6">
-                                                    <p class="mb-1"><strong>Other Phone:</strong></p>
-                                                    <p class="mb-3">{{ $customer->other_phone ?? '--' }}</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    @else
-                        <div class="empty-state text-center py-5">
-                            <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                            <h5>No customer information</h5>
-                            <p class="text-muted">Search for a customer by meter number or name</p>
-                        </div>
-                    @endif
+                    <div class="input-group">
+                        <input type="text" class="form-control"
+                               placeholder="Enter search term..."
+                               wire:model.defer="search_term">
+                        <button class="btn btn-primary d-flex align-items-center" wire:click="searchCustomers" type="button">
+                <span wire:loading.remove wire:target="searchCustomers">
+                    Search
+                </span>
+                            <div wire:loading wire:target="searchCustomers" class="spinner-border spinner-border-sm ms-2" role="status" aria-hidden="true"></div>
+                        </button>
+                    </div>
                 </div>
             </div>
 
-            <!-- Customer Modal -->
-            <div class="modal fade" id="customerModal" tabindex="-1" aria-labelledby="customerModalLabel"
+{{--            <div class="text-end mb-2">--}}
+{{--                <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#complaintsTableModal">--}}
+{{--                    <i class="fas fa-table me-1"></i> View All Complaints (Table)--}}
+{{--                </button>--}}
+{{--            </div>--}}
+
+            <div class="modal fade" id="complaintsTableModal" tabindex="-1" aria-labelledby="complaintsTableModalLabel"
                  aria-hidden="true" wire:ignore.self>
                 <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                     <div class="modal-content border-0 shadow">
-                        <div class="modal-header bg-primary text-white">
-                            <h5 class="modal-title" id="customerModalLabel">
-                                <i class="fas fa-user-circle me-2"></i>
-                                Customer Details: {{ $selectedCustomer->meter_serial_no ?? '' }}
+                        <div class="modal-header bg-info text-white">
+                            <h5 class="modal-title" id="complaintsTableModalLabel">
+                                <i class="fas fa-list me-2"></i> Customer Complaints Table
                             </h5>
-                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            <button type="button" class="btn-close btn-close-white" data-dismiss="modal"
                                     aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            @if ($selectedCustomer)
+                            @if ($customer_details && $customer_details->isNotEmpty())
                                 <div class="table-responsive">
-                                    <table class="table table-bordered">
-                                        <tbody>
+                                    <table class="table table-bordered table-striped align-middle">
+                                        <thead class="table-light">
                                         <tr>
-                                            <th width="20%">Customer Name</th>
-                                            <td width="30%">{{ $selectedCustomer->customer_name ?? '--' }}</td>
-                                            <th width="20%">Home Phone</th>
-                                            <td width="30%">{{ $selectedCustomer->home_phone ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Division</th>
-                                            <td>{{ $selectedCustomer->division ?? '--' }}</td>
-                                            <th>Town</th>
-                                            <td>{{ $selectedCustomer->town ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Service Point</th>
-                                            <td>{{ $selectedCustomer->service_point ?? '--' }}</td>
-                                            <th>Street</th>
-                                            <td>{{ $selectedCustomer->street ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Address</th>
-                                            <td>{{ $selectedCustomer->address ?? '--' }}</td>
-                                            <th>Landmark</th>
-                                            <td>{{ $selectedCustomer->landmark ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Meter Number</th>
-                                            <td>{{ $selectedCustomer->meter_serial_no ?? '--' }}</td>
+                                            <th>Customer Name</th>
+                                            <th>Complaint No</th>
+                                            <th>Meter #</th>
                                             <th>Meter Make</th>
-                                            <td>{{ $selectedCustomer->meter_make ?? '--' }}</td>
+                                            <th>Landmark</th>
+                                            <th>Phone</th>
+                                            <th>Type</th>
+                                            <th>Status</th>
                                         </tr>
-                                        <tr>
-                                            <th>Tariff</th>
-                                            <td>{{ $selectedCustomer->tariff ?? '--' }}</td>
-                                            <th>Phase Type</th>
-                                            <td>{{ $selectedCustomer->phase_type ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Service Number</th>
-                                            <td>{{ $selectedCustomer->service_no ?? '--' }}</td>
-                                            <th>Phone Number</th>
-                                            <td>{{ $selectedCustomer->home_phone ?? '--' }}</td>
-                                        </tr>
-                                        <tr>
-                                            <th>Other Number</th>
-                                            <td>{{ $selectedCustomer->buss_phone ?? '--' }}</td>
-                                            <th>Other Number</th>
-                                            <td>{{ $selectedCustomer->other_phone ?? '--' }}</td>
-                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        @foreach ($customer_details as $c)
+                                            <tr>
+                                                <td>{{ $c->customer_name ?? '--' }}</td>
+                                                <td>{{ $c->complaint_no ?? '--' }}</td>
+                                                <td>{{ $c->meter_serial_no ?? '--' }}</td>
+                                                <td>{{ $c->meter_make ?? '--' }}</td>
+                                                <td>{{ $c->landmark ?? '--' }}</td>
+                                                <td>{{ $c->phone_number ?? '--' }}</td>
+                                                <td>{{ $c->complaint_type_desc ?? '--' }}</td>
+                                                <td>{{ $c->complaint_status_desc ?? '--' }}</td>
+                                            </tr>
+                                        @endforeach
                                         </tbody>
                                     </table>
+                                </div>
+                            @else
+                                <div class="text-center text-muted py-4">
+                                    <i class="fas fa-info-circle fa-2x mb-2"></i>
+                                    <p>No complaint data found for the given search.</p>
                                 </div>
                             @endif
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" wire:click="clearCustomerDetailsSession">
                                 <i class="fas fa-times me-1"></i> Close
                             </button>
-                            <button type="button" class="btn btn-primary">
-                                <i class="fas fa-print me-1"></i> Print
-                            </button>
                         </div>
                     </div>
                 </div>
             </div>
 
 
-            <div class="row">
-                <!-- Other info boxes here -->
-                <div class="col-md-12">
-                    <div class="info-box bg-info">
-                        <span class="info-box-icon"><i class="fas fa-list"></i></span>
-                        <div class="info-box-content">
-                            <span class="info-box-text">Last Five Calls</span>
-                            <table class="table table-striped">
-                                <thead>
-                                <tr>
-                                    <th>Agent number</th>
-                                    <th>Caller phone</th>
-                                    <th>Call date</th>
-                                    <th>Duration</th>
-                                    <th>Transaction code</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                @foreach ($lastFiveCalls as $call)
-                                    <tr>
-                                        <td>{{ $call->dst }}</td>
-                                        <td>{{ $call->phone_number }}</td>
-                                        <td>{{ $call->created_at ?? '--' }}</td>
-                                        <td>{{ $call->call_duration }}</td>
-                                        <td>{{ $call->disposition }}</td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <!-- Combined Call Control and Incoming Call Information Card -->
+
+
+{{--            <div class="row">--}}
+{{--                <!-- Other info boxes here -->--}}
+{{--                <div class="col-md-12">--}}
+{{--                    <div class="info-box bg-info">--}}
+{{--                        <span class="info-box-icon"><i class="fas fa-list"></i></span>--}}
+{{--                        <div class="info-box-content">--}}
+{{--                            <span class="info-box-text">Last Five Calls</span>--}}
+{{--                            <table class="table table-striped">--}}
+{{--                                <thead>--}}
+{{--                                <tr>--}}
+{{--                                    <th>Agent number</th>--}}
+{{--                                    <th>Caller phone</th>--}}
+{{--                                    <th>Call date</th>--}}
+{{--                                    <th>Duration</th>--}}
+{{--                                    <th>Transaction code</th>--}}
+{{--                                </tr>--}}
+{{--                                </thead>--}}
+{{--                                <tbody>--}}
+{{--                                @foreach ($lastFiveCalls as $call)--}}
+{{--                                    <tr>--}}
+{{--                                        <td>{{ $call->dst }}</td>--}}
+{{--                                        <td>{{ $call->phone_number }}</td>--}}
+{{--                                        <td>{{ $call->created_at ?? '--' }}</td>--}}
+{{--                                        <td>{{ $call->call_duration }}</td>--}}
+{{--                                        <td>{{ $call->disposition }}</td>--}}
+{{--                                    </tr>--}}
+{{--                                @endforeach--}}
+{{--                                </tbody>--}}
+{{--                            </table>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--            </div>--}}
 
 
             <!-- WebSocket Data -->
@@ -1107,8 +974,8 @@
 
             <!-- Session Selection Modal -->
             <div class="modal fade" id="sessionModal" tabindex="-1" role="dialog"
-                 aria-labelledby="sessionModalLabel" aria-hidden="true" data-bs-backdrop="static"
-                 data-bs-keyboard="false" wire:ignore.self>
+                 aria-labelledby="sessionModalLabel" aria-hidden="true" data-backdrop="static"
+                 data-keyboard="false" wire:ignore.self>
                 selected {{ $selectedSession }}
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
@@ -1126,10 +993,11 @@
                         <div class="modal-footer">
                             @if ($selectedSession == null)
                                 <button type="button" class="btn btn-primary disabled" wire:click="saveSession">Save
-                                    changes ...</button>
+                                    changes ...
+                                </button>
                             @else
                                 <button type="button" class="btn btn-primary" wire:click="saveSession"
-                                        data-bs-dismiss="modal">
+                                        data-dismiss="modal">
                                     Save changes
                                 </button>
                             @endif
@@ -1142,7 +1010,7 @@
         <div class="col-lg-4">
             <div class="card">
 
-                <iframe id="myIframe" src="{{ url('phone') }}"width="100%" height="800"></iframe>
+                <iframe id="myIframe" src="{{ url('phone') }}" width="100%" height="800"></iframe>
             </div>
 
 
@@ -1151,7 +1019,7 @@
 
     <script>
         const iframe = document.getElementById('myIframe');
-        iframe.onload = function() {
+        iframe.onload = function () {
             iframe.contentWindow.postMessage({
                 man_no: {{ $agent->endpoint }}
             }, 'http://localhost:8000');
@@ -1162,41 +1030,44 @@
 </div>
 
 @push('custom-scripts')
-    <!-- Include jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-    <!-- Include Bootstrap JS -->
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-
 
     <script>
-        document.addEventListener('livewire:load', function() {
-        @this.on('openSessionModal', () => {
-            var sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
-            sessionModal.show();
+
+        document.addEventListener('DOMContentLoaded', function () {
+            if (!sessionStorage.getItem('isShiftSelected') || sessionStorage.getItem('isShiftSelected') !== 'true') {
+                const sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
+                sessionModal.show();
+            }
         });
 
+        document.addEventListener('livewire:load', function () {
+        @this.on('openSessionModal', () => {
+            const sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
+            sessionModal.show();
+        })
+
+
         @this.on('closeSessionModal', () => {
-            var sessionModal = bootstrap.Modal.getInstance(document.getElementById('sessionModal'));
+            let sessionModal = bootstrap.Modal.getInstance(document.getElementById('sessionModal'));
 
             console.log("Closing modal")
             if (sessionModal) {
                 sessionModal.hide();
             }
-        });
+        })
+            ;
 
-            // Automatically trigger open if selectedSession is null at page load
+
+            // Automatically trigger open if selected Session is null at page load
             @if ($selectedSession == null)
-            var sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
-            sessionModal.show();
+            let sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
+            //sessionModal.show();
             @endif
         });
     </script>
 
     <script defer>
-        document.addEventListener('livewire:load', function() {
+        document.addEventListener('livewire:load', function () {
             Livewire.on('highlightSearch', (query) => {
                 const elements = document.querySelectorAll('.search-result-text');
                 elements.forEach(el => {
@@ -1213,7 +1084,7 @@
 
     <script defer>
         Livewire.on('closeModal', () => {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('knowledgeModal'));
+            const modal = bootstrap.Modal.getInstance(document.getElementById('technicalModal'));
             if (modal) {
                 modal.hide();
             }
@@ -1221,7 +1092,7 @@
     </script>
 
     <script>
-        window.addEventListener('DOMContentLoaded', function() {
+        window.addEventListener('DOMContentLoaded', function () {
 
             // WebSocket connection and event listeners as in the original code
             var ws_address = document.getElementById("ws_endpoint");
@@ -1277,43 +1148,68 @@
 
 
     <script>
-        document.addEventListener('livewire:load', function() {
+        document.addEventListener('livewire:load', function () {
             // Close modal when clicking outside
-            document.getElementById('knowledgeModal').addEventListener('hidden.bs.modal', function() {
-            @this.set('selectedTopic', null);
+            document.getElementById('technicalModal').addEventListener('hidden.modal', function () {
+            @this.set('selectedTopic', null)
+
             });
 
             // Close search results when clicking outside
             // Close search results when clicking outside
-            document.addEventListener('click', function(e) {
+            document.addEventListener('click', function (e) {
                 if (!e.target.closest('.search-container')) {
-                @this.set('searchQuery', '');
+                @this.set('searchQuery', '')
                 }
             });
         });
     </script>
 
     <script>
-        document.addEventListener('livewire:load', function() {
-            // Live search on input change
-            const searchInput = document.querySelector('[wire\\:model="meter_number"]');
-            if (searchInput) {
-                searchInput.addEventListener('input', function() {
-                @this.searchCustomer();
+        document.addEventListener('livewire:load', function () {
+            Livewire.on('agentLogout', () => {
+                // clear session storage key that shows agent is logged in
+                sessionStorage.removeItem('isShiftSelected');
+            });
+
+            Livewire.on('agentLogin', () => {
+                // clear session storage key that shows agent is logged in
+                window.location.reload();
+            });
+            Livewire.on('shiftedSelected', () => {
+                // clear session storage key that shows agent is logged in
+                sessionStorage.setItem('isShiftSelected', 'true');
+            });
+
+            Livewire.on('records-fetched', () => {
+                // clear session storage key that shows agent is logged in
+                $('#complaintsTableModal').modal('show')
+            });
+
+
+            // // Live search on input change
+            // const searchInput = document.querySelector('[wire\\:model="meter_number"]');
+            // if (searchInput) {
+            //     searchInput.addEventListener('input', function () {
+            //     @this.searchCustomer()
+            //
+            //     });
+            // }
+
+            // Modal events
+            const customerModal = document.getElementById('complaintsTableModal');
+            if (customerModal) {
+                customerModal.addEventListener('hidden.bs.modal', function () {
+                @this.set('selectedCustomer', null)
+                });
+
+                // Listen for Livewire event to show modal
+                Livewire.on('showCustomerModal', () => {
+                    const modal = new bootstrap.Modal(customerModal);
+                    modal.show();
                 });
             }
 
-            // Modal events
-            const customerModal = document.getElementById('customerModal');
-            customerModal.addEventListener('hidden.bs.modal', function() {
-            @this.set('selectedCustomer', null);
-            });
-
-            // Listen for Livewire event to show modal
-            Livewire.on('showCustomerModal', () => {
-                const modal = new bootstrap.Modal(customerModal);
-                modal.show();
-            });
         });
     </script>
 @endpush

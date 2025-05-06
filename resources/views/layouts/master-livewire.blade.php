@@ -53,12 +53,6 @@
     <link rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css" />
 
-    <script src="https://code.highcharts.com/modules/variable-pie.js"></script>
-    <script src="https://code.highcharts.com/highcharts.js"></script>
-    <script src="https://code.highcharts.com/modules/exporting.js"></script>
-    <script src="https://code.highcharts.com/modules/export-data.js"></script>
-    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
-
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
@@ -95,19 +89,19 @@
     <div class="content-wrapper">
         <!-- Content Header (Page header) -->
         <section class="content-header">
-            <div class="container-fluid">
-                <div class="row mb-2">
-                    <div class="col-sm-6">
-                        <h4>{{ Breadcrumbs::render() }}</h4>
-                    </div>
-                    <div class="col-sm-6">
-                        <ol class="breadcrumb float-sm-right">
-                            {{--                            <li class="breadcrumb-item"><a href="#">Home</a></li> --}}
-                            {{--                            <li class="breadcrumb-item active">Simple Tables</li> --}}
-                        </ol>
-                    </div>
-                </div>
-            </div><!-- /.container-fluid -->
+{{--            <div class="container-fluid">--}}
+{{--                <div class="row mb-2">--}}
+{{--                    <div class="col-sm-6">--}}
+{{--                        <h4>{{ Breadcrumbs::render() }}</h4>--}}
+{{--                    </div>--}}
+{{--                    <div class="col-sm-6">--}}
+{{--                        <ol class="breadcrumb float-sm-right">--}}
+{{--                            --}}{{--                            <li class="breadcrumb-item"><a href="#">Home</a></li> --}}
+{{--                            --}}{{--                            <li class="breadcrumb-item active">Simple Tables</li> --}}
+{{--                        </ol>--}}
+{{--                    </div>--}}
+{{--                </div>--}}
+{{--            </div><!-- /.container-fluid -->--}}
         </section>
 
         <!-- Main content -->
@@ -132,12 +126,22 @@
     <!-- /.control-sidebar -->
 </div>
 <!-- ./wrapper -->
+<script src="https://code.highcharts.com/modules/variable-pie.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+
 
 <!-- jQuery -->
 {{-- <script src="{{ asset('plugins/jquery/jquery.min.js') }}"></script> --}}
+<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+{{--
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+--}}
+
 <script src="{{ asset('assets/js/parsley.js') }}" type="text/javascript"></script>
 
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
 
@@ -197,7 +201,6 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.js"></script>
 
-<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 @livewireScripts

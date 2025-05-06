@@ -13,7 +13,7 @@ class AddSoftDeletesToKnowledgeBasesTable extends Migration
      */
     public function up()
     {
-        Schema::table('knowledge_bases', function (Blueprint $table) {
+        Schema::table('technicals', function (Blueprint $table) {
             $table->softDeletes();
         });
     }
@@ -25,7 +25,7 @@ class AddSoftDeletesToKnowledgeBasesTable extends Migration
      */
     public function down()
     {
-        Schema::table('knowledge_bases', function (Blueprint $table) {
+        Schema::table('technicals', function (Blueprint $table) {
             $table->dropSoftDeletes();
         });
     }

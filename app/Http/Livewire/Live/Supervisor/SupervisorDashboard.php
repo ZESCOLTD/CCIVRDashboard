@@ -15,8 +15,22 @@ use Livewire\Component;
 use DateTime;
 use Exception; // Also good to import if you're catching exceptions
 
+
 class SupervisorDashboard extends Component
 {
+    public $onBreakCount = 0;
+
+    public function mount()
+    {
+        $this->updateBreakCount(); // optional call here
+    }
+
+    public function updateBreakCount()
+    {
+//        dd($this->onBreakCount = \App\Models\User::where('status', config('constants.agent_status.ON_BREAK'))->count());
+        $this->onBreakCount = \App\Models\Live\CCAgent::where('status', config('constants.agent_status.ON_BREAK'))->count();
+    }
+
     public function render()
     {
         $api_server = config("app.API_SERVER_ENDPOINT");

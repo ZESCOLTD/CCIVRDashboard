@@ -1,22 +1,23 @@
 <?php
 
+namespace App\Imports;
 namespace App\Models;
+use Maatwebsite\Excel\Concerns\ToModel;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
-class KnowledgeBase extends Model
+class Technical extends Model
 {
-    use HasFactory, SoftDeletes;
-
+    protected $table = 'technicals';
     protected $fillable = [
+
         'topic',
         'description',
         'last_updated',
         'views',
-    ];
 
+    ];
     protected $casts = [
         'last_updated' => 'datetime',
     ];

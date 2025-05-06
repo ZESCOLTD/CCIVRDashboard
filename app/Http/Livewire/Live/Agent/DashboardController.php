@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Live\Agent;
 
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use App\Models\Live\CCAgent;
@@ -11,12 +12,13 @@ use App\Models\CDR\CallDetailsRecordModel;
 use App\Models\Customer;
 use App\Models\Live\Recordings;
 use App\Models\User;
-use App\Models\KnowledgeBase;
+use App\Models\Technical;
 use App\Models\Complaint;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+
 
 class DashboardController extends Component
 {
@@ -25,9 +27,11 @@ class DashboardController extends Component
     public $complaint_status_desc, $landmark, $meter_no;
 
     public $sessions, $selectedSession, $currentSession, $server;
-    public $customer_details = [];
     public $complaints = [];
     public $searchCustomer;
+    public $popularTopics;
+
+    public $popularTopic;
 
 
 //    AGENT TIME OUT  LOGIC
@@ -39,20 +43,22 @@ class DashboardController extends Component
     public $breakLimitReached = false;
     public $breakMinutes = 0;
 
-
-//    public $breakDuration = null;
-
 //AGENT TIME OUT END LOGIC
+
+//Logic for customer search start
+    public $search_term;
+    public $customer_details = [];
+    public $show_modal = false;
+    public $is_searching = false;
+//Logic for customer search end
 
     public $searchQuery = '';
     public $searchResults = [];
     public $selectedTopic;
     public $selectedCustomer;
-    public $show_modal = false;
-    public $search_term;
-    public $searchCustomers;
+
+
     public $loadCustomerDetails;
-    public $is_searching = false;
     protected $rules = [
         'search_term' => 'required|string|min:1|max:15',
     ];
@@ -79,13 +85,12 @@ class DashboardController extends Component
     }
 
 
-
     public function updatedSearchQuery($value)
     {
         $value = trim($value);
 
         if (strlen($value) >= 2) {
-            $this->searchResults = KnowledgeBase::query()
+            $this->searchResults = Technical::query()
                 ->where(function ($query) use ($value) {
                     $query->where('topic', 'like', "%$value%")
                         ->orWhere('description', 'like', "%$value%");
@@ -108,7 +113,7 @@ class DashboardController extends Component
 
     public function selectTopic($topicId)
     {
-        $this->selectedTopic = KnowledgeBase::find($topicId);
+        $this->selectedTopic = Technical::find($topicId);
         $this->searchQuery = $this->selectedTopic->topic ?? '';
         $this->searchResults = [];
     }
@@ -122,45 +127,69 @@ class DashboardController extends Component
         session()->flash('message', 'Session changed successfully.');
     }
 
-    public function updatedSearchTerm($value)
-    {
-        // Only search if term has at least 3 characters
-        if (strlen(trim($value)) >= 3) {
-            $this->is_searching = true;
-            $this->searchCustomers();
-        } else {
-            $this->reset(['customer_details', 'show_modal']);
-        }
-    }
+
+//    public function updatedSearchTerm($value)
+//    {
+//        $value = trim($value);
+//
+//        if (strlen($value) > 0) {
+//            $this->searchCustomers($value);
+//        } else {
+//            $this->reset(['customer_details', 'show_modal']);
+//        }
+//    }
 
     public function searchCustomers()
     {
-        Log::info("errorMessage");
-        $this->validate();
-//       ($customer_details = Customer::where('service_no', $this->service_no)->orWhere('meter_serial_no', $this->service_no)->first();
-//        dd(Customer::where('meter_no', '=', '04281634057')->get());
-        $searchTerm = trim($this->search_term);
-        $upperSearchTerm = strtoupper($searchTerm);
+        ini_set("memory_limit", -1);
+        set_time_limit(300);
 
-        $this->customer_details = Customer::where(function($query) use ($searchTerm, $upperSearchTerm) {
-            $query->where('meter_serial_no', 'like', '%'.$upperSearchTerm.'%')
-                ->orWhere('service_no', 'like', '%'.$searchTerm.'%')
-                ->orWhere('complaint_no', 'like', '%'.$searchTerm.'%')
-                ->orWhere('customer_name', 'like', '%'.$searchTerm.'%');
-        })
-            ->orderBy('complaint_status_desc', 'asc')
-//            ->orderBy('created_at', 'desc')
-            ->take(50) // Limit results for performance
-            ->get();
+        $searchTerm = strtoupper(trim($this->search_term));
+        $results = collect();
 
-        $this->show_modal = count($this->customer_details) > 0;
-        $this->is_searching = false;
+        // Step 1: Try by meter_serial_no
+        $results = Customer::where('meter_serial_no', $searchTerm)->get();
+
+        // Step 2: Try by service_no if empty
+        if ($results->isEmpty()) {
+            $results = Customer::where('service_no', $searchTerm)->get();
+        }
+
+        // Step 3: Try by complaint_no if still empty
+        if ($results->isEmpty()) {
+            $results = Customer::where('complaint_no', $searchTerm)->get();
+        }
+
+        // Step 4: Filter based on complaint status
+        $statuses = $results->pluck('complaint_status_desc')->unique();
+
+        if ($statuses->count() === 1 && $statuses->first() === 'RESOLVED') {
+            $results = $results->take(2);
+        } elseif ($statuses->contains('PENDING')) {
+            // keep all (no limit)
+        } elseif ($statuses->contains('ASSOCIATED TO INCIDENCE')) {
+            $results = $results->take(3);
+        } else {
+            $results = $results->take(5);
+        }
+
+        // Step 5: Store and emit
+        session(['customer_details' => $results]);
+        $this->customer_details = $results;
+        $this->emit('showCustomerModal');
     }
 
-    public function closeModal()
-    {
-       $this->reset(['show_modal', 'search_term', 'customer_details']);
-    }
+
+
+
+
+//    public function closeModal()
+//    {
+//        $this->reset(['show_modal', 'search_term', 'customer_details']);
+//    }
+
+
+
 
     public function login()
     {
@@ -168,6 +197,8 @@ class DashboardController extends Component
             'state' => config('constants.agent_state.LOGGED_IN'),
             'status' => config('constants.agent_status.IDLE'),
         ]);
+        $this->emit('agentLogin');
+
     }
 
     public function status($status)
@@ -183,11 +214,13 @@ class DashboardController extends Component
             'state' => config('constants.agent_state.LOGGED_OUT'),
             'status' => config('constants.agent_status.LOGGED_OUT'),
         ]);
+        $this->emit('agentLogout');
     }
 
     public function saveSession()
     {
         $this->changeSession();
+        $this->emit('shiftedSelected');
         session()->flash('message', 'Session saved successfully.');
     }
 
@@ -209,13 +242,27 @@ class DashboardController extends Component
 
     public function render()
     {
+
+        $today = now()->startOfDay();
+        $yesterday = now()->subDay()->startOfDay();
+
+
         $this->agent = $this->user->myAgentDetails;
         $this->agent_num = $this->agent->endpoint ?? '';
+        $this->selectedSession = session('current_session_id', '');
+        $this->customer_details = session('customer_details', collect());
+
 
         $api_server = config('app.API_SERVER_ENDPOINT');
         $ws_server = config('app.WS_SERVER_ENDPOINT');
 
+        $popularTopics = Technical::orderByDesc('views')
+            ->take(5)
+            ->get(['id', 'topic']);
+
         $callsQuery = Recordings::where('agent_number', 'like', "%{$this->agent_num}%");
+
+
 
         return view('livewire.live.agent.dashboard-controller', [
             'agent' => $this->agent,
@@ -227,6 +274,8 @@ class DashboardController extends Component
             'averageCallTime' => gmdate('H:i:s', $callsQuery->avg('duration_number') ?: 0),
             'lastFiveCalls' => $callsQuery->latest('agent_number')->take(5)->get(),
             'customer_details' => $this->customer_details,
+            'popularTopics' => $popularTopics,
+
         ]);
     }
 
@@ -326,6 +375,12 @@ class DashboardController extends Component
             $this->breakMinutes = floor($seconds / 60);
             $this->checkBreakLimit($seconds);
         }
+    }
+
+    public function clearCustomerDetailsSession()
+    {
+        session()->forget('customer_details');
+        $this->customer_details = collect();
     }
 
 

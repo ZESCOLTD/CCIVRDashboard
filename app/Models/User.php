@@ -14,6 +14,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use IvanoMatteo\LaravelDeviceTracking\Traits\UseDevices;
 use Rappasoft\LaravelAuthenticationLog\Traits\AuthenticationLoggable;
 use Illuminate\Support\Facades\Cache; // Correct import statement
+use Illuminate\Support\Facades\Auth;
 
 class User extends Authenticatable
 {
@@ -75,6 +76,7 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'force_password_reset' => 'boolean',
     ];
 
     public function myAgentDetails()
@@ -123,4 +125,40 @@ class User extends Authenticatable
     {
         return $this->is_banned || ($this->banned_until && now()->lt($this->banned_until));
     }
+
+    public function passwordHistories()
+    {
+        return $this->hasMany(PasswordHistory::class);
+    }
+
+    public function isUsingWeakPassword()
+    {
+        $weakPasswords = config('weak_passwords', [
+            'password', '123456', '12345678', 'qwerty', 'letmein', 'admin123', 'abc123', 'welcome'
+        ]);
+
+        foreach ($weakPasswords as $weak) {
+            if (\Hash::check($weak, $this->password)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function authenticated(Request $request, $user)
+    {
+        if ($user->isUsingWeakPassword()) {
+            $user->force_password_reset = true;
+            $user->save();
+        }
+
+        if ($user->force_password_reset) {
+            return redirect()->route('password.change')->with('warning', 'Please change your password.');
+        }
+
+        return redirect()->intended($this->redirectPath());
+    }
+
+
 }

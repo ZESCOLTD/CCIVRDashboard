@@ -15,7 +15,27 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Daily report at 8pm
+        $schedule->call(function() {
+            $report = new ReportController();
+            $data = $report->calculateCallMetrics(Carbon::today(), Carbon::now());
+
+            // Send email to recipients
+            Mail::to(explode(',', config('reports.daily_recipients')))
+                ->send(new DailyReportMail($data));
+        })->dailyAt('20:00');
+
+        // Weekly report every Monday at 8am
+        $schedule->call(function() {
+            $report = new ReportController();
+            $data = $report->calculateCallMetrics(
+                Carbon::now()->startOfWeek(),
+                Carbon::now()->endOfWeek()
+            );
+
+            Mail::to(explode(',', config('reports.weekly_recipients')))
+                ->send(new WeeklyReportMail($data));
+        })->weeklyOn(1, '8:00');
     }
 
     /**
@@ -29,4 +49,5 @@ class Kernel extends ConsoleKernel
 
         require base_path('routes/console.php');
     }
+
 }

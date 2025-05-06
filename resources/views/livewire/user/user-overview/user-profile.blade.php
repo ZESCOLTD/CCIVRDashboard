@@ -58,7 +58,7 @@
 
                             <h3 class="profile-username text-center">{{ $user->name }}</h3>
 
-                            <p class="text-muted text-center">{{ $user->job_title ?? 'Position' }}</p>
+                            <p class="text-muted text-center">{{ $user->position ?? 'Position' }}</p>
 
                             <p class="text-muted text-center">{{ $user->man_no ?? 'Staff Number' }}</p>
 
@@ -77,7 +77,7 @@
                                     <b>Phone</b> <a class="float-right">{{ $user->mobile_no }}</a>
                                 </li>
                                 <li class="list-group-item">
-                                    <b>Extension</b> <a class="float-right">{{ $user->extension ?? '' }}</a>
+                                    <b>Directorate</b> <a class="float-right">{{ $user->directorate }}</a>
                                 </li>
                                 <li class="list-group-item">
                                     <b>Email</b> <a class="float-right">{{ $user->email }}</a>

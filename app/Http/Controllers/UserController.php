@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use  Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 
+
 class UserController extends Controller
 {
     public function __construct()

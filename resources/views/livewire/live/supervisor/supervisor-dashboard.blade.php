@@ -20,7 +20,7 @@
     <div class="row mb-4">
         <div class="col-md-12">
             <div class="card border-0 shadow-lg" style="border-radius: 10px; overflow: hidden;">
-                <div class="card-header py-3" style="background-color: #0f974b; color: white;">
+                <div class="card-header py-3" style="background-color: #eb732b; color: white;">
                     <div class="d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">
                             <i class="fas fa-user-shield mr-2"></i>
@@ -164,9 +164,9 @@
                                 <button class="btn btn-sm mr-2 mb-2" style="background-color: #fd7e14; color: white;">
                                     <i class="fas fa-phone-volume mr-1"></i> Listen to Call
                                 </button>
-                                <button class="btn btn-sm mr-2 mb-2" style="background-color: #6f42c1; color: white;">
+                                <a href="{{ route('general-report') }}" class="btn btn-sm mr-2 mb-2" style="background-color: #6f42c1; color: white;">
                                     <i class="fas fa-chart-pie mr-1"></i> Generate Report
-                                </button>
+                                </a>
                                 <button class="btn btn-sm mr-2 mb-2" style="background-color: #dc3545; color: white;">
                                     <i class="fas fa-phone-slash mr-1"></i> End All Calls
                                 </button>
@@ -286,8 +286,16 @@
                     <div class="row">
                         <div class="col-md-4">
                             <h4><i class="fas fa-user-shield mr-2"></i>Supervisor Dashboard</h4>
-                            <p class="mb-0"><strong>Supervisor:</strong> John Doe (ID: 12345)</p>
-                            <p class="mb-0"><strong>Status:</strong> <span class="badge badge-success">Online</span>
+                            <p class="mb-0"><strong>Supervisor:</strong> {{ $user->name }}</p>
+                            <p class="mb-0">
+                                <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Status:</strong>
+                                <span class="badge px-2 py-1" style="background-color: {{ $user->isOnline() ? '#0f974b' : '#6c757d' }}; color: white; font-size: 0.8rem;">
+                                    <i class="fas {{ $user->isOnline() ? 'fa-wifi' : 'fa-clock' }} mr-1"></i>
+                                    {{ $user->isOnline() ? 'Online' : 'Offline' }}
+                                    @if ($user->is_banned)
+                                        <i class="fas fa-ban ml-1"></i>
+                                    @endif
+                                </span>
                             </p>
                         </div>
                         <div class="col-md-4 text-center">
@@ -482,7 +490,7 @@
                         <div class="col-md-3">
                             <div class="small-box bg-warning">
                                 <div class="inner">
-                                    <h3>{{ $onBreak }}</h3>
+                                    <h3>{{ $onBreakCount }}</h3>
                                     <p>On Break</p>
                                 </div>
                                 <div class="icon">
@@ -567,7 +575,7 @@
     <div class="row mb-4">
         <div class="col-md-12">
             <div class="card">
-                <div class="card-header bg-success text-white">
+                <div class="card-header bg-orange text-white">
                     <h5><i class="fas fa-chart-line mr-2"></i>Call History & Trends</h5>
                 </div>
                 <div class="card-body">
@@ -804,98 +812,7 @@
         </div>
     </div>
 
-    <!-- 6. Reporting & Export -->
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header bg-secondary text-white">
-                    <h5><i class="fas fa-file-export mr-2"></i>Reporting & Export</h5>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h6>Generate Report</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="form-group">
-                                        <label>Report Type</label>
-                                        <select class="form-control">
-                                            <option>Daily Summary</option>
-                                            <option>Weekly Summary</option>
-                                            <option>Agent Performance</option>
-                                            <option>Queue Performance</option>
-                                            <option>Call Volume Analysis</option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Date Range</label>
-                                        <div class="input-group">
-                                            <input type="date" class="form-control">
-                                            <div class="input-group-append">
-                                                <span class="input-group-text">to</span>
-                                            </div>
-                                            <input type="date" class="form-control">
-                                        </div>
-                                    </div>
-                                    <button class="btn btn-primary btn-block">Generate Report</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h6>Export Options</h6>
-                                </div>
-                                <div class="card-body text-center">
-                                    <button class="btn btn-outline-success mb-2 btn-block"><i
-                                            class="fas fa-file-excel mr-2"></i> Export to Excel</button>
-                                    <button class="btn btn-outline-info mb-2 btn-block"><i
-                                            class="fas fa-file-csv mr-2"></i> Export to CSV</button>
-                                    <button class="btn btn-outline-danger mb-2 btn-block"><i
-                                            class="fas fa-file-pdf mr-2"></i> Export to PDF</button>
-                                    <button class="btn btn-outline-secondary btn-block"><i
-                                            class="fas fa-envelope mr-2"></i> Email Report</button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card">
-                                <div class="card-header">
-                                    <h6>Automated Reports</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="form-group">
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input"
-                                                id="dailyReportSwitch" checked>
-                                            <label class="custom-control-label" for="dailyReportSwitch">Daily
-                                                Summary</label>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <div class="custom-control custom-switch">
-                                            <input type="checkbox" class="custom-control-input"
-                                                id="weeklyReportSwitch">
-                                            <label class="custom-control-label" for="weeklyReportSwitch">Weekly
-                                                Summary</label>
-                                        </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Recipients</label>
-                                        <input type="text" class="form-control"
-                                            value="managers@company.com, supervisors@company.com">
-                                    </div>
-                                    <button class="btn btn-info btn-block">Save Settings</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+
 </div>
 
 <!-- JavaScript for Charts -->

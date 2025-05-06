@@ -10,10 +10,11 @@
     "require": {
         "php": "^7.4",
         "amirami/livewire-datatables": "dev-master",
+        "barryvdh/laravel-dompdf": "^2.2",
         "diglactic/laravel-breadcrumbs": "^8.0",
         "doctrine/dbal": "^3.5",
         "fruitcake/laravel-cors": "^2.0",
-        "guzzlehttp/guzzle": "^7.0.1",
+        "guzzlehttp/guzzle": "^7.9",
         "laravel/framework": "^8.75",
         "laravel/sanctum": "^2.11",
         "laravel/telescope": "^4.10",
