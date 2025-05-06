@@ -110,7 +110,7 @@
                                 <label class="text-info small d-flex align-items-center">
                                     <i class="fas fa-plug mr-2"></i>Recorder Websocket:
                                     <input type="text" id="ws_endpoint" value='{{ $ws_server }}' hidden>
-                                    <span id="ws-info" class="badge badge-info ml-2">Connecting...</span>
+                                    <span id="ws-info" wire:ignore class="badge badge-info ml-2">Connecting...</span>
                                 </label>
                             </div>
                             <div>
