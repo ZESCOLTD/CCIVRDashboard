@@ -164,7 +164,7 @@ class DashboardController extends Component
         $statuses = $results->pluck('complaint_status_desc')->unique();
 
         if ($statuses->count() === 1 && $statuses->first() === 'RESOLVED') {
-            $results = $results->take(2);
+            dd($results = $results->take(2));
         } elseif ($statuses->contains('PENDING')) {
             // keep all (no limit)
         } elseif ($statuses->contains('ASSOCIATED TO INCIDENCE')) {
