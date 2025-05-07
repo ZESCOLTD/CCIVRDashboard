@@ -482,7 +482,6 @@
                         <div class="stats-content">
                             <h6>Avg. Call Time</h6>
                             <h3>{{ $averageCallTime }}</h3>
-                            {{-- <h3>00:00</h3> --}}
                             <div class="trend up">
                                 <i class="fas fa-arrow-up"></i> 2% <span class="trend-text">vs yesterday</span>
                             </div>

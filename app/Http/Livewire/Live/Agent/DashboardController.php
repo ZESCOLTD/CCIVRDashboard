@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use App\Models\Live\DialEventLog;
+use Carbon\Carbon;
 
 
 class DashboardController extends Component
@@ -35,7 +36,7 @@ class DashboardController extends Component
     public $popularTopic;
 
 
-//    AGENT TIME OUT  LOGIC
+    //    AGENT TIME OUT  LOGIC
     public $onBreak = false;
 
     public $breakStartTime = null;
@@ -44,14 +45,14 @@ class DashboardController extends Component
     public $breakLimitReached = false;
     public $breakMinutes = 0;
 
-//AGENT TIME OUT END LOGIC
+    //AGENT TIME OUT END LOGIC
 
-//Logic for customer search start
+    //Logic for customer search start
     public $search_term;
     public $customer_details = [];
     public $show_modal = false;
     public $is_searching = false;
-//Logic for customer search end
+    //Logic for customer search end
 
     public $searchQuery = '';
     public $searchResults = [];
@@ -129,16 +130,16 @@ class DashboardController extends Component
     }
 
 
-//    public function updatedSearchTerm($value)
-//    {
-//        $value = trim($value);
-//
-//        if (strlen($value) > 0) {
-//            $this->searchCustomers($value);
-//        } else {
-//            $this->reset(['customer_details', 'show_modal']);
-//        }
-//    }
+    //    public function updatedSearchTerm($value)
+    //    {
+    //        $value = trim($value);
+    //
+    //        if (strlen($value) > 0) {
+    //            $this->searchCustomers($value);
+    //        } else {
+    //            $this->reset(['customer_details', 'show_modal']);
+    //        }
+    //    }
 
     public function searchCustomers()
     {
@@ -184,10 +185,10 @@ class DashboardController extends Component
 
 
 
-//    public function closeModal()
-//    {
-//        $this->reset(['show_modal', 'search_term', 'customer_details']);
-//    }
+    //    public function closeModal()
+    //    {
+    //        $this->reset(['show_modal', 'search_term', 'customer_details']);
+    //    }
 
 
 
@@ -199,7 +200,6 @@ class DashboardController extends Component
             'status' => config('constants.agent_status.IDLE'),
         ]);
         $this->emit('agentLogin');
-
     }
 
     public function status($status)
@@ -264,34 +264,35 @@ class DashboardController extends Component
         $callsQuery = Recordings::where('agent_number', 'like', "%{$this->agent_num}%");
 
         $calls = DialEventLog::orderBy('event_timestamp')
-        ->get()
-        ->groupBy(function ($event) {
-            return $event->dialstring . '_' . $event->peer_id;
-        });
+        ->whereDate('created_at', Carbon::today())
+            ->get()
+            ->groupBy(function ($event) {
+                return $event->dialstring . '_' . $event->peer_id;
+            });
 
 
-    $callResults = $calls->map(function ($events, $key) {
-        $sorted = $events->sortBy('event_timestamp');
+        $callResults = $calls->map(function ($events, $key) {
+            $sorted = $events->sortBy('event_timestamp');
 
-        $lastWithStatus = $sorted->reverse()->first(fn($e) => !empty($e->dialstatus));
+            $lastWithStatus = $sorted->reverse()->first(fn($e) => !empty($e->dialstatus));
 
-        if (!$lastWithStatus) return null;
+            if (!$lastWithStatus) return null;
 
-        return [
-            'dialstring' => $lastWithStatus->dialstring,
-            'caller_number' => $lastWithStatus->caller_number,
-            'status' => $lastWithStatus->dialstatus,
-            'timestamp' => $lastWithStatus->event_timestamp,
-        ];
-    })->filter(); // remove nulls
+            return [
+                'dialstring' => $lastWithStatus->dialstring,
+                'caller_number' => $lastWithStatus->caller_number,
+                'status' => $lastWithStatus->dialstatus,
+                'timestamp' => $lastWithStatus->event_timestamp,
+            ];
+        })->filter(); // remove nulls
 
 
-    // dd($callResults);
+        // dd($callResults);
 
-    $answered = count($callResults->where('status', 'ANSWER')
-    ->where('dialstring', $this->agent->endpoint));
-    $missed = count($callResults->where('status', 'NOANSWER')
-    ->where('dialstring', $this->agent->endpoint));
+        $answered = count($callResults->where('status', 'ANSWER')
+            ->where('dialstring', $this->agent->endpoint));
+        $missed = count($callResults->where('status', 'NOANSWER')
+            ->where('dialstring', $this->agent->endpoint));
 
 
 
@@ -299,10 +300,10 @@ class DashboardController extends Component
             'agent' => $this->agent,
             'api_server' => $api_server,
             'ws_server' => $ws_server,
-           'totalCalls' => $answered+$missed,
+            'totalCalls' => $answered + $missed,
             'answeredCalls' => $answered, // You can later refine this if you separate answered vs missed
             'missedCalls' => $missed,
-             'averageCallTime' => gmdate('H:i:s', $callsQuery->avg('duration_number') ?: 0),
+            'averageCallTime' => gmdate('H:i:s', $callsQuery->avg('duration_number') ?: 0),
             'lastFiveCalls' => $callsQuery->latest('agent_number')->take(5)->get(),
             'customer_details' => $this->customer_details,
             'popularTopics' => $popularTopics,
@@ -313,7 +314,7 @@ class DashboardController extends Component
     protected $listeners = ['refreshComponent' => '$refresh'];
 
 
-//    Agent Time Out Logic start
+    //    Agent Time Out Logic start
     public function toggleBreak()
     {
         $limit = $this->getCurrentShiftLimit();
@@ -331,7 +332,6 @@ class DashboardController extends Component
             ]);
             $this->breakStartTime = now();
             $this->breakLimitReached = false;
-
         } else {
             // Resume from break
             $this->agent->update([
@@ -365,9 +365,9 @@ class DashboardController extends Component
     {
         $this->calculateBreakDuration();
     }
-//    Agent Time Out Logic start
+    //    Agent Time Out Logic start
 
-//   Shift Logic time management start
+    //   Shift Logic time management start
     private function getCurrentShiftLimit(): int
     {
         $now = now();
@@ -384,7 +384,7 @@ class DashboardController extends Component
         return 60;
     }
 
-//   Shift Logic time management start
+    //   Shift Logic time management start
 
     public function getBreakDurationProperty()
     {
@@ -413,6 +413,4 @@ class DashboardController extends Component
         session()->forget('customer_details');
         $this->customer_details = collect();
     }
-
-
- }
+}

@@ -425,7 +425,7 @@
                                     <span class="info-box-icon"><i class="fas fa-times-circle"></i></span>
                                     <div class="info-box-content">
                                         <span class="info-box-text">Abandoned</span>
-                                        <span class="info-box-number">3</span>
+                                        <span class="info-box-number">{{$abandoned}}</span>
                                         <div class="progress">
                                             <div class="progress-bar" style="width: 15%"></div>
                                         </div>
@@ -438,8 +438,8 @@
                                 <div class="info-box bg-dark">
                                     <span class="info-box-icon"><i class="fas fa-ban"></i></span>
                                     <div class="info-box-content">
-                                        <span class="info-box-text">Failed Calls</span>
-                                        <span class="info-box-number">{{ $failedCalls }}</span>
+                                        <span class="info-box-text">Missed Calls</span>
+                                        <span class="info-box-number">{{ $missed }}</span>
                                         <div class="progress">
                                             <div class="progress-bar" style="width: 25%"></div>
                                         </div>
@@ -452,7 +452,7 @@
                                     <span class="info-box-icon"><i class="fas fa-chart-line"></i></span>
                                     <div class="info-box-content">
                                         <span class="info-box-text">SLA Compliance</span>
-                                        <span class="info-box-number">78%</span>
+                                        <span class="info-box-number">{{$answered+$missed>0?ceil($answered/($answered+$missed)*100): '--'}}%</span>
                                         <div class="progress">
                                             <div class="progress-bar" style="width: 78%"></div>
                                         </div>
