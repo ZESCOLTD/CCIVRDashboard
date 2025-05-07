@@ -263,41 +263,35 @@ class DashboardController extends Component
 
         $callsQuery = Recordings::where('agent_number', 'like', "%{$this->agent_num}%");
 
-        $today = now()->toDateString(); // or Carbon::today()
-
-        $callsQuery = Recordings::where('agent_number', 'like', "%{$this->agent_num}%")
-        ->whereDate('created_at', $today);
-
         $calls = DialEventLog::orderBy('event_timestamp')
-            ->get()
-            ->groupBy(function ($event) {
-                return $event->dialstring . '_' . $event->peer_id;
-            });
+        ->get()
+        ->groupBy(function ($event) {
+            return $event->dialstring . '_' . $event->peer_id;
+        });
 
 
-        $callResults = $calls->map(function ($events, $key) {
-            $sorted = $events->sortBy('event_timestamp');
+    $callResults = $calls->map(function ($events, $key) {
+        $sorted = $events->sortBy('event_timestamp');
 
-            $lastWithStatus = $sorted->reverse()->first(fn($e) => !empty($e->dialstatus));
+        $lastWithStatus = $sorted->reverse()->first(fn($e) => !empty($e->dialstatus));
 
-            if (!$lastWithStatus) return null;
+        if (!$lastWithStatus) return null;
 
-            return [
-                'dialstring' => $lastWithStatus->dialstring,
-                'caller_number' => $lastWithStatus->caller_number,
-                'status' => $lastWithStatus->dialstatus,
-                'timestamp' => $lastWithStatus->event_timestamp,
-            ];
-        })->filter(); // remove nulls
+        return [
+            'dialstring' => $lastWithStatus->dialstring,
+            'caller_number' => $lastWithStatus->caller_number,
+            'status' => $lastWithStatus->dialstatus,
+            'timestamp' => $lastWithStatus->event_timestamp,
+        ];
+    })->filter(); // remove nulls
 
 
-        // dd($callResults);
+    // dd($callResults);
 
-        $answered = count($callResults->where('status', 'ANSWER')
-        ->where('dialstring', $this->agent->endpoint));
-        $missed = count($callResults->where('status', 'NOANSWER')
-        ->where('dialstring', $this->agent->endpoint));
-
+    $answered = count($callResults->where('status', 'ANSWER')
+    ->where('dialstring', $this->agent->endpoint));
+    $missed = count($callResults->where('status', 'NOANSWER')
+    ->where('dialstring', $this->agent->endpoint));
 
 
 
@@ -305,10 +299,10 @@ class DashboardController extends Component
             'agent' => $this->agent,
             'api_server' => $api_server,
             'ws_server' => $ws_server,
-            'totalCalls' => $answered+$missed,
+           'totalCalls' => $answered+$missed,
             'answeredCalls' => $answered, // You can later refine this if you separate answered vs missed
-            'missedCalls' => $missed, // Likewise refine later
-            'averageCallTime' => gmdate('H:i:s', $callsQuery->avg('duration_number') ?: 0),
+            'missedCalls' => $missed,
+             'averageCallTime' => gmdate('H:i:s', $callsQuery->avg('duration_number') ?: 0),
             'lastFiveCalls' => $callsQuery->latest('agent_number')->take(5)->get(),
             'customer_details' => $this->customer_details,
             'popularTopics' => $popularTopics,
@@ -421,4 +415,4 @@ class DashboardController extends Component
     }
 
 
-}
+ }

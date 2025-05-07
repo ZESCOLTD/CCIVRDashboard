@@ -127,6 +127,7 @@ $answeredCallsThisMonth = LiveRecordings::whereBetween('created_at', [
             'answeredCallsThisMonth' => $answeredCallsThisMonth,
             'answeredCallsLast30' => $answeredCallsLast30,
             'failedCalls' => $failedCalls,
+            'efficencyLast30' => $efficiencyLast30,
         ]);
     }
 
