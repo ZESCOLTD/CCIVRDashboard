@@ -79,6 +79,13 @@ class Recordings extends Model
         return $minutes . ' min ' . $seconds . ' sec';
     }
 
+    public function getDurationInSecondsAttribute()
+{
+    $answerDate = Carbon::parse($this->answerdate);
+    $hangupDate = Carbon::parse($this->hangupdate);
+    return $hangupDate->diffInSeconds($answerDate);
+}
+
     public function comments()
     {
         return $this->hasMany(RecordingComment::class, 'recordings_id', 'id');

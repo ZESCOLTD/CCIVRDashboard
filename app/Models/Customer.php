@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Customer extends Model
 {
-    protected $table = 'prosumer_cmsdist_view';
+    // protected $table = 'prosumer_cmsdist_view';
+    protected $table = 'prosumer_cmsdist_view2';
     protected $connection = 'oracle_phris';
     protected $primaryKey = 'meter_no';
     use HasFactory;

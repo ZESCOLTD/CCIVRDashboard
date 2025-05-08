@@ -255,6 +255,8 @@ class DashboardController extends Component
         $missed = count($callResults->where('status', 'NOANSWER')
         ->where('dialstring', $this->agent->endpoint));
 
+       $recordsDuration= $callsQuery->latest('agent_number')->take(5)->get();
+
         // dd($answered, $missed);
 
         return view('livewire.live.agent.dashboard-controller', [

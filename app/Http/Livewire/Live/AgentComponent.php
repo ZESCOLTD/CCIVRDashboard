@@ -220,6 +220,7 @@ class AgentComponent extends Component
             ->whereDate('created_at', $today);
 
         $calls = DialEventLog::orderBy('event_timestamp')
+        ->whereDate('created_at', $today)
             ->get()
             ->groupBy(function ($event) {
                 return $event->dialstring . '_' . $event->peer_id;
@@ -249,6 +250,34 @@ class AgentComponent extends Component
         $missed = count($callResults->where('status', 'NOANSWER')
             ->where('dialstring', $this->agent->endpoint));
 
+
+        $records = $callsQuery->get();
+
+        $totalDurationInSeconds = $records->sum('duration_in_seconds');
+        $recordCount = $records->count();
+
+        $averageDurationFormatted=null;
+
+        if ($recordCount > 0) {
+            $averageDurationInSeconds = $totalDurationInSeconds / $recordCount;
+
+            // You can then format this average duration into a human-readable format
+            $minutes = floor($averageDurationInSeconds / 60);
+            $seconds = round($averageDurationInSeconds % 60); // Round to the nearest second
+
+            if ($seconds == 0) {
+                $averageDurationFormatted = $minutes . ' min';
+            } else {
+                $averageDurationFormatted = $minutes . ':' . $seconds;
+            }
+
+            // $averageDurationFormatted will hold the average call duration in a readable format
+
+        } else {
+            // Handle the case where there are no records
+            $averageDurationFormatted ="No call records found.";
+        }
+
         return view('livewire.live.agent-component', [
             'agent' => $this->agent,
             'api_server' => $api_server,
@@ -256,11 +285,82 @@ class AgentComponent extends Component
             'totalCalls' => $answered + $missed,
             'answeredCalls' => $answered, // You can later refine this if you separate answered vs missed
             'missedCalls' => $missed,   // Likewise refine later
-            'averageCallTime' => gmdate('H:i:s', $callsQuery->avg('duration_number') ?: 0),
+            'averageCallTime' => $averageDurationFormatted,
             'lastFiveCalls' => $callsQuery->latest('agent_number')->take(5)->get(),
             'customer_details' => $this->customer_details,
         ]);
     }
+
+    public function login()
+{
+    $now = now()->toTimeString();
+    $today = now()->toDateString();
+    $yesterday = now()->subDay();
+
+    // Find a CallSession that is currently active based on the time
+    $activeSession = CallSession::whereTime('time_from', '<=', $now)
+        ->whereTime('time_to', '>=', $now)
+        ->first();
+
+    if (!$activeSession) {
+        session()->flash('error', 'No active call session found for the current time.');
+        return;
+    }
+
+    $this->selectedSession = $activeSession->id;
+    $this->currentSession = $activeSession;
+    session(['current_session_id' => $this->selectedSession]);
+
+    $server = config("app.API_SERVER_ENDPOINT");
+
+    try {
+        $response = Http::get($server . '/online/' . $this->agent_num);
+        $data = $response->json();
+
+        if ($data['status'] === true) {
+            $this->agent->state = config('constants.agent_state.LOGGED_IN');
+            $this->agent->status = config('constants.agent_status.IDLE');
+            $this->agent->save();
+
+            // Check if the agent has logged into this session within the last 24 hours
+            $existingSessionAgent = CallSessionToAgent::where('agent_id', $this->user->id)
+                ->where('call_session_id', $this->currentSession->id)
+                ->where('created_at', '>=', $yesterday)
+                ->first();
+
+            if (!$existingSessionAgent) {
+                // If no login found in the last 24 hours for this session, reset the break time
+                $this->totalBreakDuration = '00:00:00';
+            }
+
+            // Create or update record in the CallSessionToAgent table
+            CallSessionToAgent::updateOrCreate(
+                [
+                    'call_session_id' => $this->currentSession->id,
+                    'agent_id' => $this->user->id,
+                ],
+                [
+                    'time_from' => now(), // Log the actual login time
+                    'session_name' => $this->currentSession->name,
+                    'agent_number' => $this->agent_num,
+                    'username' => $this->user->name,
+                    'status' => 1, // Or any default status you need
+                ]
+            );
+
+            // Refresh local data
+            $this->agent = $this->agent->fresh();
+            $this->calculateTotalBreakDuration(); // Recalculate break duration after login
+
+            session()->flash('message', 'Successfully logged in to session: ' . $this->currentSession->name . ' (' . $data['endpoint'] . ')');
+            $this->emitSelf('refresh'); // Optional, if other components are listening
+        } else {
+            session()->flash('error', 'Agent ' . $data['endpoint'] . ' is not online.');
+        }
+    } catch (\Exception $e) {
+        session()->flash('error', 'Error: ' . $e->getMessage());
+    }
+}
 
     // public function login()
     // {
@@ -292,19 +392,34 @@ class AgentComponent extends Component
     //             $this->agent->status = config('constants.agent_status.IDLE');
     //             $this->agent->save();
 
-    //             // Create a record in the CallSessionToAgent table
-    //             CallSessionToAgent::create([
-    //                 'call_session_id' => $this->currentSession->id,
-    //                 'agent_id' => $this->user->id, // Assuming $this->user is the logged-in user
-    //                 'time_from' => now(), // Log the actual login time
-    //                 'session_name' => $this->currentSession->name,
-    //                 'agent_number' => $this->agent_num,
-    //                 'username' => $this->user->name,
-    //                 'status' => 1, // Or any default status you need
-    //             ]);
+    //             // Check if the agent has logged into this session before
+    //             $existingSessionAgent = CallSessionToAgent::where('agent_id', $this->user->id)
+    //                 ->where('call_session_id', $this->currentSession->id)
+    //                 ->first();
+
+    //             if (!$existingSessionAgent) {
+    //                 // If it's the first time, reset the break time
+    //                 $this->totalBreakDuration = '00:00:00';
+    //             }
+
+    //             // Create or update record in the CallSessionToAgent table
+    //             CallSessionToAgent::updateOrCreate(
+    //                 [
+    //                     'call_session_id' => $this->currentSession->id,
+    //                     'agent_id' => $this->user->id,
+    //                 ],
+    //                 [
+    //                     'time_from' => now(), // Log the actual login time
+    //                     'session_name' => $this->currentSession->name,
+    //                     'agent_number' => $this->agent_num,
+    //                     'username' => $this->user->name,
+    //                     'status' => 1, // Or any default status you need
+    //                 ]
+    //             );
 
     //             // Refresh local data
     //             $this->agent = $this->agent->fresh();
+    //             $this->calculateTotalBreakDuration(); // Recalculate break duration after login
 
     //             session()->flash('message', 'Successfully logged in to session: ' . $this->currentSession->name . ' (' . $data['endpoint'] . ')');
     //             $this->emitSelf('refresh'); // Optional, if other components are listening
@@ -315,75 +430,6 @@ class AgentComponent extends Component
     //         session()->flash('error', 'Error: ' . $e->getMessage());
     //     }
     // }
-
-    public function login()
-    {
-        $now = now()->toTimeString();
-        $today = now()->toDateString();
-
-        // Find a CallSession that is currently active based on the time
-        $activeSession = CallSession::whereTime('time_from', '<=', $now)
-            ->whereTime('time_to', '>=', $now)
-            ->first();
-
-        if (!$activeSession) {
-            session()->flash('error', 'No active call session found for the current time.');
-            return;
-        }
-
-        $this->selectedSession = $activeSession->id;
-        $this->currentSession = $activeSession;
-        session(['current_session_id' => $this->selectedSession]);
-
-        $server = config("app.API_SERVER_ENDPOINT");
-
-        try {
-            $response = Http::get($server . '/online/' . $this->agent_num);
-            $data = $response->json();
-
-            if ($data['status'] === true) {
-                $this->agent->state = config('constants.agent_state.LOGGED_IN');
-                $this->agent->status = config('constants.agent_status.IDLE');
-                $this->agent->save();
-
-                // Check if the agent has logged into this session before
-                $existingSessionAgent = CallSessionToAgent::where('agent_id', $this->user->id)
-                    ->where('call_session_id', $this->currentSession->id)
-                    ->first();
-
-                if (!$existingSessionAgent) {
-                    // If it's the first time, reset the break time
-                    $this->totalBreakDuration = '00:00:00';
-                }
-
-                // Create or update record in the CallSessionToAgent table
-                CallSessionToAgent::updateOrCreate(
-                    [
-                        'call_session_id' => $this->currentSession->id,
-                        'agent_id' => $this->user->id,
-                    ],
-                    [
-                        'time_from' => now(), // Log the actual login time
-                        'session_name' => $this->currentSession->name,
-                        'agent_number' => $this->agent_num,
-                        'username' => $this->user->name,
-                        'status' => 1, // Or any default status you need
-                    ]
-                );
-
-                // Refresh local data
-                $this->agent = $this->agent->fresh();
-                $this->calculateTotalBreakDuration(); // Recalculate break duration after login
-
-                session()->flash('message', 'Successfully logged in to session: ' . $this->currentSession->name . ' (' . $data['endpoint'] . ')');
-                $this->emitSelf('refresh'); // Optional, if other components are listening
-            } else {
-                session()->flash('error', 'Agent ' . $data['endpoint'] . ' is not online.');
-            }
-        } catch (\Exception $e) {
-            session()->flash('error', 'Error: ' . $e->getMessage());
-        }
-    }
     public function editTCode()
     {
 
@@ -538,4 +584,46 @@ class AgentComponent extends Component
         $this->totalBreakDuration = gmdate('H:i:s', $totalSeconds);
         // dd($this->totalBreakDuration);
     }
+//     public function calculateTotalBreakDuration()
+// {
+//     if (!$this->agent || !$this->currentSession) {
+//         $this->totalBreakDuration = '00:00:00';
+//         return;
+//     }
+
+//     // Get the last login time for the current agent in the current session
+//     $lastLogin = CallSessionToAgent::where('agent_id', $this->agent->id)
+//         ->where('call_session_id', $this->currentSession->id)
+//         ->latest('created_at')
+//         ->value('created_at');
+
+//     if (!$lastLogin) {
+//         $this->totalBreakDuration = '00:00:00';
+//         return;
+//     }
+
+//     // Find the latest active break (ended_at is null) for the agent
+//     $currentBreak = AgentBreak::where('agent_id', $this->agent->id)
+//         ->whereNull('ended_at')
+//         ->latest()
+//         ->first();
+
+//     // Determine the start of our 24-hour tracking window
+//     $trackingStartTime = $lastLogin;
+//     if ($currentBreak) {
+//         $trackingStartTime = max($lastLogin, $currentBreak->started_at);
+//     }
+
+//     $endTimeForCalculation = now(); // Use current time for ongoing breaks
+//     $totalSeconds = AgentBreak::where('agent_id', $this->agent->id)
+//         ->where('started_at', '>=', $trackingStartTime)
+//         ->where('started_at', '<', Carbon::parse($trackingStartTime)->addDay())
+//         ->get()
+//         ->reduce(function ($carry, $break) use ($endTimeForCalculation) {
+//             $end = $break->ended_at ?? $endTimeForCalculation;
+//             return $carry + $end->diffInSeconds($break->started_at);
+//         }, 0);
+
+//     $this->totalBreakDuration = gmdate('H:i:s', $totalSeconds);
+// }
 }
