@@ -263,37 +263,91 @@ public $t_code;
         ]);
     }
 
+    // public function login()
+    // {
+    //     if (empty($this->selectedSession) || $this->selectedSession == null) {
+    //         $this->dispatchBrowserEvent('show-session-modal');
+    //         return;
+    //     }
+
+    //     $server = config("app.API_SERVER_ENDPOINT");
+
+    //     try {
+    //         $response = Http::get($server . '/online/' . $this->agent_num);
+    //         $data = $response->json();
+
+    //         if ($data['status'] === true) {
+    //             $this->agent->state = config('constants.agent_state.LOGGED_IN');
+    //             $this->agent->status = config('constants.agent_status.IDLE');
+    //             $this->agent->save();
+
+    //             // Refresh local data
+    //             $this->agent = $this->agent->fresh();
+    //             $this->currentSession = CallSession::find($this->selectedSession);
+
+    //             session()->flash('message', 'Successfully logged in: ' . $data['endpoint']);
+    //             $this->emitSelf('refresh'); // Optional, if other components are listening
+    //         } else {
+    //             session()->flash('error', 'Agent ' . $data['endpoint'] . ' is not online.');
+    //         }
+    //     } catch (\Exception $e) {
+    //         session()->flash('error', 'Error: ' . $e->getMessage());
+    //     }
+    // }
+
     public function login()
-    {
-        if (empty($this->selectedSession) || $this->selectedSession == null) {
-            $this->dispatchBrowserEvent('show-session-modal');
-            return;
-        }
+{
+    $now = now()->toTimeString();
+    $today = now()->toDateString();
 
-        $server = config("app.API_SERVER_ENDPOINT");
+    // Find a CallSession that is currently active based on the time
+    $activeSession = CallSession::whereTime('time_from', '<=', $now)
+        ->whereTime('time_to', '>=', $now)
+        ->first();
 
-        try {
-            $response = Http::get($server . '/online/' . $this->agent_num);
-            $data = $response->json();
-
-            if ($data['status'] === true) {
-                $this->agent->state = config('constants.agent_state.LOGGED_IN');
-                $this->agent->status = config('constants.agent_status.IDLE');
-                $this->agent->save();
-
-                // Refresh local data
-                $this->agent = $this->agent->fresh();
-                $this->currentSession = CallSession::find($this->selectedSession);
-
-                session()->flash('message', 'Successfully logged in: ' . $data['endpoint']);
-                $this->emitSelf('refresh'); // Optional, if other components are listening
-            } else {
-                session()->flash('error', 'Agent ' . $data['endpoint'] . ' is not online.');
-            }
-        } catch (\Exception $e) {
-            session()->flash('error', 'Error: ' . $e->getMessage());
-        }
+    if (!$activeSession) {
+        session()->flash('error', 'No active call session found for the current time.');
+        return;
     }
+
+    $this->selectedSession = $activeSession->id;
+    $this->currentSession = $activeSession;
+    session(['current_session_id' => $this->selectedSession]);
+
+    $server = config("app.API_SERVER_ENDPOINT");
+
+    try {
+        $response = Http::get($server . '/online/' . $this->agent_num);
+        $data = $response->json();
+
+        if ($data['status'] === true) {
+            $this->agent->state = config('constants.agent_state.LOGGED_IN');
+            $this->agent->status = config('constants.agent_status.IDLE');
+            $this->agent->save();
+
+            // Create a record in the CallSessionToAgent table
+            CallSessionToAgent::create([
+                'call_session_id' => $this->currentSession->id,
+                'agent_id' => $this->user->id, // Assuming $this->user is the logged-in user
+                'time_from' => now(), // Log the actual login time
+                'session_name' => $this->currentSession->name,
+                'agent_number' => $this->agent_num,
+                'username' => $this->user->name,
+                'status' => 1, // Or any default status you need
+            ]);
+
+            // Refresh local data
+            $this->agent = $this->agent->fresh();
+
+            session()->flash('message', 'Successfully logged in to session: ' . $this->currentSession->name . ' (' . $data['endpoint'] . ')');
+            $this->emitSelf('refresh'); // Optional, if other components are listening
+        } else {
+            session()->flash('error', 'Agent ' . $data['endpoint'] . ' is not online.');
+        }
+    } catch (\Exception $e) {
+        session()->flash('error', 'Error: ' . $e->getMessage());
+    }
+}
 
     public function editTCode()
     {
