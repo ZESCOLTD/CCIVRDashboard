@@ -371,7 +371,7 @@
                                             <div class="progress-bar" style="width: 70%"></div>
                                         </div>
                                         <span
-                                            class="progress-description">{{ $loggedInAgentsCount > 1 ? ceil($activeCalls / $loggedInAgentsCount) : '0' }}%
+                                            class="progress-description">{{ $loggedInAgentsCount > 0 ? ceil(($activeCalls / $loggedInAgentsCount)*100) : '0' }}%
                                             of capacity</span>
                                     </div>
                                 </div>
@@ -663,31 +663,31 @@
                                     </div>
                                     <div class="card-body">
                                         <div class="row">
-                                            <div class="col-md-3 text-center">
-                                                <h5>Sales</h5>
+                                            <div class="col-md-4 text-center">
+                                                <h5>Inbound</h5>
                                                 <div class="progress">
                                                     <div class="progress-bar bg-danger" style="width: 45%">45%</div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-3 text-center">
-                                                <h5>Support</h5>
+                                            <div class="col-md-4 text-center">
+                                                <h5>Outbound</h5>
                                                 <div class="progress">
                                                     <div class="progress-bar bg-warning" style="width: 30%">30%</div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-3 text-center">
-                                                <h5>Billing</h5>
+                                            <div class="col-md-4 text-center">
+                                                <h5>Social</h5>
                                                 <div class="progress">
                                                     <div class="progress-bar bg-info" style="width: 15%">15%</div>
                                                 </div>
                                             </div>
-                                            <div class="col-md-3 text-center">
+                                            {{-- <div class="col-md-3 text-center">
                                                 <h5>Other</h5>
                                                 <div class="progress">
                                                     <div class="progress-bar bg-secondary" style="width: 10%">10%
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> --}}
                                         </div>
                                     </div>
                                 </div>
@@ -707,10 +707,10 @@
                     </div>
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="card">
                                     <div class="card-header bg-primary text-white">
-                                        <h6>Sales Queue</h6>
+                                        <h6>Inbound Queue</h6>
                                     </div>
                                     <div class="card-body">
                                         <p><i class="fas fa-phone mr-2"></i> Answered: 32</p>
@@ -720,10 +720,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="card">
                                     <div class="card-header bg-success text-white">
-                                        <h6>Support Queue</h6>
+                                        <h6>Outbound Queue</h6>
                                     </div>
                                     <div class="card-body">
                                         <p><i class="fas fa-phone mr-2"></i> Answered: 45</p>
@@ -733,10 +733,10 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <div class="card">
                                     <div class="card-header bg-info text-white">
-                                        <h6>Billing Queue</h6>
+                                        <h6>Social Queue</h6>
                                     </div>
                                     <div class="card-body">
                                         <p><i class="fas fa-phone mr-2"></i> Answered: 18</p>
@@ -746,19 +746,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="card">
-                                    <div class="card-header bg-secondary text-white">
-                                        <h6>General Queue</h6>
-                                    </div>
-                                    <div class="card-body">
-                                        <p><i class="fas fa-phone mr-2"></i> Answered: 12</p>
-                                        <p><i class="fas fa-times mr-2"></i> Missed: 1</p>
-                                        <p><i class="fas fa-stopwatch mr-2"></i> Avg Answer: 00:38</p>
-                                        <p><i class="fas fa-check-circle mr-2"></i> SLA: 85%</p>
-                                    </div>
-                                </div>
-                            </div>
+
                         </div>
                     </div>
                 </div>
