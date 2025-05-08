@@ -19,6 +19,10 @@ use App\Models\KnowledgeBase;
 use Illuminate\Support\Str;
 use App\Models\Live\DialEventLog;
 
+
+use App\Models\Technical;
+use App\Models\Complaint;
+
 use App\Models\Live\TransactionCode;
 
 use App\Models\Live\AgentBreak; // ✅ Import the model
@@ -88,33 +92,6 @@ class AgentComponent extends Component
         // dd($this->currentSession);
     }
 
-    //Search funtionality
-    public function updatedSearchQuery($value)
-    {
-        $value = trim($value);
-
-        if (strlen($value) >= 2) {
-            $this->searchResults = KnowledgeBase::query()
-                ->where(function ($query) use ($value) {
-                    $query->where('topic', 'like', '%' . $value . '%')
-                        ->orWhere('description', 'like', '%' . $value . '%');
-                })
-                ->select('id', 'topic', 'description')
-                ->limit(5)
-                ->get()
-                ->map(function ($item) {
-                    return [
-                        'id' => $item->id,
-                        'topic' => $item->topic,
-                        'description' => Str::limit(strip_tags($item->description), 100),
-                    ];
-                })
-                ->toArray();
-        } else {
-            $this->searchResults = [];
-            $this->selectedTopic = null;
-        }
-    }
 
     public function selectTopic($topicId)
     {
@@ -291,76 +268,32 @@ class AgentComponent extends Component
         ]);
     }
 
-    // public function login()
-    // {
-    //     $now = now()->toTimeString();
-    //     $today = now()->toDateString();
-    //     $yesterday = now()->subDay();
+    public function updatedSearchQuery($value)
+    {
+        $value = trim($value);
 
-    //     // Find a CallSession that is currently active based on the time
-    //     $activeSession = CallSession::whereTime('time_from', '<=', $now)
-    //         ->whereTime('time_to', '>=', $now)
-    //         ->first();
+        if (strlen($value) >= 2) {
+            $this->searchResults = Technical::query()
+                ->where(function ($query) use ($value) {
+                    $query->where('topic', 'like', "%$value%")
+                        ->orWhere('description', 'like', "%$value%");
+                })
+                ->select('id', 'topic', 'description')
+                ->limit(5)
+                ->get()
+                ->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'topic' => $item->topic,
+                        'description' => Str::limit(strip_tags($item->description), 100),
+                    ];
+                })
+                ->toArray();
+        } else {
+            $this->reset(['searchResults', 'selectedTopic']);
+        }
+    }
 
-    //     if (!$activeSession) {
-    //         session()->flash('error', 'No active call session found for the current time.');
-    //         return;
-    //     }
-
-    //     $this->selectedSession = $activeSession->id;
-    //     $this->currentSession = $activeSession;
-    //     session(['current_session_id' => $this->selectedSession]);
-
-    //     $server = config("app.API_SERVER_ENDPOINT");
-
-    //     try {
-    //         $response = Http::get($server . '/online/' . $this->agent_num);
-    //         $data = $response->json();
-
-    //         if ($data['status'] === true) {
-    //             $this->agent->state = config('constants.agent_state.LOGGED_IN');
-    //             $this->agent->status = config('constants.agent_status.IDLE');
-    //             $this->agent->save();
-
-    //             // Check if the agent has logged into this session within the last 24 hours
-    //             $existingSessionAgent = CallSessionToAgent::where('agent_id', $this->user->id)
-    //                 ->where('call_session_id', $this->currentSession->id)
-    //                 ->where('created_at', '>=', now()->subDay())
-    //                 ->first();
-
-    //             if (!$existingSessionAgent) {
-    //                 // If no login found in the last 24 hours for this session, reset the break time
-    //                 $this->totalBreakDuration = '00:00:00';
-    //             }
-
-    //             // Create or update record in the CallSessionToAgent table
-    //             CallSessionToAgent::updateOrCreate(
-    //                 [
-    //                     'call_session_id' => $this->currentSession->id,
-    //                     'agent_id' => $this->user->id,
-    //                 ],
-    //                 [
-    //                     'time_from' => now(), // Log the actual login time
-    //                     'session_name' => $this->currentSession->name,
-    //                     'agent_number' => $this->agent_num,
-    //                     'username' => $this->user->name,
-    //                     'status' => 1, // Or any default status you need
-    //                 ]
-    //             );
-
-    //             // Refresh local data
-    //             $this->agent = $this->agent->fresh();
-    //             $this->calculateTotalBreakDuration(); // Recalculate break duration after login
-
-    //             session()->flash('message', 'Successfully logged in to session: ' . $this->currentSession->name . ' (' . $data['endpoint'] . ')');
-    //             $this->emitSelf('refresh'); // Optional, if other components are listening
-    //         } else {
-    //             session()->flash('error', 'Agent ' . $data['endpoint'] . ' is not online.');
-    //         }
-    //     } catch (\Exception $e) {
-    //         session()->flash('error', 'Error: ' . $e->getMessage());
-    //     }
-    // }
 
     public function login()
     {
