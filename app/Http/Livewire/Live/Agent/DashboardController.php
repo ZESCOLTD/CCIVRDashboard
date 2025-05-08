@@ -195,6 +195,21 @@ class DashboardController extends Component
 
     public function login()
     {
+        $now = now();
+        // Find a CallSession that is currently active based on the time
+        $activeSession = CallSession::whereTime('time_from', '<=', $now)
+            ->whereTime('time_to', '>=', $now)
+            ->first();
+
+        if (!$activeSession) {
+            session()->flash('error', 'No active call session found for the current time.');
+            return;
+        }
+
+        $this->selectedSession = $activeSession->id;
+        $this->currentSession = $activeSession;
+        session(['current_session_id' => $this->selectedSession]);
+
         $this->agent->update([
             'state' => config('constants.agent_state.LOGGED_IN'),
             'status' => config('constants.agent_status.IDLE'),
@@ -264,7 +279,7 @@ class DashboardController extends Component
         $callsQuery = Recordings::where('agent_number', 'like', "%{$this->agent_num}%");
 
         $calls = DialEventLog::orderBy('event_timestamp')
-        ->whereDate('created_at', Carbon::today())
+            ->whereDate('created_at', Carbon::today())
             ->get()
             ->groupBy(function ($event) {
                 return $event->dialstring . '_' . $event->peer_id;

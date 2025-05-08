@@ -1040,39 +1040,7 @@
 </div>
 
 @push('custom-scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            if (!sessionStorage.getItem('isShiftSelected') || sessionStorage.getItem('isShiftSelected') !==
-                'true') {
-                const sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
-                sessionModal.show();
-            }
-        });
 
-        document.addEventListener('livewire:load', function() {
-            @this.on('openSessionModal', () => {
-                const sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
-                sessionModal.show();
-            })
-
-
-            @this.on('closeSessionModal', () => {
-                let sessionModal = bootstrap.Modal.getInstance(document.getElementById('sessionModal'));
-
-                console.log("Closing modal")
-                if (sessionModal) {
-                    sessionModal.hide();
-                }
-            });
-
-
-            // Automatically trigger open if selected Session is null at page load
-            @if ($selectedSession == null)
-                let sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
-                //sessionModal.show();
-            @endif
-        });
-    </script>
 
     <script defer>
         document.addEventListener('livewire:load', function() {
@@ -1182,7 +1150,7 @@
 
             Livewire.on('agentLogin', () => {
                 // clear session storage key that shows agent is logged in
-                window.location.reload();
+                //window.location.reload();
             });
             Livewire.on('shiftedSelected', () => {
                 // clear session storage key that shows agent is logged in
