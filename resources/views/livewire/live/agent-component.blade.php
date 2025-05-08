@@ -174,7 +174,7 @@
                                 </div>
 
                                 @if ($agent && $agent->status === config('constants.agent_status.ON_BREAK'))
-                                    <div wire:poll.1s="calculateTotalBreakDuration">
+                                    <div wire:poll.1s="calculateTotalBreakDurationForToday">
                                         <div class="d-flex align-items-center mt-3">
                                             <i class="fas fa-stopwatch mr-2 text-danger font-weight-bold h4"></i>
                                             <strong class="text-danger h5">Total Break Time:</strong>
