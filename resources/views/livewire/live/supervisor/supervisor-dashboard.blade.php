@@ -159,7 +159,7 @@
                                         <span style="color: #0f974b;">
                                             <i class="fas fa-hourglass-half mr-1"></i>Queue Wait Time:
                                         </span>
-                                        <span style="color: #333;">4:32</span>
+                                        <span style="color: #333;">--:--</span>
                                     </div>
                                     <div class="progress" style="height: 8px;">
                                         <div class="progress-bar" style="background-color: #fd7e14; width: 65%;">
@@ -371,7 +371,7 @@
                                             <div class="progress-bar" style="width: 70%"></div>
                                         </div>
                                         <span
-                                            class="progress-description">{{ $loggedInAgentsCount > 0 ? ceil(($activeCalls / $loggedInAgentsCount)*100) : '0' }}%
+                                            class="progress-description">{{ $loggedInAgentsCount > 0 ? ceil(($activeCalls / $loggedInAgentsCount)*100) : '--' }}%
                                             of capacity</span>
                                     </div>
                                 </div>
@@ -385,7 +385,7 @@
                                         <div class="progress">
                                             <div class="progress-bar" style="width: 40%"></div>
                                         </div>
-                                        <span class="progress-description">4 waiting > 1 min</span>
+                                        <span class="progress-description">-- waiting > 1 min</span>
                                     </div>
                                 </div>
                             </div>
@@ -394,7 +394,7 @@
                                     <span class="info-box-icon"><i class="fas fa-clock"></i></span>
                                     <div class="info-box-content">
                                         <span class="info-box-text">Longest Wait</span>
-                                        <span class="info-box-number">00:00</span>
+                                        <span class="info-box-number">--:--</span>
                                         <div class="progress">
                                             <div class="progress-bar" style="width: 85%"></div>
                                         </div>
@@ -555,15 +555,15 @@
                             <div class="col-md-6">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h6 class="card-title"><i class="fas fa-stopwatch mr-2"></i>Average Talk Time
+                                        <h6 class="card-title"><i class="fas fa-stopwatch mr-2"></i>Average Conversation Time
                                         </h6>
                                     </div>
                                     <div class="card-body text-center">
-                                        <h3>03:45</h3>
+                                        <h3>--:--</h3>
                                         <div class="progress">
                                             <div class="progress-bar bg-success" style="width: 65%"></div>
                                         </div>
-                                        <small>Target: < 4 minutes</small>
+                                        <small>Target: < -- minutes</small>
                                     </div>
                                 </div>
                             </div>
@@ -575,11 +575,11 @@
                                         </h6>
                                     </div>
                                     <div class="card-body text-center">
-                                        <h3>00:32</h3>
+                                        <h3>--:--</h3>
                                         <div class="progress">
                                             <div class="progress-bar bg-warning" style="width: 45%"></div>
                                         </div>
-                                        <small>Target: < 30 seconds</small>
+                                        <small>Target: < 6 seconds</small>
                                     </div>
                                 </div>
                             </div>
@@ -713,10 +713,10 @@
                                         <h6>Inbound Queue</h6>
                                     </div>
                                     <div class="card-body">
-                                        <p><i class="fas fa-phone mr-2"></i> Answered: 32</p>
-                                        <p><i class="fas fa-times mr-2"></i> Missed: 5</p>
-                                        <p><i class="fas fa-stopwatch mr-2"></i> Avg Answer: 00:28</p>
-                                        <p><i class="fas fa-check-circle mr-2"></i> SLA: 82%</p>
+                                        <p><i class="fas fa-phone mr-2"></i> Answered: {{$answered}}</p>
+                                        <p><i class="fas fa-times mr-2"></i> Missed: {{$missed}}</p>
+                                        <p><i class="fas fa-stopwatch mr-2"></i> Avg Answer: --:--</p>
+                                        <p><i class="fas fa-check-circle mr-2"></i> SLA: {{$answered+$missed>0?ceil($answered/($answered+$missed)*100): '--'}}%</p>
                                     </div>
                                 </div>
                             </div>
@@ -726,10 +726,10 @@
                                         <h6>Outbound Queue</h6>
                                     </div>
                                     <div class="card-body">
-                                        <p><i class="fas fa-phone mr-2"></i> Answered: 45</p>
-                                        <p><i class="fas fa-times mr-2"></i> Missed: 3</p>
-                                        <p><i class="fas fa-stopwatch mr-2"></i> Avg Answer: 00:35</p>
-                                        <p><i class="fas fa-check-circle mr-2"></i> SLA: 88%</p>
+                                        <p><i class="fas fa-phone mr-2"></i> Answered: --</p>
+                                        <p><i class="fas fa-times mr-2"></i> Missed: --</p>
+                                        <p><i class="fas fa-stopwatch mr-2"></i> Avg Answer: --:--</p>
+                                        <p><i class="fas fa-check-circle mr-2"></i> SLA: --%</p>
                                     </div>
                                 </div>
                             </div>
@@ -739,10 +739,10 @@
                                         <h6>Social Queue</h6>
                                     </div>
                                     <div class="card-body">
-                                        <p><i class="fas fa-phone mr-2"></i> Answered: 18</p>
-                                        <p><i class="fas fa-times mr-2"></i> Missed: 2</p>
-                                        <p><i class="fas fa-stopwatch mr-2"></i> Avg Answer: 00:42</p>
-                                        <p><i class="fas fa-check-circle mr-2"></i> SLA: 75%</p>
+                                        <p><i class="fas fa-phone mr-2"></i> Answered: --</p>
+                                        <p><i class="fas fa-times mr-2"></i> Missed: --</p>
+                                        <p><i class="fas fa-stopwatch mr-2"></i> Avg Answer: --:--</p>
+                                        <p><i class="fas fa-check-circle mr-2"></i> SLA: --%</p>
                                     </div>
                                 </div>
                             </div>
@@ -766,12 +766,12 @@
                                 <div class="card bg-dark text-white">
                                     <div class="card-body text-center">
                                         <h3><i class="fas fa-phone-alt"></i> Live Calls</h3>
-                                        <h1 class="display-4" id="liveCalls">24</h1>
+                                        <h1 class="display-4" id="liveCalls">--</h1>
                                         <div class="mt-3">
                                             <span class="badge badge-success mr-2">{{ $activeCalls }} In
                                                 Progress</span>
-                                            <span class="badge badge-warning" id="inQueue">8 In Queue</span>
-                                            <span class="badge badge-danger">4 Waiting</span>
+                                            <span class="badge badge-warning" id="inQueue">0 In Queue</span>
+                                            <span class="badge badge-danger">-- Waiting</span>
                                         </div>
                                     </div>
                                 </div>
