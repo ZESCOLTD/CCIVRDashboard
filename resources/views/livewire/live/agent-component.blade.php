@@ -767,7 +767,6 @@
 
                 </div>
             </div>
-
             <!-- Knowledge Modal -->
             <div class="modal fade" id="technicalModal" tabindex="-1" aria-labelledby="technicalModalLabel"
                 aria-hidden="true" wire:ignore.self>
@@ -807,16 +806,6 @@
             </div>
 
 
-            <!-- Combined Call Control and Incoming Call Information Card -->
-
-            {{--            <div class="input-group mb-3"> --}}
-            {{--                <input type="text" class="form-control" --}}
-            {{--                       wire:paste.debounce.500ms="searchCustomers" --}}
-            {{--                       wire:change.debounce.500ms="searchCustomers" --}}
-            {{--                       placeholder="Search by Meter Serial, Service No, or Complaint No" --}}
-            {{--                       wire:model="search_term"> --}}
-            {{--            </div> --}}
-
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-orange text-white">
                     <div class="d-flex justify-content-between align-items-center">
@@ -840,12 +829,6 @@
                     </div>
                 </div>
             </div>
-
-            {{--            <div class="text-end mb-2"> --}}
-            {{--                <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#complaintsTableModal"> --}}
-            {{--                    <i class="fas fa-table me-1"></i> View All Complaints (Table) --}}
-            {{--                </button> --}}
-            {{--            </div> --}}
 
             <div class="modal fade" id="complaintsTableModal" tabindex="-1"
                 aria-labelledby="complaintsTableModalLabel" aria-hidden="true" wire:ignore.self>
