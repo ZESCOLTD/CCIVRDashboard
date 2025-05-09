@@ -393,6 +393,7 @@ class DashboardController extends Component
         // Step 5: Store and emit
         session(['customer_details' => $results]);
         $this->customer_details = $results;
+        dd($this->customer_details);
         $this->emit('showCustomerModal');
     }
 

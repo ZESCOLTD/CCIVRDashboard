@@ -1019,13 +1019,15 @@
             }
 
             // Modal events
-            const customerModal = document.getElementById('customerModal');
+            const customerModal = document.getElementById('complaintsTableModal');
             customerModal.addEventListener('hidden.bs.modal', function() {
                 @this.set('selectedCustomer', null);
             });
 
             // Listen for Livewire event to show modal
-            Livewire.on('showCustomerModal', () => {
+
+
+            document.addEventListener('showCustomerModal', () => {
                 const modal = new bootstrap.Modal(customerModal);
                 modal.show();
             });

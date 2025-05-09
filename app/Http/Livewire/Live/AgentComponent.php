@@ -315,7 +315,8 @@ class AgentComponent extends Component
 
         // Step 5: Store and emit
         $this->customer_details = $results;
-        $this->emit('showCustomerModal'); // Emit the event to show the modal
+        // dd($this->customer_details);
+        $this->dispatchBrowserEvent('showCustomerModal'); // Emit the event to show the modal
         $this->is_searching = false;
     }
 
