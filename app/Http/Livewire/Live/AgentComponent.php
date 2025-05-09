@@ -62,7 +62,17 @@ class AgentComponent extends Component
     public $recordFilename;
 
 
-    protected $listeners = ['refresh' => '$refresh', 'filename' => 'filename'];
+    protected $listeners = ['refresh' => '$refresh', 'filename' => 'filename','showCustomerModal'];
+
+    // Logic for customer search start
+    public $search_term;
+    public $show_modal = false; // You might not need this if relying on the modal's ID
+    public $is_searching = false; // You might not need this, can use wire:loading state
+    // Logic for customer search end
+
+    protected $rules = [
+        'search_term' => 'required|string|min:1|max:15',
+    ];
 
     public function mount($id)
     {
@@ -265,6 +275,54 @@ class AgentComponent extends Component
             'lastFiveCalls' => $callsQuery->latest('agent_number')->take(5)->get(),
             'customer_details' => $this->customer_details,
         ]);
+    }
+
+    public function searchCustomers()
+    {
+        $this->validateOnly('search_term');
+        $this->is_searching = true;
+        ini_set("memory_limit", -1);
+        set_time_limit(300);
+
+        $searchTerm = strtoupper(trim($this->search_term));
+        $results = collect();
+
+        // Step 1: Try by meter_serial_no
+        $results = Customer::where('meter_serial_no', $searchTerm)->get();
+
+        // Step 2: Try by service_no if empty
+        if ($results->isEmpty()) {
+            $results = Customer::where('service_no', $searchTerm)->get();
+        }
+
+        // Step 3: Try by complaint_no if still empty
+        if ($results->isEmpty()) {
+            $results = Customer::where('complaint_no', $searchTerm)->get();
+        }
+
+        // Step 4: Filter based on complaint status (same logic as DashboardController)
+        $statuses = $results->pluck('complaint_status_desc')->unique();
+
+        if ($statuses->count() === 1 && $statuses->first() === 'RESOLVED') {
+            $results = $results->take(2);
+        } elseif ($statuses->contains('PENDING')) {
+            // keep all (no limit)
+        } elseif ($statuses->contains('ASSOCIATED TO INCIDENCE')) {
+            $results = $results->take(3);
+        } else {
+            $results = $results->take(5);
+        }
+
+        // Step 5: Store and emit
+        $this->customer_details = $results;
+        $this->emit('showCustomerModal'); // Emit the event to show the modal
+        $this->is_searching = false;
+    }
+
+    public function clearCustomerDetailsSession()
+    {
+        $this->customer_details = []; // Clear the array
+        $this->reset('search_term');
     }
 
     public function updatedSearchQuery($value)
