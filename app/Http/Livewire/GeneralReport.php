@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use PDF;
 use App\Models\Live\CCAgent;
+use App\Models\Live\Recordings;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 
@@ -29,20 +30,16 @@ class GeneralReport extends Component
     public $reportType;
     public $agentIds = [];
     public $queueIds = [];
-
     // Report data properties
     public $reportData = null;
     public $reportTitle = '';
     public $dateRange = '';
     public $isLoading = false;
-
-
-
+    public $selectedAgent = ''; // optional
     // Email properties
     public $emailRecipients = '';
     public $emailSubject = '';
     public $emailMessage = '';
-
     // Automated reports
     public $autoDaily = false;
     public $autoWeekly = false;
@@ -59,6 +56,7 @@ class GeneralReport extends Component
         $this->endDate = null;
         $this->startTime = null;
         $this->endTime = null;
+        $this->agents = CCAgent::select('id', 'name')->orderBy('name')->get();
     }
 
     public function updatedReportType($value)
@@ -218,36 +216,82 @@ class GeneralReport extends Component
             ->toArray();
     }
 
+//    protected function generateAgentPerformanceReport($startDate, $endDate)
+//    {
+//        $this->reportData = CallDetailsRecordModel::query()
+//            ->select(
+//                'agent_id as label',
+//                DB::raw('count(*) as total_calls'),
+//                DB::raw('sum(case when disposition = "ANSWERED" then 1 else 0 end) as answered'),
+//                DB::raw('avg(talk_time) as avg_talk_time'),
+//                DB::raw('avg(hold_time) as avg_hold_time'),
+//                DB::raw('sum(case when disposition = "ANSWERED" and duration > 0 then 1 else 0 end) as first_call_resolution'),
+//                DB::raw('avg(satisfaction) as satisfaction'),
+//                DB::raw('avg(wrap_up_time) as wrap_up_time')
+//            )
+//            ->whereBetween('calldate', [$startDate, $endDate])
+//            ->whereNotNull('agent_id')
+//            ->when($this->selectedAgent, function ($query) {
+//                $query->where('agent_id', $this->selectedAgent);
+//            })
+//            ->groupBy('agent_id')
+//            ->orderBy('total_calls', 'desc')
+//            ->get()
+//            ->map(function ($item) {
+//                $item->first_call_resolution = $item->answered > 0
+//                    ? round(($item->first_call_resolution / $item->answered) * 100, 2)
+//                    : 0;
+//                return $item;
+//            })
+//            ->toArray();
+//    }
+
     protected function generateAgentPerformanceReport($startDate, $endDate)
     {
-        $this->reportData = CallDetailsRecordModel::query()
+        // Step 1: Get dst per agent_id via CCAgent
+        $agentDstMap = \App\Models\Live\CCAgent::pluck('endpoint', 'id')->toArray(); // agent_id => dst
+
+        // Step 2: Get call performance
+        dd($results = CallDetailsRecordModel::query()
             ->select(
                 'agent_id as label',
-                DB::raw('count(*) as total_calls'),
-                DB::raw('sum(case when disposition = "ANSWERED" then 1 else 0 end) as answered'),
-                DB::raw('avg(talk_time) as avg_talk_time'),
-                DB::raw('avg(hold_time) as avg_hold_time'),
-                DB::raw('sum(case when disposition = "ANSWERED" and duration > 0 then 1 else 0 end) as first_call_resolution'),
-                DB::raw('avg(satisfaction) as satisfaction'),
-                DB::raw('avg(wrap_up_time) as wrap_up_time')
+                DB::raw('COUNT(*) as total_calls'),
+                DB::raw('SUM(CASE WHEN disposition = "ANSWERED" THEN 1 ELSE 0 END) as answered'),
+                DB::raw('AVG(talk_time) as avg_talk_time'),
+                DB::raw('AVG(hold_time) as avg_hold_time'),
+                DB::raw('SUM(CASE WHEN disposition = "ANSWERED" AND duration > 0 THEN 1 ELSE 0 END) as first_call_resolution'),
+                DB::raw('AVG(satisfaction) as satisfaction'),
+                DB::raw('AVG(wrap_up_time) as wrap_up_time')
             )
             ->whereBetween('calldate', [$startDate, $endDate])
             ->whereNotNull('agent_id')
-            ->when(!empty($this->agentIds), function ($query) {
-                $query->whereIn('agent_id', $this->agentIds);
-            })
+            ->when($this->selectedAgent, fn($q) => $q->where('agent_id', $this->selectedAgent))
             ->groupBy('agent_id')
-            ->orderBy('total_calls', 'desc')
-            ->get()
-            ->map(function ($item) {
-                $item->first_call_resolution = $item->answered > 0
-                    ? round(($item->first_call_resolution / $item->answered) * 100, 2)
-                    : 0;
-                return $item;
-            })
+            ->orderByDesc('total_calls')
+            ->get());
+
+        // Step 3: Count how many calls were made per dst
+        $dstCounts = CallDetailsRecordModel::query()
+            ->select('dst', DB::raw('COUNT(*) as dst_call_count'))
+            ->whereBetween('calldate', [$startDate, $endDate])
+            ->groupBy('dst')
+            ->pluck('dst_call_count', 'dst')
             ->toArray();
 
+        // Step 4: Attach dst count and FCR percentage
+        $this->reportData = $results->map(function ($item) use ($agentDstMap, $dstCounts) {
+            $item->first_call_resolution = $item->answered > 0
+                ? round(($item->first_call_resolution / $item->answered) * 100, 2)
+                : 0;
+
+            $dst = $agentDstMap[$item->label] ?? null;
+            $item->dst_call_count = $dst ? ($dstCounts[$dst] ?? 0) : 0;
+
+            return $item;
+        })->toArray();
     }
+
+
 
     protected function generateQueuePerformanceReport($startDate, $endDate)
     {

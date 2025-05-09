@@ -162,16 +162,18 @@ class DashboardController extends Component
         }
 
         // Step 4: Filter based on complaint status
-        $statuses = $results->pluck('complaint_status_desc')->unique();
+        $statuses = $results->pluck('complaint_status_desc')
+            ->map(function ($status) {
+                return strtoupper($status);
+            })
+            ->unique();
 
-        if ($statuses->count() === 1 && $statuses->first() === 'RESOLVED') {
-            dd($results = $results->take(2));
-        } elseif ($statuses->contains('PENDING')) {
-            // keep all (no limit)
-        } elseif ($statuses->contains('ASSOCIATED TO INCIDENCE')) {
-            $results = $results->take(3);
-        } else {
+        if ($statuses->contains('PENDING') || $statuses->contains('ASSOCIATED TO INCIDENCE')) {
             $results = $results->take(5);
+        } elseif ($statuses->contains('RESOLVED')) {
+            $results = $results->take(2);
+        } else {
+            $results = $results->take(1);
         }
 
         // Step 5: Store and emit
@@ -179,6 +181,7 @@ class DashboardController extends Component
         $this->customer_details = $results;
         $this->emit('showCustomerModal');
     }
+
 
 
 
