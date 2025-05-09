@@ -1,36 +1,35 @@
-<div class="container mt-4">
+<div>
     <div class="row">
         <div class="col">
             <!-- Agent Information and Status -->
             @if (session()->has('message'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     {{ session()->get('message') }}
-                    <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
             @if (session()->has('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     {{ session()->get('success') }}
-                    <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
             @if (session()->has('error'))
                 <div class="alert alert-danger alert-dismissible fade show" role="alert">
                     {{ session()->get('error') }}
-                    <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
-
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-orange text-white">
-                    <h5 class="mb-0"><i class="fas fa-user-tie me-2"></i>Agent Dashboard</h5>
+                    <h5 class="mb-0"><i class="fas fa-user-tie mr-2"></i>Agent Dashboard</h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <!-- Agent Information -->
-                        <div class="col-md-4 border-end">
+                        <div class="col-md-4 border-right">
                             <div class="d-flex align-items-center mb-3">
-                                <div class="icon-circle bg-green-light text-orange me-3">
+                                <div class="icon-circle bg-green-light text-orange mr-3">
                                     <i class="fas fa-headset"></i>
                                 </div>
                                 <div>
@@ -39,19 +38,19 @@
                             </div>
                             <ul class="list-unstyled">
                                 <li class="mb-2">
-                                    <i class="fas fa-user me-2 text-secondary"></i>
+                                    <i class="fas fa-user mr-2 text-secondary"></i>
                                     <strong>Name:</strong> {{ $agent->name }}
                                 </li>
                                 <li class="mb-2">
-                                    <i class="fas fa-id-card me-2 text-secondary"></i>
+                                    <i class="fas fa-id-card mr-2 text-secondary"></i>
                                     <strong>ID:</strong> {{ $agent->endpoint }}
                                 </li>
                                 <li class="mb-2">
-                                    <i class="fas fa-phone me-2 text-secondary"></i>
+                                    <i class="fas fa-phone mr-2 text-secondary"></i>
                                     <strong>Number:</strong> {{ $agent->endpoint }}
                                 </li>
                                 <li>
-                                    <i class="fas fa-power-off me-2 text-secondary"></i>
+                                    <i class="fas fa-power-off mr-2 text-secondary"></i>
                                     <strong>Status:</strong>
                                     @switch($agent->status)
                                         @case('LOGGED_IN')
@@ -98,9 +97,9 @@
                         </div>
 
                         <!-- Session Information -->
-                        <div class="col-md-4 border-end">
+                        <div class="col-md-4 border-right">
                             <div class="d-flex align-items-center mb-3">
-                                <div class="icon-circle bg-primary-light text-orange me-3">
+                                <div class="icon-circle bg-primary-light text-orange mr-3">
                                     <i class="fas fa-calendar-alt"></i>
                                 </div>
                                 <div>
@@ -109,37 +108,40 @@
                             </div>
                             <div class="mb-3">
                                 <label class="text-info small d-flex align-items-center">
-                                    <i class="fas fa-plug me-2"></i>Recorder Websocket:
+                                    <i class="fas fa-plug mr-2"></i>Recorder Websocket:
                                     <input type="text" id="ws_endpoint" value='{{ $ws_server }}' hidden>
-                                    <span id="ws-info" class="badge bg-info ms-2">Connecting...</span>
+                                    <span id="ws-info" wire:ignore class="badge badge-info ml-2">Connecting...</span>
                                 </label>
                             </div>
-
                             <div>
                                 <strong class="d-flex align-items-center">
-                                    <i class="fas fa-clock me-2"></i>Current Session:
+                                    <i class="fas fa-clock mr-2"></i>Current Session:
                                 </strong>
                                 @if ($currentSession)
                                     <div class="d-flex align-items-center mt-1 mb-2">
-                                        <span class="badge bg-primary me-2">{{ $currentSession->name }}</span>
-                                        {{-- <button class="btn btn-sm btn-outline-primary" wire:click="showModal">
-                                            <i class="fas fa-exchange-alt"></i>
-                                        </button> --}}
-
+                                        <span class="badge badge-primary mr-2">{{ $currentSession->name }}</span>
                                         <button class="btn btn-sm btn-outline-primary" data-toggle="modal"
                                             data-target="#sessionModal">
                                             <i class="fas fa-exchange-alt"></i>
                                         </button>
                                     </div>
                                     <div class="small">
-                                        <div><i class="far fa-clock me-2"></i>From: {{ $currentSession->time_from }}
+                                        <div><i class="far fa-clock mr-2"></i>From: {{ $currentSession->time_from }}
                                         </div>
-                                        <div><i class="far fa-clock me-2"></i>To: {{ $currentSession->time_to }}</div>
+                                        <div><i class="far fa-clock mr-2"></i>To: {{ $currentSession->time_to }}</div>
                                     </div>
                                 @else
                                     <div class="alert alert-warning py-1 px-2 mt-2 small">
-                                        <i class="fas fa-exclamation-triangle me-2"></i>No session selected
+                                        <i class="fas fa-exclamation-triangle mr-2"></i>No session selected
                                     </div>
+                                    {{-- <script>
+
+                                        document.addEventListener('DOMContentLoaded', function () {
+                                            var sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
+                                            sessionModal.show();
+                                        });
+
+                                                                           </script> --}}
                                 @endif
                             </div>
                         </div>
@@ -147,7 +149,7 @@
                         <!-- Current Call -->
                         <div class="col-md-4">
                             <div class="d-flex align-items-center mb-3">
-                                <div class="icon-circle bg-primary-light text-orange me-3">
+                                <div class="icon-circle bg-primary-light text-orange mr-3">
                                     <i class="fas fa-phone-volume"></i>
                                 </div>
                                 <div>
@@ -156,74 +158,80 @@
                             </div>
                             <div class="call-info">
                                 <div class="d-flex align-items-center mb-2">
-                                    <i class="fas fa-user-circle me-2 text-secondary"></i>
+                                    <i class="fas fa-user-circle mr-2 text-secondary"></i>
                                     <strong>Caller ID:</strong>
-                                    <span class="ms-2">+1234567890</span>
+                                    <span class="ml-2 text-info" id="incoming-call">+1234567890</span>
                                 </div>
                                 <div class="d-flex align-items-center">
-                                    <i class="fas fa-stopwatch me-2 text-secondary"></i>
+                                    <i class="fas fa-stopwatch mr-2 text-secondary"></i>
                                     <strong>Duration:</strong>
-                                    <span class="ms-2">00:03:15</span>
+                                    <span class="ml-2">00:03:15</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-stopwatch mr-2 text-secondary"></i>
+                                    <strong>Calls in Queue:</strong>
+                                    <h3 id="queue-calls" wire:ignore class="ml-2">0</h3>
                                 </div>
 
                                 @if ($agent && $agent->status === config('constants.agent_status.ON_BREAK'))
-                                    <div wire:poll.1s="updateBreakTimer">
+                                    <div wire:poll.1s="calculateTotalBreakDurationForToday">
                                         <div class="d-flex align-items-center mt-3">
-                                            <i class="fas fa-stopwatch me-2 text-danger fw-bold fs-4"></i>
-                                            <strong class="text-danger fs-5">Break Time Logger:</strong>
-                                            <span class="ms-2 fw-bold text-danger fs-5">
-                                                {{ $breakDuration }}
+                                            <i class="fas fa-stopwatch mr-2 text-danger font-weight-bold h4"></i>
+                                            <strong class="text-danger h5">Total Break Time:</strong>
+                                            <span class="ml-2 font-weight-bold text-danger h5">
+                                                {{ $totalBreakDuration }}
                                             </span>
                                         </div>
-                                    </div>
-                                @elseif ($breakLimitReached)
-                                    <div class="text-danger fw-bold text-center mt-2">
-                                        Break limit for this shift has been reached
+
+                                        {{-- <div wire:poll.60s="calculateTotalBreakDuration">
+                                            Break Duration: {{ $breakDuration }}
+                                        </div> --}}
+
+                                        @if ($breakLimitReached)
+                                            <div class="text-danger font-weight-bold text-center mt-2">
+                                                ⚠️ Total break time exceeded 40 minutes for this shift.
+                                            </div>
+                                        @endif
                                     </div>
                                 @endif
 
 
+
                                 <div class="mt-3">
                                     @if (in_array($agent->status, ['LOGGED_OUT', 'WITHDRAWN']))
-                                        {{-- LOGIN BUTTON --}}
                                         <form wire:submit.prevent="login">
-                                            <button type="submit" class="btn btn-success w-100">
-                                                <i class="fas fa-sign-in-alt me-1"></i> Login
+                                            <button type="submit" class="btn btn-success btn-block">
+                                                <i class="fas fa-sign-in-alt mr-1"></i> Login
                                             </button>
                                         </form>
                                     @else
-                                        {{-- LOGOUT AND BREAK/RESUME BUTTONS --}}
-                                        <div class="d-flex gap-2">
-                                            {{-- Break / Resume --}}
-                                            <form wire:submit.prevent="toggleBreak" class="flex-fill">
+                                        <div class="d-flex">
+                                            <form
+                                                wire:submit.prevent="{{ $agent->status == 'ON_BREAK' ? 'resume' : 'break' }}"
+                                                class="mr-2 flex-fill">
                                                 <button type="submit"
-                                                    class="btn {{ $agent->status == 'ON_BREAK' ? 'btn-info' : 'btn-secondary' }} w-100">
-                                                    <i class="fas fa-coffee me-1"></i>
+                                                    class="btn {{ $agent->status == 'ON_BREAK' ? 'btn-info' : 'btn-secondary' }} btn-block">
+                                                    <i class="fas fa-coffee mr-1"></i>
                                                     {{ $agent->status == 'ON_BREAK' ? 'Resume' : 'Break' }}
                                                 </button>
                                             </form>
 
-                                            {{-- Logout --}}
                                             <form wire:submit.prevent="logout" class="flex-fill">
-                                                <button type="submit" class="btn btn-warning w-100">
-                                                    <i class="fas fa-sign-out-alt me-1"></i> Logout
+                                                <button type="submit" class="btn btn-warning btn-block">
+                                                    <i class="fas fa-sign-out-alt mr-1"></i> Logout
                                                 </button>
                                             </form>
                                         </div>
 
-                                        {{-- Break Timer --}}
-                                        @if ($onBreak && $breakStartTime)
-                                            <div class="mt-2 text-center text-info fw-bold">
+                                        {{-- @if ($onBreak && $breakStartTime)
+                                            <div class="mt-2 text-center text-info font-weight-bold">
                                                 <small>On break for {{ $breakMinutes }} minute(s)</small>
                                             </div>
-                                        @endif
-
+                                        @endif --}}
                                     @endif
                                 </div>
 
-                                {{-- Auto-refresh every minute for timer --}}
                                 <div x-data x-init="setInterval(() => Livewire.emit('refreshComponent'), 60000)"></div>
-
                             </div>
                         </div>
 
@@ -235,203 +243,10 @@
                 </div>
             </div>
 
-            <style>
-                :root {
-                    --primary-color: #f39c35;
-                    --primary-light: rgba(243, 156, 53, 0.1);
-                    --secondary-color: #14944c;
-                }
-
-                .card {
-                    border-radius: 10px;
-                    overflow: hidden;
-                    border: none;
-                }
-
-                .card-header {
-                    padding: 1rem 1.5rem;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-                }
-
-                .icon-circle {
-                    width: 40px;
-                    height: 40px;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 1.2rem;
-                }
-
-                .bg-primary-light {
-                    background-color: var(--primary-light);
-                }
-
-                .badge {
-                    padding: 5px 10px;
-                    font-weight: 500;
-                    letter-spacing: 0.5px;
-                }
-
-                .btn-primary {
-                    background-color: var(--primary-color);
-                    border-color: var(--primary-color);
-                }
-
-                .btn-primary:hover {
-                    background-color: #e08a2a;
-                    border-color: #e08a2a;
-                }
-
-                .btn-outline-primary {
-                    color: var(--primary-color);
-                    border-color: var(--primary-color);
-                }
-
-                .btn-outline-primary:hover {
-                    background-color: var(--primary-color);
-                    border-color: var(--primary-color);
-                }
-
-                .btn-secondary {
-                    background-color: var(--secondary-color);
-                    border-color: var(--secondary-color);
-                }
-
-                .btn-secondary:hover {
-                    background-color: #11823f;
-                    border-color: #11823f;
-                }
-
-                .shadow-sm {
-                    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
-                }
-
-                .border-end {
-                    border-right: 1px solid #dee2e6 !important;
-                }
-
-                :root {
-                    --primary-color: #f39c35;
-                    --primary-light: rgba(243, 156, 53, 0.1);
-                    --success-color: #28a745;
-                    --success-light: rgba(40, 167, 69, 0.1);
-                    --danger-color: #dc3545;
-                    --danger-light: rgba(220, 53, 69, 0.1);
-                    --warning-color: #ffc107;
-                    --warning-light: rgba(255, 193, 7, 0.1);
-                }
-
-                .stats-card {
-                    border-radius: 10px;
-                    padding: 20px;
-                    display: flex;
-                    align-items: center;
-                    height: 100%;
-                    transition: transform 0.3s ease;
-                    border: 1px solid rgba(0, 0, 0, 0.05);
-                }
-
-                .stats-card:hover {
-                    transform: translateY(-5px);
-                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-                }
-
-                .icon-circle {
-                    width: 50px;
-                    height: 50px;
-                    border-radius: 50%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    color: white;
-                    font-size: 1.25rem;
-                    margin-right: 15px;
-                    flex-shrink: 0;
-                }
-
-                .stats-content {
-                    flex: 1;
-                }
-
-                .stats-content h6 {
-                    font-size: 0.85rem;
-                    color: #6c757d;
-                    margin-bottom: 5px;
-                    font-weight: 600;
-                }
-
-                .stats-content h3 {
-                    font-size: 1.75rem;
-                    margin-bottom: 5px;
-                    color: #343a40;
-                    font-weight: 700;
-                }
-
-                .trend {
-                    font-size: 0.75rem;
-                    font-weight: 600;
-                    display: flex;
-                    align-items: center;
-                }
-
-                .trend i {
-                    margin-right: 3px;
-                    font-size: 0.65rem;
-                }
-
-                .trend.up {
-                    color: var(--success-color);
-                }
-
-                .trend.down {
-                    color: var(--danger-color);
-                }
-
-                .trend-text {
-                    color: #6c757d;
-                    font-weight: 400;
-                    margin-left: 5px;
-                    font-size: 0.65rem;
-                }
-
-                .bg-primary-light {
-                    background-color: var(--primary-light);
-                }
-
-                .bg-success-light {
-                    background-color: var(--success-light);
-                }
-
-                .bg-danger-light {
-                    background-color: var(--danger-light);
-                }
-
-                .bg-warning-light {
-                    background-color: var(--warning-light);
-                }
-
-                .bg-primary {
-                    background-color: var(--primary-color);
-                }
-
-                .bg-success {
-                    background-color: var(--success-color);
-                }
-
-                .bg-danger {
-                    background-color: var(--danger-color);
-                }
-
-                .bg-warning {
-                    background-color: var(--warning-color);
-                }
-            </style>
-
             <!-- Key Metrics Overview -->
             <div class="row">
                 <!-- Total Calls Card -->
-                <div class="col-12 col-sm-6 col-md-3 mb-4">
+                <div class="col-md-3 mb-4">
                     <div class="stats-card bg-primary-light">
                         <div class="icon-circle bg-primary">
                             <i class="fas fa-phone-alt"></i>
@@ -447,7 +262,7 @@
                 </div>
 
                 <!-- Answered Calls Card -->
-                <div class="col-12 col-sm-6 col-md-3 mb-4">
+                <div class="col-md-3 mb-4">
                     <div class="stats-card bg-success-light">
                         <div class="icon-circle bg-success">
                             <i class="fas fa-check"></i>
@@ -463,7 +278,7 @@
                 </div>
 
                 <!-- Missed Calls Card -->
-                <div class="col-12 col-sm-6 col-md-3 mb-4">
+                <div class="col-md-3 mb-4">
                     <div class="stats-card bg-danger-light">
                         <div class="icon-circle bg-danger">
                             <i class="fas fa-times"></i>
@@ -477,9 +292,200 @@
                         </div>
                     </div>
                 </div>
+                <style>
+                    :root {
+                        --primary-color: #f39c35;
+                        --primary-light: rgba(243, 156, 53, 0.1);
+                        --secondary-color: #14944c;
+                    }
 
+                    .card {
+                        border-radius: 10px;
+                        overflow: hidden;
+                        border: none;
+                    }
+
+                    .card-header {
+                        padding: 1rem 1.5rem;
+                        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+                    }
+
+                    .icon-circle {
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 1.2rem;
+                    }
+
+                    .bg-primary-light {
+                        background-color: var(--primary-light);
+                    }
+
+                    .badge {
+                        padding: 5px 10px;
+                        font-weight: 500;
+                        letter-spacing: 0.5px;
+                    }
+
+                    .btn-primary {
+                        background-color: var(--primary-color);
+                        border-color: var(--primary-color);
+                    }
+
+                    .btn-primary:hover {
+                        background-color: #e08a2a;
+                        border-color: #e08a2a;
+                    }
+
+                    .btn-outline-primary {
+                        color: var(--primary-color);
+                        border-color: var(--primary-color);
+                    }
+
+                    .btn-outline-primary:hover {
+                        background-color: var(--primary-color);
+                        border-color: var(--primary-color);
+                    }
+
+                    .btn-secondary {
+                        background-color: var(--secondary-color);
+                        border-color: var(--secondary-color);
+                    }
+
+                    .btn-secondary:hover {
+                        background-color: #11823f;
+                        border-color: #11823f;
+                    }
+
+                    .shadow-sm {
+                        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
+                    }
+
+                    .border-end {
+                        border-right: 1px solid #dee2e6 !important;
+                    }
+
+                    :root {
+                        --primary-color: #f39c35;
+                        --primary-light: rgba(243, 156, 53, 0.1);
+                        --success-color: #28a745;
+                        --success-light: rgba(40, 167, 69, 0.1);
+                        --danger-color: #dc3545;
+                        --danger-light: rgba(220, 53, 69, 0.1);
+                        --warning-color: #ffc107;
+                        --warning-light: rgba(255, 193, 7, 0.1);
+                    }
+
+                    .stats-card {
+                        border-radius: 10px;
+                        padding: 20px;
+                        display: flex;
+                        align-items: center;
+                        height: 100%;
+                        transition: transform 0.3s ease;
+                        border: 1px solid rgba(0, 0, 0, 0.05);
+                    }
+
+                    .stats-card:hover {
+                        transform: translateY(-5px);
+                        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+                    }
+
+                    .icon-circle {
+                        width: 50px;
+                        height: 50px;
+                        border-radius: 50%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: white;
+                        font-size: 1.25rem;
+                        margin-right: 15px;
+                        flex-shrink: 0;
+                    }
+
+                    .stats-content {
+                        flex: 1;
+                    }
+
+                    .stats-content h6 {
+                        font-size: 0.85rem;
+                        color: #6c757d;
+                        margin-bottom: 5px;
+                        font-weight: 600;
+                    }
+
+                    .stats-content h3 {
+                        font-size: 1.75rem;
+                        margin-bottom: 5px;
+                        color: #343a40;
+                        font-weight: 700;
+                    }
+
+                    .trend {
+                        font-size: 0.75rem;
+                        font-weight: 600;
+                        display: flex;
+                        align-items: center;
+                    }
+
+                    .trend i {
+                        margin-right: 3px;
+                        font-size: 0.65rem;
+                    }
+
+                    .trend.up {
+                        color: var(--success-color);
+                    }
+
+                    .trend.down {
+                        color: var(--danger-color);
+                    }
+
+                    .trend-text {
+                        color: #6c757d;
+                        font-weight: 400;
+                        margin-left: 5px;
+                        font-size: 0.65rem;
+                    }
+
+                    .bg-primary-light {
+                        background-color: var(--primary-light);
+                    }
+
+                    .bg-success-light {
+                        background-color: var(--success-light);
+                    }
+
+                    .bg-danger-light {
+                        background-color: var(--danger-light);
+                    }
+
+                    .bg-warning-light {
+                        background-color: var(--warning-light);
+                    }
+
+                    .bg-primary {
+                        background-color: var(--primary-color);
+                    }
+
+                    .bg-success {
+                        background-color: var(--success-color);
+                    }
+
+                    .bg-danger {
+                        background-color: var(--danger-color);
+                    }
+
+                    .bg-warning {
+                        background-color: var(--warning-color);
+                    }
+                </style>
                 <!-- Average Call Time Card -->
-                <div class="col-12 col-sm-6 col-md-3 mb-4">
+                <div class="col-md-3 mb-4">
                     <div class="stats-card bg-warning-light">
                         <div class="icon-circle bg-warning">
                             <i class="fas fa-clock"></i>
@@ -493,36 +499,9 @@
                         </div>
                     </div>
                 </div>
+
+
             </div>
-
-
-
-            <!-- Graph Placeholders -->
-            {{-- <div class="row">
-                <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Call Volume (Last 7 Days)</h5>
-                            <div style="height: 300px; background-color: #f2f2f2;">
-                                <!-- Placeholder for Call Volume Graph -->
-                                <p class="text-center text-muted">[Graph Placeholder]</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="card mb-4">
-                        <div class="card-body">
-                            <h5 class="card-title">Agent Performance</h5>
-                            <div style="height: 300px; background-color: #f2f2f2;">
-                                <!-- Placeholder for Agent Performance Graph -->
-                                <p class="text-center text-muted">[Graph Placeholder]</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> --}}
-
 
             <style>
                 .search-suggestions {
@@ -541,7 +520,7 @@
                     background-color: #f8f9fa;
                 }
 
-                .technical-content {
+                .knowledge-content {
                     max-height: 400px;
                     overflow-y: auto;
                     background-color: #f8f9fa;
@@ -595,29 +574,29 @@
                     overflow: hidden;
                 }
 
-                .technical-content {
+                .knowledge-content {
                     line-height: 1.6;
                 }
 
-                .technical-content h4,
-                .technical-content h5 {
+                .knowledge-content h4,
+                .knowledge-content h5 {
                     color: var(--primary-color);
                     margin-top: 1.5rem;
                 }
 
-                .technical-content ul,
-                .technical-content ol {
+                .knowledge-content ul,
+                .knowledge-content ol {
                     padding-left: 1.5rem;
                 }
 
-                .technical-content pre {
+                .knowledge-content pre {
                     background: #f8f9fa;
                     padding: 1rem;
                     border-radius: 5px;
                     overflow-x: auto;
                 }
 
-                .technical-content code {
+                .knowledge-content code {
                     background: #f8f9fa;
                     padding: 0.2rem 0.4rem;
                     border-radius: 3px;
@@ -729,8 +708,6 @@
                     border-color: #e08a2a;
                 }
             </style>
-
-            <!-- Combined Call Control and Incoming Call Information Card -->
             <!-- Knowledge Base Card -->
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-orange text-white">
@@ -795,7 +772,6 @@
 
                 </div>
             </div>
-
             <!-- Knowledge Modal -->
             <div class="modal fade" id="technicalModal" tabindex="-1" aria-labelledby="technicalModalLabel"
                 aria-hidden="true" wire:ignore.self>
@@ -835,16 +811,6 @@
             </div>
 
 
-            <!-- Combined Call Control and Incoming Call Information Card -->
-
-            {{--            <div class="input-group mb-3"> --}}
-            {{--                <input type="text" class="form-control" --}}
-            {{--                       wire:paste.debounce.500ms="searchCustomers" --}}
-            {{--                       wire:change.debounce.500ms="searchCustomers" --}}
-            {{--                       placeholder="Search by Meter Serial, Service No, or Complaint No" --}}
-            {{--                       wire:model="search_term"> --}}
-            {{--            </div> --}}
-
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header bg-orange text-white">
                     <div class="d-flex justify-content-between align-items-center">
@@ -868,12 +834,6 @@
                     </div>
                 </div>
             </div>
-
-            {{--            <div class="text-end mb-2"> --}}
-            {{--                <button class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#complaintsTableModal"> --}}
-            {{--                    <i class="fas fa-table me-1"></i> View All Complaints (Table) --}}
-            {{--                </button> --}}
-            {{--            </div> --}}
 
             <div class="modal fade" id="complaintsTableModal" tabindex="-1"
                 aria-labelledby="complaintsTableModalLabel" aria-hidden="true" wire:ignore.self>
@@ -936,149 +896,148 @@
             </div>
 
 
-            <!-- Combined Call Control and Incoming Call Information Card -->
 
-
-            {{--            <div class="row"> --}}
-            {{--                <!-- Other info boxes here --> --}}
-            {{--                <div class="col-md-12"> --}}
-            {{--                    <div class="info-box bg-info"> --}}
-            {{--                        <span class="info-box-icon"><i class="fas fa-list"></i></span> --}}
-            {{--                        <div class="info-box-content"> --}}
-            {{--                            <span class="info-box-text">Last Five Calls</span> --}}
-            {{--                            <table class="table table-striped"> --}}
-            {{--                                <thead> --}}
-            {{--                                <tr> --}}
-            {{--                                    <th>Agent number</th> --}}
-            {{--                                    <th>Caller phone</th> --}}
-            {{--                                    <th>Call date</th> --}}
-            {{--                                    <th>Duration</th> --}}
-            {{--                                    <th>Transaction code</th> --}}
-            {{--                                </tr> --}}
-            {{--                                </thead> --}}
-            {{--                                <tbody> --}}
-            {{--                                @foreach ($lastFiveCalls as $call) --}}
-            {{--                                    <tr> --}}
-            {{--                                        <td>{{ $call->dst }}</td> --}}
-            {{--                                        <td>{{ $call->phone_number }}</td> --}}
-            {{--                                        <td>{{ $call->created_at ?? '--' }}</td> --}}
-            {{--                                        <td>{{ $call->call_duration }}</td> --}}
-            {{--                                        <td>{{ $call->disposition }}</td> --}}
-            {{--                                    </tr> --}}
-            {{--                                @endforeach --}}
-            {{--                                </tbody> --}}
-            {{--                            </table> --}}
-            {{--                        </div> --}}
-            {{--                    </div> --}}
-            {{--                </div> --}}
-            {{--            </div> --}}
-
-
-            <!-- WebSocket Data -->
-            {{--            <div class="card mb-4"> --}}
-            {{--                <div class="card-body"> --}}
-            {{--                    <h5 class="card-title">WebSocket Data</h5> --}}
-            {{--                    <pre id="json-data">[WebSocket Data Placeholder]</pre> --}}
-            {{--                </div> --}}
-            {{--            </div> --}}
-
-
-
-
-
-            <!-- Session Selection Modal -->
-            <div class="modal fade" id="sessionModal" tabindex="-1" role="dialog"
-                aria-labelledby="sessionModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false"
-                wire:ignore.self>
-                selected {{ $selectedSession }}
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="sessionModalLabel">Select Session</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <select class="form-control" wire:model="selectedSession" wire:change="changeSession">
-                                <option value="">Select Session</option>
-                                @foreach ($sessions as $session)
-                                    <option value="{{ $session->id }}">{{ $session->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="modal-footer">
-                            @if ($selectedSession == null)
-                                <button type="button" class="btn btn-primary disabled" wire:click="saveSession">Save
-                                    changes ...</button>
-                            @else
-                                <button type="button" class="btn btn-primary" wire:click="saveSession"
-                                    data-dismiss="modal">
-                                    Save changes
-                                </button>
-                            @endif
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
+
         <div class="col-lg-4">
             <div class="card">
 
-                <iframe id="myIframe" src="{{ url('phone') }}" width="100%" height="800"></iframe>
+                <iframe id="myIframe" src="{{ url('phone') }}"width="100%" height="800"></iframe>
             </div>
 
 
         </div>
     </div>
 
-    <script>
-        const iframe = document.getElementById('myIframe');
-        iframe.onload = function() {
-            iframe.contentWindow.postMessage({
-                man_no: {{ $agent->endpoint }}
-            }, 'http://localhost:8000');
-        };
-    </script>
+
+    <div wire:ignore.self class="modal fade" id="updateTransactionCodeModal" tabindex="-1" role="dialog"
+        aria-labelledby="updateTransactionCodeModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="updateTransactionCodeModalLabel">Update Transaction Code</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span>×</span>
+                    </button>
+                </div>
+                <form wire:submit.prevent="editTCode">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="transactionCode" class="form-label">Transaction Code</label>
+                            <select id="transactionCode" class="form-control" required wire:model="t_code">
+                                <option value="">--Choose--</option>
+                                @foreach ($transactionCodes as $transactionCode)
+                                    <option value="{{ $transactionCode->code }}">{{ $transactionCode->code }} :
+                                        {{ $transactionCode->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+
+                        @if (session()->has('success'))
+                            <div class="alert alert-success" role="alert">
+                                {{ session()->get('success') }}
+                            </div>
+                        @endif
+                        @if (session()->has('error'))
+                            <div class="alert alert-danger" role="alert">
+                                {{ session()->get('error') }}
+                            </div>
+                        @endif
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-info">
+                            <span wire:loading wire:target="editTCode" class="spinner-border spinner-border-sm"
+                                role="status" aria-hidden="true"></span>
+                            Save
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 
 
 </div>
 
 @push('custom-scripts')
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            if (!sessionStorage.getItem('isShiftSelected') || sessionStorage.getItem('isShiftSelected') !==
-                'true') {
-                const sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
-                sessionModal.show();
-            }
+        document.addEventListener('livewire:load', function() {
+            console.log('[Livewire] livewire:load fired ✅');
+
+
+
+            const iframe = document.getElementById('myIframe');
+            iframe.onload = function() {
+                iframe.contentWindow.postMessage({
+                    man_no: {{ $agent->endpoint }}
+                }, 'http://localhost:8000');
+            };
+
         });
 
-        document.addEventListener('livewire:load', function() {
-            @this.on('openSessionModal', () => {
-                const sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
-                sessionModal.show();
-            })
 
 
-            @this.on('closeSessionModal', () => {
-                let sessionModal = bootstrap.Modal.getInstance(document.getElementById('sessionModal'));
+        document.addEventListener('show-session-modal', () => {
+            console.log('[Livewire] show-session-modal fired ✅');
 
-                console.log("Closing modal")
-                if (sessionModal) {
-                    sessionModal.hide();
-                }
-            });
+            const modal = new bootstrap.Modal(document.getElementById('sessionModal'));
 
+            modal.show();
 
-            // Automatically trigger open if selected Session is null at page load
-            @if ($selectedSession == null)
-                let sessionModal = new bootstrap.Modal(document.getElementById('sessionModal'));
-                //sessionModal.show();
-            @endif
+        });
+
+        document.addEventListener('closeSessionModal', () => {
+            console.log('[Livewire] closeSessionModal fired ✅');
+            // const modal = bootstrap.Modal.getInstance(document.getElementById('sessionModal'));
+
+            //     modal.hide();
+
         });
     </script>
+    <script>
+        document.addEventListener('livewire:load', function() {
+            // Close modal when clicking outside
+            document.getElementById('knowledgeModal').addEventListener('hidden.bs.modal', function() {
+                @this.set('selectedTopic', null);
+            });
 
+            // Close search results when clicking outside
+            // Close search results when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!e.target.closest('.search-container')) {
+                    @this.set('searchQuery', '');
+                }
+            });
+        });
+    </script>
+    <script>
+        document.addEventListener('livewire:load', function() {
+            // Live search on input change
+            const searchInput = document.querySelector('[wire\\:model="meter_number"]');
+            if (searchInput) {
+                searchInput.addEventListener('input', function() {
+                    @this.searchCustomer();
+                });
+            }
+
+            // Modal events
+            const customerModal = document.getElementById('complaintsTableModal');
+            customerModal.addEventListener('hidden.bs.modal', function() {
+                @this.set('selectedCustomer', null);
+            });
+
+            // Listen for Livewire event to show modal
+
+
+            document.addEventListener('showCustomerModal', () => {
+                const modal = new bootstrap.Modal(customerModal);
+                modal.show();
+            });
+        });
+    </script>
     <script defer>
         document.addEventListener('livewire:load', function() {
             Livewire.on('highlightSearch', (query) => {
@@ -1097,7 +1056,7 @@
 
     <script defer>
         Livewire.on('closeModal', () => {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('technicalModal'));
+            const modal = bootstrap.Modal.getInstance(document.getElementById('knowledgeModal'));
             if (modal) {
                 modal.hide();
             }
@@ -1105,19 +1064,57 @@
     </script>
 
     <script>
-        window.addEventListener('DOMContentLoaded', function() {
+        window.addEventListener('load', () => {
+            const apiUrl = "http://10.44.0.70:8088/ari/bridges?api_key=asterisk:asterisk";
+
+
+
+            function fetchHoldingBridgeData() {
+                fetch(apiUrl)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error("Network response was not ok");
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+
+                        // Filter bridges of type 'mixing'
+                        const holdingBridges = data.filter(bridge => bridge.bridge_type === 'holding' && bridge
+                            .channels.length > 0);
+                        var queueCalls = 0;
+
+                        for (let i = 0; i < holdingBridges.length; i++) {
+                            queueCalls += holdingBridges[i].channels.length;
+                        }
+
+                        // Update DOM with the count (you can change this element ID)
+                        document.getElementById("queue-calls").innerHTML = ` ${queueCalls}`;
+
+                        console.log("Holding Bridges:", queueCalls);
+
+                    })
+                    .catch(error => {
+                        console.error("Fetch error:", error);
+                    });
+            }
+
+            fetchHoldingBridgeData();
+            setInterval(fetchHoldingBridgeData, 10000); // Fetch every 5 seconds
+
 
             // WebSocket connection and event listeners as in the original code
-            var ws_address = document.getElementById("ws_endpoint");
-            var ws_socket = document.getElementById("ws-info");
-            const preElement = document.getElementById('json-data');
-            let socket = null
+
             // ws://127.0.0.1:8001/ws
             // const socket = new WebSocket("http://127.0.0.1:8001/ws");
 
             function reConnect() {
 
-                socket = new WebSocket(ws_address.value);
+                var ws_address = document.getElementById("ws_endpoint");
+                var ws_socket = document.getElementById("ws-info");
+
+
+                const socket = new WebSocket(ws_address.value);
                 socket.addEventListener("open", (event) => {
                     console.log("WebSocket connection opened: ", ws_address);
                     ws_socket.classList.remove("badge-danger");
@@ -1126,10 +1123,46 @@
                     socket.send("Hello Server!");
                 });
                 socket.addEventListener("message", (event) => {
-                    preElement.style.fontSize = '12px';
                     var data = JSON.parse(event.data);
-                    preElement.innerHTML = JSON.stringify(data, null, 4);
-                    console.log("Message from server:", event.data);
+                    fetchHoldingBridgeData();
+
+
+
+                    if (data.type === "Dial" &&
+                        data.dialstring == {{ $agent->endpoint }}
+                    ) {
+                        // alert( incomingCall);
+
+                        document.getElementById("incoming-call").innerHTML = data.peer.caller.number;
+
+                    }
+                    if (data.type === "StasisEnd") {
+                        //     // alert( incomingCall);
+                        console.log("Incoming Call Data:", data.channel.dialplan.app_data);
+
+                        const appData = data.channel.dialplan.app_data;
+                        const parts = appData.split(',');
+
+
+                        if (parts.length >= 5) {
+                            const filename = parts[5];
+                            const agent = parts[2].slice(-4);
+
+                            if (agent == {{ $agent->endpoint }}) {
+                                console.log("agent:", agent);
+                                console.log("filename:", filename);
+                                Livewire.emit('filename', filename);
+
+                                const modal = new bootstrap.Modal(document.getElementById(
+                                    'updateTransactionCodeModal'));
+                                modal.show();
+                            }
+                        } else {
+                            console.error("Error: app_data does not contain enough parts.");
+                        }
+
+
+                    }
                 });
                 socket.addEventListener("error", (event) => {
                     console.error("WebSocket error:", event);
@@ -1156,73 +1189,5 @@
 
             reConnect()
         })
-    </script>
-
-
-
-    <script>
-        document.addEventListener('livewire:load', function() {
-            // Close modal when clicking outside
-            document.getElementById('technicalModal').addEventListener('hidden.modal', function() {
-                @this.set('selectedTopic', null)
-
-            });
-
-            // Close search results when clicking outside
-            // Close search results when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.search-container')) {
-                    @this.set('searchQuery', '')
-                }
-            });
-        });
-    </script>
-
-    <script>
-        document.addEventListener('livewire:load', function() {
-            Livewire.on('agentLogout', () => {
-                // clear session storage key that shows agent is logged in
-                sessionStorage.removeItem('isShiftSelected');
-            });
-
-            Livewire.on('agentLogin', () => {
-                // clear session storage key that shows agent is logged in
-                window.location.reload();
-            });
-            Livewire.on('shiftedSelected', () => {
-                // clear session storage key that shows agent is logged in
-                sessionStorage.setItem('isShiftSelected', 'true');
-            });
-
-            Livewire.on('records-fetched', () => {
-                // clear session storage key that shows agent is logged in
-                $('#complaintsTableModal').modal('show')
-            });
-
-
-            // // Live search on input change
-            // const searchInput = document.querySelector('[wire\\:model="meter_number"]');
-            // if (searchInput) {
-            //     searchInput.addEventListener('input', function () {
-            //     @this.searchCustomer()
-            //
-            //     });
-            // }
-
-            // Modal events
-            const customerModal = document.getElementById('complaintsTableModal');
-            if (customerModal) {
-                customerModal.addEventListener('hidden.bs.modal', function() {
-                    @this.set('selectedCustomer', null)
-                });
-
-                // Listen for Livewire event to show modal
-                Livewire.on('showCustomerModal', () => {
-                    const modal = new bootstrap.Modal(customerModal);
-                    modal.show();
-                });
-            }
-
-        });
     </script>
 @endpush
