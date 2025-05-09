@@ -27,7 +27,6 @@ class DashboardController extends Component
     public $complaint_status_desc, $landmark, $meter_no;
 
     public $sessions, $selectedSession, $currentSession, $server;
-    public $customer_details = [];
     public $complaints = [];
     public $searchCustomer;
 
@@ -50,14 +49,14 @@ class DashboardController extends Component
     public $searchResults = [];
     public $selectedTopic;
     public $selectedCustomer;
-    public $show_modal = false;
-    public $search_term;
+    // public $show_modal = false;
+    // public $search_term;
     public $searchCustomers;
     public $loadCustomerDetails;
-    public $is_searching = false;
-    protected $rules = [
-        'search_term' => 'required|string|min:1|max:15',
-    ];
+    // public $is_searching = false;
+    // protected $rules = [
+    //     'search_term' => 'required|string|min:1|max:15',
+    // ];
 
     public function mount($id)
     {
@@ -135,29 +134,6 @@ class DashboardController extends Component
         }
     }
 
-    public function searchCustomers()
-    {
-        Log::info("errorMessage");
-        $this->validate();
-        //       ($customer_details = Customer::where('service_no', $this->service_no)->orWhere('meter_serial_no', $this->service_no)->first();
-        //        dd(Customer::where('meter_no', '=', '04281634057')->get());
-        $searchTerm = trim($this->search_term);
-        $upperSearchTerm = strtoupper($searchTerm);
-
-        $this->customer_details = Customer::where(function ($query) use ($searchTerm, $upperSearchTerm) {
-            $query->where('meter_serial_no', 'like', '%' . $upperSearchTerm . '%')
-                ->orWhere('service_no', 'like', '%' . $searchTerm . '%')
-                ->orWhere('complaint_no', 'like', '%' . $searchTerm . '%')
-                ->orWhere('customer_name', 'like', '%' . $searchTerm . '%');
-        })
-            ->orderBy('complaint_status_desc', 'asc')
-            //            ->orderBy('created_at', 'desc')
-            ->take(50) // Limit results for performance
-            ->get();
-
-        $this->show_modal = count($this->customer_details) > 0;
-        $this->is_searching = false;
-    }
 
     public function closeModal()
     {
@@ -367,5 +343,62 @@ class DashboardController extends Component
             $this->breakMinutes = floor($seconds / 60);
             $this->checkBreakLimit($seconds);
         }
+    }
+
+    //Logic for customer search start
+    public $search_term;
+    public $customer_details = [];
+    public $show_modal = false;
+    public $is_searching = false;
+    //Logic for customer search end
+
+    protected $rules = [
+        'search_term' => 'required|string|min:1|max:15',
+    ];
+
+    public function searchCustomers()
+    {
+        ini_set("memory_limit", -1);
+        set_time_limit(300);
+
+        $searchTerm = strtoupper(trim($this->search_term));
+        $results = collect();
+
+        // Step 1: Try by meter_serial_no
+        $results = Customer::where('meter_serial_no', $searchTerm)->get();
+
+        // Step 2: Try by service_no if empty
+        if ($results->isEmpty()) {
+            $results = Customer::where('service_no', $searchTerm)->get();
+        }
+
+        // Step 3: Try by complaint_no if still empty
+        if ($results->isEmpty()) {
+            $results = Customer::where('complaint_no', $searchTerm)->get();
+        }
+
+        // Step 4: Filter based on complaint status
+        $statuses = $results->pluck('complaint_status_desc')->unique();
+
+        if ($statuses->count() === 1 && $statuses->first() === 'RESOLVED') {
+            $results = $results->take(2);
+        } elseif ($statuses->contains('PENDING')) {
+            // keep all (no limit)
+        } elseif ($statuses->contains('ASSOCIATED TO INCIDENCE')) {
+            $results = $results->take(3);
+        } else {
+            $results = $results->take(5);
+        }
+
+        // Step 5: Store and emit
+        session(['customer_details' => $results]);
+        $this->customer_details = $results;
+        $this->emit('showCustomerModal');
+    }
+
+    public function clearCustomerDetailsSession()
+    {
+        session()->forget('customer_details');
+        $this->customer_details = collect();
     }
 }
