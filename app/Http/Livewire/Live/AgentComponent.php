@@ -15,7 +15,6 @@ use App\Http\Livewire\Reports\CallDetailRecords;
 use App\Models\Customer;
 use App\Models\Live\Recordings;
 use App\Models\User;
-use App\Models\KnowledgeBase;
 use Illuminate\Support\Str;
 use App\Models\Live\DialEventLog;
 
@@ -95,8 +94,8 @@ class AgentComponent extends Component
 
     public function selectTopic($topicId)
     {
-        $this->selectedTopic = KnowledgeBase::find($topicId);
-        $this->searchQuery = $this->selectedTopic->topic;
+        $this->selectedTopic = Technical::find($topicId); // Use Technical model
+        $this->searchQuery = $this->selectedTopic->topic ?? ''; // Use optional chaining
         $this->searchResults = [];
     }
 
