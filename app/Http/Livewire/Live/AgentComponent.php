@@ -1,31 +1,35 @@
 <?php
 
-namespace App\Http\Livewire\Live\Agent;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
+namespace App\Http\Livewire\Live;
+
 use Livewire\Component;
 use App\Models\Live\CCAgent;
 use App\Models\Live\CallSession;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use App\Models\Live\CallSessionToAgent;
-
-use App\Models\Live\TransactionCode;
+use Illuminate\Support\Facades\Session;
+use App\Models\CDR\CallDetailsRecordModel;
+use App\Http\Livewire\Reports\CallDetailRecords;
 use App\Models\Customer;
 use App\Models\Live\Recordings;
 use App\Models\User;
-use App\Models\Technical;
-use App\Models\Complaint;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use App\Models\Live\DialEventLog;
+
+
+use App\Models\Technical;
+use App\Models\Complaint;
+
+use App\Models\Live\TransactionCode;
+
 use App\Models\Live\AgentBreak; // ✅ Import the model
 use Carbon\Carbon;
 
-class DashboardController extends Component
-{
 
+class AgentComponent extends Component
+{
     public $agent_num, $set_number, $user;
     public $agent;
     public $agent_status;
@@ -260,7 +264,7 @@ class DashboardController extends Component
             $averageDurationFormatted = "No call records found.";
         }
 
-        return view('livewire.live.agent.dashboard-controller', [
+        return view('livewire.live.agent-component', [
             'agent' => $this->agent,
             'api_server' => $api_server,
             'ws_server' => $ws_server,
@@ -272,7 +276,6 @@ class DashboardController extends Component
             'customer_details' => $this->customer_details,
         ]);
     }
-
 
     public function searchCustomers()
     {
@@ -373,10 +376,10 @@ class DashboardController extends Component
         $server = config("app.API_SERVER_ENDPOINT");
 
         try {
-            // $response = Http::get($server . '/online/' . $this->agent_num);
-            // $data = $response->json();
+            $response = Http::get($server . '/online/' . $this->agent_num);
+            $data = $response->json();
 
-            // if ($data['status'] === true) {
+            if ($data['status'] === true) {
                 $this->agent->state = config('constants.agent_state.LOGGED_IN');
                 $this->agent->status = config('constants.agent_status.IDLE');
                 $this->agent->save();
@@ -410,12 +413,11 @@ class DashboardController extends Component
                 $this->agent = $this->agent->fresh();
                 $this->calculateTotalBreakDuration(); // Recalculate break duration after login
 
-                session()->flash('message', 'Successfully logged in to session: ' . $this->currentSession->name );
-                // session()->flash('message', 'Successfully logged in to session: ' . $this->currentSession->name . ' (' . $data['endpoint'] . ')');
+                session()->flash('message', 'Successfully logged in to session: ' . $this->currentSession->name . ' (' . $data['endpoint'] . ')');
                 $this->emitSelf('refresh'); // Optional, if other components are listening
-            // } else {
-            //     session()->flash('error', 'Agent ' . $data['endpoint'] . ' is not online.');
-            // }
+            } else {
+                session()->flash('error', 'Agent ' . $data['endpoint'] . ' is not online.');
+            }
         } catch (\Exception $e) {
             session()->flash('error', 'Error: ' . $e->getMessage());
         }
@@ -628,5 +630,4 @@ class DashboardController extends Component
     $this->totalBreakDuration = gmdate('H:i:s', $totalSeconds);
     // dd($this->totalBreakDuration);
 }
-
 }
