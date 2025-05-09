@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;  // Correct Auth import
 use Illuminate\Support\Facades\Cache; // Correct import statement
 
 use App\Models\Live\CCAgent;
+use App\Models\Live\DialEventLog;
 
 use App\Models\Live\Recordings as LiveRecordings;
 
@@ -38,18 +39,36 @@ class SupervisorDashboard extends Component
         $ws_server = config("app.WS_SERVER_ENDPOINT");
         $sessions = CallSession::all();
 
-        // $availableAgentsCount = CCAgent::where('state', '=', 'AgentState.LOGGEDIN')
-        // ->orWhere('state', '=', 'LOGGED_IN')
-        // ->count();
+        $calls = DialEventLog::orderBy('event_timestamp')
+        ->whereDate('created_at', Carbon::today())
+            ->get()
+            ->groupBy(function ($event) {
+                return $event->dialstring . '_' . $event->peer_id;
+            });
 
 
-        // $loggedInAgentsCount = CCAgent::where('state', '=', 'AgentState.LOGGEDIN')
-        // ->orWhere('state', '=', 'LOGGED_IN')
-        // ->where('status', '=', 'IDLE')
-        // ->orWhere('status', '=', 'AgentState.IDLE')
-        // ->count();
+        $callResults = $calls->map(function ($events, $key) {
+            $sorted = $events->sortBy('event_timestamp');
 
-        // Count all agents in LOGGED_IN state (grouped correctly)
+            $lastWithStatus = $sorted->reverse()->first(fn($e) => !empty($e->dialstatus));
+
+            if (!$lastWithStatus) return null;
+
+            return [
+                'dialstring' => $lastWithStatus->dialstring,
+                'caller_number' => $lastWithStatus->caller_number,
+                'status' => $lastWithStatus->dialstatus,
+                'timestamp' => $lastWithStatus->event_timestamp,
+            ];
+        })->filter(); // remove nulls
+
+
+        // dd($callResults);
+
+        $answered = count($callResults->where('status', 'ANSWER'));
+        $missed = count($callResults->where('status', 'NOANSWER'));
+
+
     $availableAgentsCount = CCAgent::where(function ($query) {
         $query->where('state', 'AgentState.LOGGEDIN')
               ->orWhere('state', 'LOGGED_IN');
@@ -65,7 +84,7 @@ class SupervisorDashboard extends Component
 
     $answeredCalls = LiveRecordings::whereDate('created_at', Carbon::today())->count();
 
-    $failedCalls = LiveRecordings::whereDate('created_at', Carbon::today())
+    $abandoned = LiveRecordings::whereDate('created_at', Carbon::today())
     ->whereDate('agent_no', "empty")
 
     ->count();
@@ -120,13 +139,16 @@ $answeredCallsThisMonth = LiveRecordings::whereBetween('created_at', [
             'loggedInAgentsCount' => $loggedInAgentsCount,
             'activeCalls' => $activeCalls,
             'answeredCalls' => $answeredCalls,
+            'answered' => $answered,
+            'missed' => $missed,
             'onBreak' => $onBreak,
             'loggedOut' => $loggedOut,
             'totalAgentCount' => $totalAgentCount,
             'answeredCallsThisWeek' => $answeredCallsThisWeek,
             'answeredCallsThisMonth' => $answeredCallsThisMonth,
             'answeredCallsLast30' => $answeredCallsLast30,
-            'failedCalls' => $failedCalls,
+            'abandoned' => $abandoned,
+            'efficencyLast30' => $efficiencyLast30,
         ]);
     }
 
