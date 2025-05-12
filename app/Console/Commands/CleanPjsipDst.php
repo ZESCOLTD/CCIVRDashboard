@@ -30,7 +30,7 @@ class CleanPjsipDst extends Command
         $this->info('Starting to clean the dst column...');
 
         // Option 1: Using Eloquent (might be slower for large datasets)
-        $recordings = Recordings::where('dst', 'like', 'PJSIP/%')->get();
+        $recordings = Recordings::where('agent_number', 'like', 'PJSIP/%')->get();
 
         foreach ($recordings as $recording) {
             $recording->dst = substr($recording->dst, strlen('PJSIP/'));
