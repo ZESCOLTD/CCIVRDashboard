@@ -441,7 +441,7 @@ class DashboardController extends Component
         if ($updated) {
             $this->t_code = null; // Clear the selected value
             session()->flash('success', 'Transaction code updated successfully!');
-            $this->dispatchBrowserEvent('close-modal', ['modalId' => 'updateTransactionCodeModal']);
+            $this->emit('refresh');
         } else {
             session()->flash('error', 'Failed to update transaction code.');
             // Optionally, you could dispatch an event to show an error message in the modal
