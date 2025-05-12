@@ -1149,7 +1149,10 @@
                                 Livewire.emit('filename', filename);
 
                                 const modal = new bootstrap.Modal(document.getElementById(
-                                    'updateTransactionCodeModal'));
+                                    'updateTransactionCodeModal'), {
+                                    backdrop: 'static', // Prevents closing on clicking outside
+                                    keyboard: false // Allows closing with the escape key (optional, defaults to true)
+                                });
                                 modal.show();
                             }
                         } else {
@@ -1184,5 +1187,48 @@
 
             reConnect()
         })
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const updateTransactionCodeModalElement = document.getElementById('updateTransactionCodeModal');
+            const selectElement = updateTransactionCodeModalElement.querySelector('#transactionCode');
+            const dismissButtons = updateTransactionCodeModalElement.querySelectorAll('[data-dismiss="modal"]');
+            const cancelButton = updateTransactionCodeModalElement.querySelector(
+                '.modal-footer .btn-secondary[data-dismiss="modal"]');
+            const updateTransactionCodeModal = bootstrap.Modal.getInstance(updateTransactionCodeModalElement);
+
+            if (updateTransactionCodeModalElement && selectElement && cancelButton && updateTransactionCodeModal) {
+                const toggleCancelButtonVisibility = () => {
+                    if (selectElement.value) {
+                        cancelButton.style.display = 'none';
+                    } else {
+                        cancelButton.style.display = '';
+                    }
+                };
+
+                toggleCancelButtonVisibility();
+                selectElement.addEventListener('change', toggleCancelButtonVisibility);
+                updateTransactionCodeModalElement.addEventListener('show.bs.modal', toggleCancelButtonVisibility);
+
+                dismissButtons.forEach(button => {
+                    button.addEventListener('click', function(event) {
+                        if (!selectElement.value) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            alert('Please choose a transaction code before closing.');
+                        } else {
+                            updateTransactionCodeModal.hide(); // Use native Bootstrap API
+                        }
+                    });
+                });
+
+                window.addEventListener('close-modal', event => {
+                    if (event.detail.modalId === 'updateTransactionCodeModal') {
+                        updateTransactionCodeModal.hide(); // Use native Bootstrap API
+                    }
+                });
+            }
+        });
     </script>
 @endpush

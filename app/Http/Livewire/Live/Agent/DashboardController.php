@@ -174,7 +174,7 @@ class DashboardController extends Component
 
         // );
         // }
-        $this->dispatchBrowserEvent('closeSessionModal');
+        // $this->dispatchBrowserEvent('closeSessionModal');
         // Set success message
         session()->flash('message', 'Session saved successfully.');
     }
@@ -420,16 +420,33 @@ class DashboardController extends Component
             session()->flash('error', 'Error: ' . $e->getMessage());
         }
     }
+    // public function editTCode()
+    // {
+
+    //     // dd($this->t_code);
+    //     Recordings::where('file_name', $this->recordFilename)
+    //         ->update(['transaction_code' => $this->t_code]);
+    //     $this->t_code = null;
+    //     session()->flash('success', 'Transaction code updated successfully!');
+    //     // dd($this->recordFilename);
+
+    // }
+
     public function editTCode()
     {
-
         // dd($this->t_code);
-        Recordings::where('file_name', $this->recordFilename)
+        $updated = Recordings::where('file_name', $this->recordFilename)
             ->update(['transaction_code' => $this->t_code]);
-        $this->t_code = null;
-        session()->flash('success', 'Transaction code updated successfully!');
-        // dd($this->recordFilename);
 
+        if ($updated) {
+            $this->t_code = null; // Clear the selected value
+            session()->flash('success', 'Transaction code updated successfully!');
+            $this->dispatchBrowserEvent('close-modal', ['modalId' => 'updateTransactionCodeModal']);
+        } else {
+            session()->flash('error', 'Failed to update transaction code.');
+            // Optionally, you could dispatch an event to show an error message in the modal
+        }
+        // dd($this->recordFilename);
     }
     public function break()
     {

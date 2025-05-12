@@ -371,7 +371,7 @@
                                             <div class="progress-bar" style="width: 70%"></div>
                                         </div>
                                         <span
-                                            class="progress-description">{{ $loggedInAgentsCount > 0 ? ceil(($activeCalls / $loggedInAgentsCount)*100) : '--' }}%
+                                            class="progress-description">{{ $loggedInAgentsCount > 0 ? ceil(($activeCalls / $loggedInAgentsCount) * 100) : '--' }}%
                                             of capacity</span>
                                     </div>
                                 </div>
@@ -425,7 +425,7 @@
                                     <span class="info-box-icon"><i class="fas fa-times-circle"></i></span>
                                     <div class="info-box-content">
                                         <span class="info-box-text">Abandoned</span>
-                                        <span class="info-box-number">{{$abandoned}}</span>
+                                        <span class="info-box-number">{{ $abandoned }}</span>
                                         <div class="progress">
                                             <div class="progress-bar" style="width: 15%"></div>
                                         </div>
@@ -452,7 +452,8 @@
                                     <span class="info-box-icon"><i class="fas fa-chart-line"></i></span>
                                     <div class="info-box-content">
                                         <span class="info-box-text">SLA Compliance</span>
-                                        <span class="info-box-number">{{$answered+$missed>0?ceil($answered/($answered+$missed)*100): '--'}}%</span>
+                                        <span
+                                            class="info-box-number">{{ $answered + $missed > 0 ? ceil(($answered / ($answered + $missed)) * 100) : '--' }}%</span>
                                         <div class="progress">
                                             <div class="progress-bar" style="width: 78%"></div>
                                         </div>
@@ -555,7 +556,8 @@
                             <div class="col-md-6">
                                 <div class="card">
                                     <div class="card-header">
-                                        <h6 class="card-title"><i class="fas fa-stopwatch mr-2"></i>Average Conversation Time
+                                        <h6 class="card-title"><i class="fas fa-stopwatch mr-2"></i>Average
+                                            Conversation Time
                                         </h6>
                                     </div>
                                     <div class="card-body text-center">
@@ -713,10 +715,12 @@
                                         <h6>Inbound Queue</h6>
                                     </div>
                                     <div class="card-body">
-                                        <p><i class="fas fa-phone mr-2"></i> Answered: {{$answered}}</p>
-                                        <p><i class="fas fa-times mr-2"></i> Missed: {{$missed}}</p>
+                                        <p><i class="fas fa-phone mr-2"></i> Answered: {{ $answered }}</p>
+                                        <p><i class="fas fa-times mr-2"></i> Missed: {{ $missed }}</p>
                                         <p><i class="fas fa-stopwatch mr-2"></i> Avg Answer: --:--</p>
-                                        <p><i class="fas fa-check-circle mr-2"></i> SLA: {{$answered+$missed>0?ceil($answered/($answered+$missed)*100): '--'}}%</p>
+                                        <p><i class="fas fa-check-circle mr-2"></i> SLA:
+                                            {{ $answered + $missed > 0 ? ceil(($answered / ($answered + $missed)) * 100) : '--' }}%
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -1098,48 +1102,59 @@
     </style>
     @push('custom-scripts')
         <script>
-            // WebSocket connection and event listeners as in the original code
-            var ws_address = document.getElementById("ws_endpoint");
-            var ws_socket = document.getElementById("ws-info");
-            const preElement = document.getElementById('json-data');
-            const incomingCall = document.getElementById('json-call-data');
-            const socket = new WebSocket(ws_address.value);
+            // document.addEventListener('DOMContentLoaded', function() {
 
-            socket.addEventListener("open", (event) => {
-                console.log("WebSocket connection opened: ", ws_address);
-                ws_socket.classList.remove("badge-danger");
-                ws_socket.classList.add("badge-success");
-                ws_socket.textContent = "Connected ..";
-                socket.send("Hello Server!");
-            });
+                document.addEventListener('livewire:load', function() {
 
-            socket.addEventListener("message", (event) => {
-                preElement.style.fontSize = '12px';
-                var data = JSON.parse(event.data);
+                    console.log("Livewire loaded");
+                    // WebSocket connection and event listeners as in the original code
+                    var ws_address = document.getElementById("ws_endpoint");
+                    var ws_socket = document.getElementById("ws-info");
+                    const socket = new WebSocket(ws_address.value);
 
-                if (data.type == "StasisStart") {
-                    incomingCall.innerHTML = JSON.stringify(data.channel.caller, null, 4);
-                }
-                if (data.type == "StasisEnd") {
-                    incomingCall.innerHTML = "";
-                }
-                preElement.innerHTML = JSON.stringify(data, null, 4);
-                console.log("Message from server:", event.data);
-            });
+                    socket.addEventListener("open", (event) => {
+                        console.log("WebSocket connection opened: ", ws_address);
+                        ws_socket.classList.remove("badge-danger");
+                        ws_socket.classList.add("badge-success");
+                        ws_socket.textContent = "Connected ..";
+                        socket.send("Hello Server!");
+                    });
 
-            socket.addEventListener("error", (event) => {
-                console.error("WebSocket error:", event);
-                ws_socket.classList.remove("badge-success");
-                ws_socket.classList.add("badge-danger");
-                ws_socket.textContent = "Web socket error";
-            });
+                    socket.addEventListener("message", (event) => {
+                        var data = JSON.parse(event.data);
 
-            socket.addEventListener("close", (event) => {
-                ws_socket.classList.remove("badge-success");
-                ws_socket.classList.add("badge-danger");
-                ws_socket.textContent = "Web socket error";
-                console.log("WebSocket connection closed:", event);
-            });
+                        if(data.type != undefined)
+                    {
+                        if (data.type == "StasisStart") {
+
+                        console.log("Message from server:", event.data);
+                            Livewire.emit('refreshComponent');
+                        }
+                        if (data.type == "StasisEnd") {
+
+                        console.log("Message from server:", event.data);
+                            Livewire.emit('refreshComponent');
+                        }
+                    }
+                    });
+
+                    socket.addEventListener("error", (event) => {
+                        console.error("WebSocket error:", event);
+                        ws_socket.classList.remove("badge-success");
+                        ws_socket.classList.add("badge-danger");
+                        ws_socket.textContent = "Web socket error";
+                    });
+
+                    socket.addEventListener("close", (event) => {
+                        ws_socket.classList.remove("badge-success");
+                        ws_socket.classList.add("badge-danger");
+                        ws_socket.textContent = "Web socket error";
+                        console.log("WebSocket connection closed:", event);
+                    });
+
+                });
+
+            // });
         </script>
 
         <script>
@@ -1201,42 +1216,7 @@
     {{-- </div> --}}
 
     @push('custom-scripts')
-        <script>
-            // WebSocket connection and event listeners as in the original code
-            var ws_address = document.getElementById("ws_endpoint");
-            var ws_socket = document.getElementById("ws-info");
-            const preElement = document.getElementById('json-data');
-            const socket = new WebSocket(ws_address.value);
 
-            socket.addEventListener("open", (event) => {
-                console.log("WebSocket connection opened: ", ws_address);
-                ws_socket.classList.remove("badge-danger");
-                ws_socket.classList.add("badge-success");
-                ws_socket.textContent = "Connected ..";
-                socket.send("Hello Server!");
-            });
-
-            socket.addEventListener("message", (event) => {
-                preElement.style.fontSize = '12px';
-                var data = JSON.parse(event.data);
-                preElement.innerHTML = JSON.stringify(data, null, 4);
-                console.log("Message from server:", event.data);
-            });
-
-            socket.addEventListener("error", (event) => {
-                console.error("WebSocket error:", event);
-                ws_socket.classList.remove("badge-success");
-                ws_socket.classList.add("badge-danger");
-                ws_socket.textContent = "Web socket error";
-            });
-
-            socket.addEventListener("close", (event) => {
-                ws_socket.classList.remove("badge-success");
-                ws_socket.classList.add("badge-danger");
-                ws_socket.textContent = "Web socket error";
-                console.log("WebSocket connection closed:", event);
-            });
-        </script>
 
         <script>
             // Function to format the timestamp with ZESCO colors

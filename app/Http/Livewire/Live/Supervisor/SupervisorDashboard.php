@@ -21,6 +21,16 @@ class SupervisorDashboard extends Component
 {
     public $onBreakCount = 0;
 
+    protected $listeners = [
+        'refreshComponent' => 'refreshComponent',
+    ];
+
+    public function refreshComponent()
+    {
+        $this->render();
+    }
+
+
     public function mount()
     {
         $this->updateBreakCount(); // optional call here
@@ -28,14 +38,12 @@ class SupervisorDashboard extends Component
 
     public function updateBreakCount()
     {
-//        dd($this->onBreakCount = \App\Models\User::where('status', config('constants.agent_status.ON_BREAK'))->count());
         $this->onBreakCount = \App\Models\Live\CCAgent::where('status', config('constants.agent_status.ON_BREAK'))->count();
     }
 
     public function render()
     {
         $api_server = config("app.API_SERVER_ENDPOINT");
-        // env("API_SERVER_ENDPOINT");
         $ws_server = config("app.WS_SERVER_ENDPOINT");
         $sessions = CallSession::all();
 
