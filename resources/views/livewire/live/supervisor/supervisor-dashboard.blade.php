@@ -561,7 +561,7 @@
                                         </h6>
                                     </div>
                                     <div class="card-body text-center">
-                                        <h3>{{$averageDurationFormatted}}</h3>
+                                        <h3>{{ $averageDurationFormatted }}</h3>
                                         <div class="progress">
                                             <div class="progress-bar bg-success" style="width: 65%"></div>
                                         </div>
@@ -1104,55 +1104,50 @@
         <script>
             // document.addEventListener('DOMContentLoaded', function() {
 
-                document.addEventListener('livewire:load', function() {
+            document.addEventListener('livewire:load', function() {
 
-                    console.log("Livewire loaded");
-                    // WebSocket connection and event listeners as in the original code
-                    var ws_address = document.getElementById("ws_endpoint");
-                    var ws_socket = document.getElementById("ws-info");
-                    const socket = new WebSocket(ws_address.value);
+                console.log("Livewire loaded");
+                // WebSocket connection and event listeners as in the original code
+                var ws_address = document.getElementById("ws_endpoint");
+                var ws_socket = document.getElementById("ws-info");
+                const socket = new WebSocket(ws_address.value);
 
-                    socket.addEventListener("open", (event) => {
-                        console.log("WebSocket connection opened: ", ws_address);
-                        ws_socket.classList.remove("badge-danger");
-                        ws_socket.classList.add("badge-success");
-                        ws_socket.textContent = "Connected ..";
-                        socket.send("Hello Server!");
-                    });
+                socket.addEventListener("open", (event) => {
+                    console.log("WebSocket connection opened: ", ws_address);
+                    ws_socket.classList.remove("badge-danger");
+                    ws_socket.classList.add("badge-success");
+                    ws_socket.textContent = "Connected ..";
+                    socket.send("Hello Server!");
+                });
 
-                    socket.addEventListener("message", (event) => {
-                        var data = JSON.parse(event.data);
+                socket.addEventListener("message", (event) => {
+                    var data = JSON.parse(event.data);
 
-                        if(data.type != undefined)
-                    {
-                        if (data.type == "StasisStart") {
+                    if (data.type != undefined) {
+                        if (data.type == "StasisStart" || data.type == "StasisEnd") {
 
-                        console.log("Message from server:", event.data);
-                            Livewire.emit('refreshComponent');
-                        }
-                        if (data.type == "StasisEnd") {
-
-                        console.log("Message from server:", event.data);
+                            console.log("Message from server:", event.data);
+                            prob();
                             Livewire.emit('refreshComponent');
                         }
                     }
-                    });
-
-                    socket.addEventListener("error", (event) => {
-                        console.error("WebSocket error:", event);
-                        ws_socket.classList.remove("badge-success");
-                        ws_socket.classList.add("badge-danger");
-                        ws_socket.textContent = "Web socket error";
-                    });
-
-                    socket.addEventListener("close", (event) => {
-                        ws_socket.classList.remove("badge-success");
-                        ws_socket.classList.add("badge-danger");
-                        ws_socket.textContent = "Web socket error";
-                        console.log("WebSocket connection closed:", event);
-                    });
-
                 });
+
+                socket.addEventListener("error", (event) => {
+                    console.error("WebSocket error:", event);
+                    ws_socket.classList.remove("badge-success");
+                    ws_socket.classList.add("badge-danger");
+                    ws_socket.textContent = "Web socket error";
+                });
+
+                socket.addEventListener("close", (event) => {
+                    ws_socket.classList.remove("badge-success");
+                    ws_socket.classList.add("badge-danger");
+                    ws_socket.textContent = "Web socket error";
+                    console.log("WebSocket connection closed:", event);
+                });
+
+            });
 
             // });
         </script>
@@ -1216,8 +1211,6 @@
     {{-- </div> --}}
 
     @push('custom-scripts')
-
-
         <script>
             // Function to format the timestamp with ZESCO colors
             function updateLastUpdated() {
@@ -1392,7 +1385,7 @@
                 }
 
                 // Repeat every 5 seconds (5000 ms)
-                setInterval(prob, 5000);
+                // setInterval(prob, 000);
             });
         </script>
         <script>

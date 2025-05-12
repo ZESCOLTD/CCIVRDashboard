@@ -93,10 +93,10 @@ class SupervisorDashboard extends Component
 
     $answeredCalls = LiveRecordings::whereDate('created_at', Carbon::today())->count();
 
-    $abandoned = LiveRecordings::whereDate('created_at', Carbon::today())
-    ->whereDate('agent_no', "empty")
+    // $abandoned = LiveRecordings::whereDate('created_at', Carbon::today())
+    // ->whereDate('agent_no', "empty")
 
-    ->count();
+    // ->count();
 
 
     $loggedOut = CCAgent::whereNotIn('state', ['AgentState.LOGGEDIN', 'LOGGED_IN'])->count();
@@ -190,7 +190,7 @@ $answeredCallsThisMonth = LiveRecordings::whereBetween('created_at', [
             'answeredCallsThisWeek' => $answeredCallsThisWeek,
             'answeredCallsThisMonth' => $answeredCallsThisMonth,
             'answeredCallsLast30' => $answeredCallsLast30,
-            'abandoned' =>$total-($missed+$answered),
+            'abandoned' =>$total-($missed+$answeredCalls),
             'efficencyLast30' => ceil($efficiencyLast30),
             'averageDurationFormatted' => $averageDurationFormatted,
         ]);
