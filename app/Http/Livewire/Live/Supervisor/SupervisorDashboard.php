@@ -135,7 +135,7 @@ $answeredCallsThisMonth = LiveRecordings::whereBetween('created_at', [
  // efficiency in last 30 minutes
  $efficiencyLast30 = 0;
  if ($availableAgentsNow > 0) {
-     $efficiencyLast30 = ($answeredCallsLast30 / $availableAgentsNow) * 100;
+     $efficiencyLast30 = ($answeredCallsLast30 / $availableAgentsNow);
  }
 
 

@@ -1106,6 +1106,76 @@
 
             document.addEventListener('livewire:load', function() {
 
+                const apiUrl = "http://10.44.0.70:8088/ari/bridges?api_key=asterisk:asterisk";
+
+                const liveCallsElement = document.getElementById("liveCalls");
+                let liveCalls = 0;
+
+                function fetchBridgeData() {
+                    fetch(apiUrl)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error("Network response was not ok");
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log("API Response:", data);
+
+                            // Filter bridges of type 'mixing'
+                            const mixingBridges = data.filter(bridge => bridge.bridge_type === 'mixing' && bridge
+                                .channels.length > 0);
+
+                            liveCalls = mixingBridges.length;
+                            // Update DOM with the count (you can change this element ID)
+                            document.getElementById("activeCalls").textContent = `${mixingBridges.length}`;
+                        })
+                        .catch(error => {
+                            console.error("Fetch error:", error);
+                        });
+                }
+
+                function fetchHoldingBridgeData() {
+                    fetch(apiUrl)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error("Network response was not ok");
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log("API Response:", data);
+
+                            // Filter bridges of type 'mixing'
+                            const holdingBridges = data.filter(bridge => bridge.bridge_type === 'holding' && bridge
+                                .channels.length > 0);
+
+                            // Update DOM with the count (you can change this element ID)
+                            document.getElementById("inQueue").textContent =
+                                `Queue Bridges: ${holdingBridges.length}`;
+                            document.getElementById("queue-calls").textContent = `${holdingBridges.length}`;
+
+
+
+                            liveCalls += holdingBridges.length;
+                            liveCallsElement.textContent = `${liveCalls}`;
+                        })
+                        .catch(error => {
+                            console.error("Fetch error:", error);
+                        });
+                }
+
+
+                // Initial fetch
+                function prob() {
+                    fetchBridgeData();
+                    fetchHoldingBridgeData();
+                }
+
+                // Repeat every 5 seconds (5000 ms)
+                // setInterval(prob, 000);
+
+
                 console.log("Livewire loaded");
                 // WebSocket connection and event listeners as in the original code
                 var ws_address = document.getElementById("ws_endpoint");
@@ -1316,78 +1386,7 @@
             });
         </script>
 
-        <script>
-            window.addEventListener('load', () => {
-                const apiUrl = "http://10.44.0.70:8088/ari/bridges?api_key=asterisk:asterisk";
 
-                const liveCallsElement = document.getElementById("liveCalls");
-                let liveCalls = 0;
-
-                function fetchBridgeData() {
-                    fetch(apiUrl)
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error("Network response was not ok");
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            console.log("API Response:", data);
-
-                            // Filter bridges of type 'mixing'
-                            const mixingBridges = data.filter(bridge => bridge.bridge_type === 'mixing' && bridge
-                                .channels.length > 0);
-
-                            liveCalls = mixingBridges.length;
-                            // Update DOM with the count (you can change this element ID)
-                            document.getElementById("activeCalls").textContent = `${mixingBridges.length}`;
-                        })
-                        .catch(error => {
-                            console.error("Fetch error:", error);
-                        });
-                }
-
-                function fetchHoldingBridgeData() {
-                    fetch(apiUrl)
-                        .then(response => {
-                            if (!response.ok) {
-                                throw new Error("Network response was not ok");
-                            }
-                            return response.json();
-                        })
-                        .then(data => {
-                            console.log("API Response:", data);
-
-                            // Filter bridges of type 'mixing'
-                            const holdingBridges = data.filter(bridge => bridge.bridge_type === 'holding' && bridge
-                                .channels.length > 0);
-
-                            // Update DOM with the count (you can change this element ID)
-                            document.getElementById("inQueue").textContent =
-                                `Queue Bridges: ${holdingBridges.length}`;
-                            document.getElementById("queue-calls").textContent = `${holdingBridges.length}`;
-
-
-
-                            liveCalls += holdingBridges.length;
-                            liveCallsElement.textContent = `${liveCalls}`;
-                        })
-                        .catch(error => {
-                            console.error("Fetch error:", error);
-                        });
-                }
-
-
-                // Initial fetch
-                function prob() {
-                    fetchBridgeData();
-                    fetchHoldingBridgeData();
-                }
-
-                // Repeat every 5 seconds (5000 ms)
-                // setInterval(prob, 000);
-            });
-        </script>
         <script>
             // Enhance modal show/hide with animations
             $('#broadcastModal').on('show.bs.modal', function() {
