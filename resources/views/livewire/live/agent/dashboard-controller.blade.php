@@ -234,6 +234,11 @@
                                 <div x-data x-init="setInterval(() => Livewire.emit('refreshComponent'), 60000)"></div>
                             </div>
                         </div>
+
+
+
+
+
                     </div>
                 </div>
             </div>

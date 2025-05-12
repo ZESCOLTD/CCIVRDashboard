@@ -38,10 +38,18 @@
             </div>
             <div class="d-inline">
                 <audio controls style="vertical-align: middle" title="{{ $recording->file_name }}"
-                    src="{{ url('audio', ['file' => $recording->file_name, 'extension' => 'wav']) }}"
-                    type="audio/wave">
+                       src="{{ url('audio', ['file' => $recording->file_name, 'extension' => 'wav']) }}"
+                       type="audio/wave">
                     Your browser does not support the audio element.
                 </audio>
+
+                <!-- Download Button -->
+                <br>
+                <a class="btn btn-primary mt-2"
+                   href="{{ url('audio', ['file' => $recording->file_name, 'extension' => 'wav']) }}"
+                   download="{{ pathinfo($recording->file_name, PATHINFO_FILENAME) }}.mp3">
+                    Download as MP3
+                </a>
             </div>
             <div class="mt-3">
                 <button class="btn btn-primary" data-toggle="modal"

@@ -339,3 +339,16 @@ Route::get('/knowledge-base', function () {
 })->name('live.supervisor.knowledge-base');
 
 Route::get('/technical', \App\Http\Livewire\Technical\TechnicalControllers::class)->name('technical.index');
+
+Route::get('/audio/convert-mp3', function (\Illuminate\Http\Request $request) {
+    $file = $request->query('file');
+    $mp3Path = storage_path("app/converted/" . pathinfo($file, PATHINFO_FILENAME) . ".mp3");
+
+    if (!file_exists($mp3Path)) {
+        abort(404, 'MP3 file not found.');
+    }
+
+    return response()->download($mp3Path);
+})->name('audio.convert.mp3');
+
+
