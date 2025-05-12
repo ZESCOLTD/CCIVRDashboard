@@ -75,6 +75,7 @@ class SupervisorDashboard extends Component
 
         $answered = count($callResults->where('status', 'ANSWER'));
         $missed = count($callResults->where('status', 'NOANSWER'));
+        $total=count($callResults);
 
 
     $availableAgentsCount = CCAgent::where(function ($query) {
@@ -136,6 +137,40 @@ $answeredCallsThisMonth = LiveRecordings::whereBetween('created_at', [
  if ($availableAgentsNow > 0) {
      $efficiencyLast30 = ($answeredCallsLast30 / $availableAgentsNow) * 100;
  }
+
+
+ $today = now()->toDateString(); // or Carbon::today()
+ $callsQuery = LiveRecordings::whereDate('created_at', $today);
+
+ $records = $callsQuery->get();
+
+        $totalDurationInSeconds = $records->sum('duration_in_seconds');
+        $recordCount = $records->count();
+
+        $averageDurationFormatted = null;
+
+        if ($recordCount > 0) {
+            $averageDurationInSeconds = $totalDurationInSeconds / $recordCount;
+
+            // You can then format this average duration into a human-readable format
+            $minutes = floor($averageDurationInSeconds / 60);
+            $seconds = round($averageDurationInSeconds % 60); // Round to the nearest second
+
+            if ($seconds == 0) {
+                $averageDurationFormatted = $seconds . ' min';
+            } else {
+                $averageDurationFormatted = $minutes . ':' . $seconds;
+            }
+
+            // $averageDurationFormatted will hold the average call duration in a readable format
+
+        } else {
+            // Handle the case where there are no records
+            $averageDurationFormatted = "No call records found.";
+        }
+
+
+
         //$ws_server = env("WS_SERVER_ENDPOINT");
         //dd([$api_server, $ws_server]);
         return view('livewire.live.supervisor.supervisor-dashboard', [
@@ -155,8 +190,9 @@ $answeredCallsThisMonth = LiveRecordings::whereBetween('created_at', [
             'answeredCallsThisWeek' => $answeredCallsThisWeek,
             'answeredCallsThisMonth' => $answeredCallsThisMonth,
             'answeredCallsLast30' => $answeredCallsLast30,
-            'abandoned' => $abandoned,
-            'efficencyLast30' => $efficiencyLast30,
+            'abandoned' =>$total-($missed+$answered),
+            'efficencyLast30' => ceil($efficiencyLast30),
+            'averageDurationFormatted' => $averageDurationFormatted,
         ]);
     }
 

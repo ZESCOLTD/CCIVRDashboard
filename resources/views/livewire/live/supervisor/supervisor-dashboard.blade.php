@@ -561,7 +561,7 @@
                                         </h6>
                                     </div>
                                     <div class="card-body text-center">
-                                        <h3>--:--</h3>
+                                        <h3>{{$averageDurationFormatted}}</h3>
                                         <div class="progress">
                                             <div class="progress-bar bg-success" style="width: 65%"></div>
                                         </div>

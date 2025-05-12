@@ -248,7 +248,7 @@ class DashboardController extends Component
             $seconds = round($averageDurationInSeconds % 60); // Round to the nearest second
 
             if ($seconds == 0) {
-                $averageDurationFormatted = $minutes . ' min';
+                $averageDurationFormatted = $seconds . ' min';
             } else {
                 $averageDurationFormatted = $minutes . ':' . $seconds;
             }
