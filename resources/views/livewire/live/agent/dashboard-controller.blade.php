@@ -198,7 +198,7 @@
 
 
                                 <div class="mt-3">
-                                    @if (in_array($agent->status, ['LOGGED_OUT', 'WITHDRAWN']))
+                                    @if (in_array($agent->status, ['LOGGED_OUT', 'WITHDRAWN','AgentState.LOGGEDOUT']))
                                         <form wire:submit.prevent="login">
                                             <button type="submit" class="btn btn-success btn-block">
                                                 <i class="fas fa-sign-in-alt mr-1"></i> Login
