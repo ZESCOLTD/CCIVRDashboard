@@ -136,7 +136,7 @@
                                     </div>
                                     <div class="progress" style="height: 8px;">
                                         <div class="progress-bar"
-                                            style="background-color: #0f974b; width: {{ ($availableAgentsCount / ($totalAgentCount+1)) * 100 }}%;">
+                                            style="background-color: #0f974b; width: {{ $availableAgentsCount>0? (($availableAgentsCount / $totalAgentCount) * 100):"--" }}%;">
                                         </div>
                                     </div>
                                 </div>
@@ -150,7 +150,7 @@
                                     </div>
                                     <div class="progress" style="height: 8px;">
                                         <div class="progress-bar"
-                                            style="background-color: #28a745; width: {{ ($activeCalls / ($availableAgentsCount+1)) * 100 }}%;">
+                                            style="background-color: #28a745; width: {{ $availableAgentsCount>0?(($activeCalls / $availableAgentsCount) * 100):"--" }}%;">
                                         </div>
                                     </div>
                                 </div>
