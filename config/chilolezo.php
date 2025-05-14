@@ -27,7 +27,6 @@ return [
         'transaction-codes-access' => 'transaction-codes-access',
         'helpdesk-knowledge-base-management' => 'helpdesk-knowledge-base-management',
         'helpdesk-knowledge-base-management-view' => 'helpdesk-knowledge-base-management-view',
-
     ],
 
 
