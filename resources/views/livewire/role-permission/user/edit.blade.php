@@ -32,6 +32,11 @@
                         </div>
 
                         <div class="mb-3">
+                            <label>Man No.</label>
+                            <input type="text" wire:model="man_no" readonly class="form-control" />
+                        </div>
+
+                        <div class="mb-3">
                             <label>Password</label>
                             <input type="password" wire:model="password" class="form-control" />
                             @error('password')

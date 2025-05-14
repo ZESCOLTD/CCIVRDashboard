@@ -307,6 +307,7 @@ Route::middleware(['auth', 'role:super-admin|admin'])->group(function () {
 //    Route::get('/roles/create', App\Http\Livewire\RolesAndPermissions\RoleComponent::class)->name('roles-component.create');
     Route::get('/roles/create', RoleComponent::class)->name('roles.create');
     Route::get('/roles/{roleId}/delete', [App\Http\Controllers\RoleController::class, 'destroy']);
+    Route::get('/roles/{roleId}/edit', [App\Http\Controllers\RoleController::class, 'edit'])->name('role.roledid.edit');
     Route::get('/roles/{roleId}/give-permissions', [App\Http\Controllers\RoleController::class, 'addPermissionToRole'])->name('role.roledid.give-permissions');
     Route::put('/roles/{roleId}/give-permissions', [App\Http\Controllers\RoleController::class, 'givePermissionToRole']);
 

@@ -13,7 +13,7 @@ class UserEditComponent extends Component
     public $user;
     public $userIdBeingEdited;
     public $isEditing = false;
-    public $name, $email, $password, $roles = [];
+    public $name, $email, $man_no, $password, $roles = [];
 
     protected function rules()
     {
@@ -33,6 +33,7 @@ class UserEditComponent extends Component
         $this->user = User::findOrFail($userId);
         $this->name = $this->user->name;
         $this->email = $this->user->email;
+        $this->man_no=$this->user->man_no;
         $this->roles = $this->user->roles->pluck('name')->toArray();
         $this->userIdBeingEdited = $this->user->id;
         $this->isEditing = true;

@@ -45,12 +45,20 @@ class LoginController extends Controller
         return 'man_no';
     }
 
+    // protected function authenticated(Request $request, $user)
+    // {
+    //     //check if the column for password change has been effected, then redirect to a password change page
+    //     //dd($user->status);
+    // }
+
     protected function authenticated(Request $request, $user)
     {
-        //check if the column for password change has been effected, then redirect to a password change page
-        //dd($user->status);
-    }
+        if ($user->hasRole('agent')) {
+            return redirect()->route('live.agent.dashboard', ['id' => $user->id]);
+        }
 
+        return redirect()->intended($this->redirectTo);
+    }
 
     protected function validateLogin(Request $request)
     {

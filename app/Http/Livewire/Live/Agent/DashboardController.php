@@ -182,7 +182,21 @@ class DashboardController extends Component
     public function render()
     {
         // dd($user->myAgentDetails);
-        $this->agent_num = $this->agent->endpoint;
+        $this->agent_num = $this->agent !=null? $this->agent->endpoint:null;
+
+        if($this->agent == null) {
+            return view('livewire.live.agent.dashboard-controller', [
+                'agent' => $this->agent,
+                'api_server' => null,
+                'ws_server' => null,
+                'totalCalls' => 0,
+                'answeredCalls' => 0,
+                'missedCalls' => 0,
+                'averageCallTime' => 0,
+                'lastFiveCalls' => [],
+                'customer_details' => $this->customer_details,
+            ]);
+        }
         $api_server = config("app.API_SERVER_ENDPOINT");
         $ws_server = config("app.WS_SERVER_ENDPOINT");
 
@@ -579,6 +593,11 @@ class DashboardController extends Component
 
     public function calculateTotalBreakDuration()
     {
+
+        if($this->agent == null) {
+            $this->totalBreakDuration = '00:00:00';
+            return;
+        }
 
 
         $totalSeconds = AgentBreak::where('agent_id', $this->agent->id)
