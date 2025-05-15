@@ -72,7 +72,7 @@
     @livewireStyles
 </head>
 
-<body class="hold-transition sidebar-mini layout-fixed">
+<body class="hold-transition sidebar-mini layout-fixed  {{ Auth::user()->hasRole('agent')?"sidebar-collapse":"" }}" id="agent-body">
 <div class="wrapper">
 
     {{-- NAV BAR --}}

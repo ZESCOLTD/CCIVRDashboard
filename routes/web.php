@@ -275,27 +275,39 @@ Route::middleware(['auth', 'role:super-admin|admin|agent'])->group(function () {
     Route::get('/configurations/pbx-credentials', PbxCredentials::class)->name('configurations.pbx-credentials');
 
     // Live Components
-    Route::get('/live/dashboard', DashboardController::class)->name('live.dashboard');
-    Route::get('/live/recordings/show/{id}', RecordingsShow::class)->name('live.recordings.show');
-    Route::get('/live/recordings', Recordings::class)->name('live.recordings');
-    Route::get('/live/agent/dashboard/{id}', AgentDashboardController::class)->name('live.agent.dashboard');
-    Route::get('/live/agent/manage', ManageAgents::class)->name('live.agent.manage');
-    Route::get('/live/agent/show/{id}', AgentShow::class)->name('live.agent.show');
-    Route::get('/live/supervisor/dashboard', SupervisorDashboard::class)->name('live.supervisor.dashboard');
-    Route::get('/live/transactionCodes', TransactionCode::class)->name('live.transactionCodes');
+    // Route::get('/live/dashboard', DashboardController::class)->name('live.dashboard');
 
-    // Sessions
-    Route::get('/session/call-sessions', CallSessionsController::class)->name('session.call-sessions');
-    Route::get('/session/call-sessions/show/{id}', ShowCallSession::class)->name('session.call-sessions.show');
+
+    Route::get('/live/agent/dashboard/{id}', AgentDashboardController::class)->name('live.agent.dashboard');
+
+
+
+
+
+    Route::middleware(['role:super-admin|admin'])->group(function () {
+
+        Route::get('/live/recordings/show/{id}', RecordingsShow::class)->name('live.recordings.show');
+        Route::get('/live/recordings', Recordings::class)->name('live.recordings');
+        Route::get('/live/agent/manage', ManageAgents::class)->name('live.agent.manage');
+        Route::get('/live/agent/show/{id}', AgentShow::class)->name('live.agent.show');
+        Route::get('/live/supervisor/dashboard', SupervisorDashboard::class)->name('live.supervisor.dashboard');
+        Route::get('/live/transactionCodes', TransactionCode::class)->name('live.transactionCodes');
+
+        // Sessions
+        Route::get('/session/call-sessions', CallSessionsController::class)->name('session.call-sessions');
+        Route::get('/session/call-sessions/show/{id}', ShowCallSession::class)->name('session.call-sessions.show');
+    });
+
 
     // Report Routes (Added missing ones)
-    Route::post('/reports/generate', [GeneralReportController::class, 'generateReport'])->name('reports.generate');
-    Route::post('/reports/export', [GeneralReportController::class, 'exportReport'])->name('reports.export');
-    Route::post('/reports/email', [GeneralReportController::class, 'emailReport'])->name('reports.email');
-    Route::post('/reports/configure-automated', [GeneralReportController::class, 'configureAutomatedReports'])->name('reports.configure-automated');
-    Route::get('/general-report', GeneralReport::class)->name('general-report');
-    Route::get('/download-pdf', [\App\Http\Controllers\ReportExportController::class, 'downloadPDF'])->name('download.pdf');
-
+    Route::middleware(['role:super-admin|admin'])->group(function () {
+        Route::post('/reports/generate', [GeneralReportController::class, 'generateReport'])->name('reports.generate');
+        Route::post('/reports/export', [GeneralReportController::class, 'exportReport'])->name('reports.export');
+        Route::post('/reports/email', [GeneralReportController::class, 'emailReport'])->name('reports.email');
+        Route::post('/reports/configure-automated', [GeneralReportController::class, 'configureAutomatedReports'])->name('reports.configure-automated');
+        Route::get('/general-report', GeneralReport::class)->name('general-report');
+        Route::get('/download-pdf', [\App\Http\Controllers\ReportExportController::class, 'downloadPDF'])->name('download.pdf');
+    });
 });
 
 // Admin-only Routes
@@ -304,7 +316,7 @@ Route::middleware(['auth', 'role:super-admin|admin'])->group(function () {
     Route::get('/permissions/{permissionId}/delete', [App\Http\Controllers\PermissionController::class, 'destroy']);
 
     Route::get('/roles', RoleComponent::class)->name('roles.index');
-//    Route::get('/roles/create', App\Http\Livewire\RolesAndPermissions\RoleComponent::class)->name('roles-component.create');
+    //    Route::get('/roles/create', App\Http\Livewire\RolesAndPermissions\RoleComponent::class)->name('roles-component.create');
     Route::get('/roles/create', RoleComponent::class)->name('roles.create');
     Route::get('/roles/{roleId}/delete', [App\Http\Controllers\RoleController::class, 'destroy']);
     Route::get('/roles/{roleId}/edit', [App\Http\Controllers\RoleController::class, 'edit'])->name('role.roledid.edit');
@@ -351,5 +363,3 @@ Route::get('/audio/convert-mp3', function (\Illuminate\Http\Request $request) {
 
     return response()->download($mp3Path);
 })->name('audio.convert.mp3');
-
-
