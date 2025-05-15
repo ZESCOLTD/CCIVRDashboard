@@ -190,7 +190,7 @@ class SupervisorDashboard extends Component
             'answeredCallsThisWeek' => $answeredCallsThisWeek,
             'answeredCallsThisMonth' => $answeredCallsThisMonth,
             'answeredCallsLast30' => $answeredCallsLast30,
-            'abandoned' => $total - ($missed + $answeredCalls),
+            'abandoned' => $total - ($missed + $answered),
             'efficencyLast30' => ceil($efficiencyLast30),
             'averageDurationFormatted' => $averageDurationFormatted,
         ]);
