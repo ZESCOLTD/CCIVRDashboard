@@ -1074,7 +1074,7 @@
     </script>
 
     <script>
-        window.addEventListener('load', () => {
+        window.addEventListener('livewire:load', () => {
             const apiUrl = "http://10.44.0.70:8088/ari/bridges?api_key=asterisk:asterisk";
 
 
@@ -1158,7 +1158,9 @@
                             const filename = parts[5];
                             const agent = parts[2].slice(-4);
 
-                            if (agent == {{$agent && $agent->endpoint }}) {
+                            console.error("Error: app_data does not contain enough parts. open modal for agent",agent);
+
+                            if (agent == {{ $agent->endpoint }}) {
                                 console.log("agent:", agent);
                                 console.log("filename:", filename);
                                 Livewire.emit('filename', filename);
