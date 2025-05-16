@@ -2,7 +2,7 @@
 
     <h1>Call Statistics</h1>
 
-    <table class="table table-bordered">
+    {{-- <table class="table table-bordered">
         <thead>
             <tr>
                 <th>Type</th>
@@ -39,7 +39,7 @@
                 </tr>
             @endforeach
         </tbody>
-    </table>
+    </table> --}}
     <h1 class="mb-4">Stasis Start Events</h1>
 
     <table class="table table-bordered table-striped">
@@ -47,6 +47,7 @@
             <tr>
                 <th>Type</th>
                 <th>Timestamp</th>
+                <th>Stasis End Timestamp</th>
                 <th>Asterisk ID</th>
                 <th>Application</th>
                 <th>Channel ID</th>
@@ -68,6 +69,8 @@
                 <tr>
                     <td>{{ $event->type }}</td>
                     <td>{{ $event->timestamp->format('Y-m-d H:i:s') }}</td>
+                    <td>{{ $event->stasisEnd ? $event->stasisEnd->timestamp->format('Y-m-d H:i:s') : 'N/A' }}</td>
+                    {{-- <td>{{ $event->stasis_end_timestamp }}</td> --}}
                     <td>{{ $event->asterisk_id }}</td>
                     <td>{{ $event->application }}</td>
                     <td>{{ $event->channel_id }}</td>
@@ -86,4 +89,7 @@
             @endforeach
         </tbody>
     </table>
+    <div class="mt-4">
+        {{ $stasisEndEventLog->links() }}
+    </div>
 </div>

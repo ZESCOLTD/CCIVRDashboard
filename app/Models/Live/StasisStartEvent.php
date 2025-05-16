@@ -39,5 +39,16 @@ class StasisStartEvent extends Model
         'args' => 'array',
     ];
 
+    public function stasisEnd()
+    {
+        return $this->belongsTo(StasisEndEvent::class, 'channel_id', 'channel_id');
+            // ->where('type', 'StasisEnd');
+    }
+    public function dialEvents()
+    {
+        return $this->hasMany(DialEventLog::class, 'peer_name', 'channel_name');
+            // ->where('type', 'StasisEnd');
+    }
+
 
 }
