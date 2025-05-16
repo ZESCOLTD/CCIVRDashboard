@@ -5,7 +5,7 @@ namespace App\Http\Livewire\Live;
 use App\Models\Live\StasisEndEvent;
 use Livewire\Component;
 
-class StasisEndEventsComponent extends Component
+class StasisEndEventComponent extends Component
 {
     public function render()
     {

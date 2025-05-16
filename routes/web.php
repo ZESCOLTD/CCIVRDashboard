@@ -225,6 +225,10 @@ use App\Http\Livewire\RolesAndPermissions\UserManagement;
 use App\Http\Controllers\Report\GeneralReportController;
 use App\Http\Livewire\Report\ReportController;
 use App\Http\Livewire\GeneralReport;
+
+// use App\Http\Livewire\Live\DialEventsComponent;
+use App\Http\Livewire\Live\StasisEndEventComponent;
+use App\Http\Livewire\Live\StasisStartEventComponent;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Livewire\Live\Supervisor\KnowledgeBase\KnowledgeBaseManager;
@@ -320,8 +324,8 @@ Route::middleware(['auth', 'role:super-admin|admin|agent'])->group(function () {
         Route::get('/download-pdf', [\App\Http\Controllers\ReportExportController::class, 'downloadPDF'])->name('download.pdf');
     });
 
-    Route::get('live/stasis-end-stats', StasisEndEventsComponent::class)->name('live.stasis-end-stats');
-    Route::get('live/stasis-start-stats', StasisStartEventsComponent::class)->name('live.stasis-start-stats');
+    Route::get('live/stasis-end-stats', StasisEndEventComponent::class)->name('live.stasis-end-stats');
+    Route::get('live/stasis-start-stats', StasisStartEventComponent::class)->name('live.stasis-start-stats');
 
 
 });

@@ -6,7 +6,7 @@ use App\Models\Live\StasisStartEvent;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 
-class StasisStartEventsComponent extends Component
+class StasisStartEventComponent extends Component
 {
     public function render()
     {
