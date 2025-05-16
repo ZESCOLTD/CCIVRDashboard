@@ -319,6 +319,11 @@ Route::middleware(['auth', 'role:super-admin|admin|agent'])->group(function () {
         Route::get('/general-report', GeneralReport::class)->name('general-report');
         Route::get('/download-pdf', [\App\Http\Controllers\ReportExportController::class, 'downloadPDF'])->name('download.pdf');
     });
+
+    Route::get('live/stasis-end-stats', StasisEndEventsComponent::class)->name('live.stasis-end-stats');
+    Route::get('live/stasis-start-stats', StasisStartEventsComponent::class)->name('live.stasis-start-stats');
+
+
 });
 
 // Admin-only Routes
