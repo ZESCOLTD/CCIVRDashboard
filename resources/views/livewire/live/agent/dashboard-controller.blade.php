@@ -39,59 +39,63 @@
                             <ul class="list-unstyled">
                                 <li class="mb-2">
                                     <i class="fas fa-user mr-2 text-secondary"></i>
-                                    <strong>Name:</strong> {{ $agent->name }}
+                                    <strong>Name:</strong> {{ $agent->name ?? '--' }}
                                 </li>
                                 <li class="mb-2">
                                     <i class="fas fa-id-card mr-2 text-secondary"></i>
-                                    <strong>ID:</strong> {{ $agent->endpoint }}
+                                    <strong>ID:</strong> {{ $agent->endpoint ?? '--' }}
                                 </li>
                                 <li class="mb-2">
                                     <i class="fas fa-phone mr-2 text-secondary"></i>
-                                    <strong>Number:</strong> {{ $agent->endpoint }}
+                                    <strong>Number:</strong> {{ $agent->endpoint ?? '--' }}
                                 </li>
                                 <li>
                                     <i class="fas fa-power-off mr-2 text-secondary"></i>
                                     <strong>Status:</strong>
-                                    @switch($agent->status)
-                                        @case('LOGGED_IN')
-                                        @case('AgentState.LOGGEDIN')
-                                            <span class="badge badge-success"><i class="fas fa-circle mr-1"></i>LOGGED IN</span>
-                                        @break
+                                    @if ($agent != null)
+                                        @switch($agent->status)
+                                            @case('LOGGED_IN')
+                                            @case('AgentState.LOGGEDIN')
+                                                <span class="badge badge-success"><i class="fas fa-circle mr-1"></i>LOGGED
+                                                    IN</span>
+                                            @break
 
-                                        @case('LOGGED_OUT')
-                                        @case('AgentState.LOGGEDOUT')
-                                            <span class="badge badge-secondary"><i class="fas fa-circle mr-1"></i>LOGGED
-                                                OUT</span>
-                                        @break
+                                            @case('LOGGED_OUT')
+                                            @case('AgentState.LOGGEDOUT')
+                                                <span class="badge badge-secondary"><i class="fas fa-circle mr-1"></i>LOGGED
+                                                    OUT</span>
+                                            @break
 
-                                        @case('IDLE')
-                                        @case('AgentState.IDLE')
-                                            <span class="badge badge-warning text-dark"><i
-                                                    class="fas fa-circle mr-1"></i>IDLE</span>
-                                        @break
+                                            @case('IDLE')
+                                            @case('AgentState.IDLE')
+                                                <span class="badge badge-warning text-dark"><i
+                                                        class="fas fa-circle mr-1"></i>IDLE</span>
+                                            @break
 
-                                        @case('WITHDRAWN')
-                                        @case('AgentState.WITHDRAWN')
-                                            <span class="badge badge-danger"><i class="fas fa-circle mr-1"></i>WITHDRAWN</span>
-                                        @break
+                                            @case('WITHDRAWN')
+                                            @case('AgentState.WITHDRAWN')
+                                                <span class="badge badge-danger"><i
+                                                        class="fas fa-circle mr-1"></i>WITHDRAWN</span>
+                                            @break
 
-                                        @case('WRAPPING_UP')
-                                        @case('AgentState.WRAPPINGUP')
+                                            @case('WRAPPING_UP')
+                                            @case('AgentState.WRAPPINGUP')
 
-                                        @case('ON_BREAK')
-                                            <span class="badge badge-info"><i class="fas fa-circle mr-1"></i>ON BREAK</span>
-                                        @break
+                                            @case('ON_BREAK')
+                                                <span class="badge badge-info"><i class="fas fa-circle mr-1"></i>ON BREAK</span>
+                                            @break
 
-                                        @case('IN_CONVERSATION')
-                                        @case('AgentState.ONCONVERSATION')
-                                            <span class="badge badge-primary"><i class="fas fa-circle mr-1"></i>IN
-                                                CONVERSATION</span>
-                                        @break
+                                            @case('IN_CONVERSATION')
+                                            @case('AgentState.ONCONVERSATION')
+                                                <span class="badge badge-primary"><i class="fas fa-circle mr-1"></i>IN
+                                                    CONVERSATION</span>
+                                            @break
 
-                                        @default
-                                            <span class="badge badge-light text-dark"><i
-                                                    class="fas fa-circle mr-1"></i>{{ $agent->status }}</span>
-                                    @endswitch
+                                            @default
+                                                <span class="badge badge-light text-dark"><i
+                                                        class="fas fa-circle mr-1"></i>{{ $agent->status }}</span>
+                                        @endswitch
+                                    @endif
                                 </li>
                             </ul>
                         </div>
@@ -198,36 +202,38 @@
 
 
                                 <div class="mt-3">
-                                    @if (in_array($agent->status, ['LOGGED_OUT', 'WITHDRAWN']))
-                                        <form wire:submit.prevent="login">
-                                            <button type="submit" class="btn btn-success btn-block session-start-btn">
-                                                <i class="fas fa-sign-in-alt fa-fw"></i> Shift Start
-                                            </button>
-                                        </form>
-                                    @else
-                                        <div class="d-flex">
-                                            <form
-                                                wire:submit.prevent="{{ $agent->status == 'ON_BREAK' ? 'resume' : 'break' }}"
-                                                class="mr-2 flex-fill">
-                                                <button type="submit"
-                                                    class="btn {{ $agent->status == 'ON_BREAK' ? 'btn-info' : 'btn-secondary' }} btn-block">
-                                                    <i class="fas fa-coffee mr-1"></i>
-                                                    {{ $agent->status == 'ON_BREAK' ? 'Resume' : 'Break' }}
+                                    @if ($agent != null)
+                                        @if (in_array($agent->status, ['LOGGED_OUT', 'WITHDRAWN', 'AgentState.LOGGEDOUT']))
+                                            <form wire:submit.prevent="login">
+                                                <button type="submit" class="btn btn-success btn-block">
+                                                    <i class="fas fa-sign-in-alt mr-1"></i> Login
                                                 </button>
                                             </form>
+                                        @else
+                                            <div class="d-flex">
+                                                <form
+                                                    wire:submit.prevent="{{ $agent->status == 'ON_BREAK' ? 'resume' : 'break' }}"
+                                                    class="mr-2 flex-fill">
+                                                    <button type="submit"
+                                                        class="btn {{ $agent->status == 'ON_BREAK' ? 'btn-info' : 'btn-secondary' }} btn-block">
+                                                        <i class="fas fa-coffee mr-1"></i>
+                                                        {{ $agent->status == 'ON_BREAK' ? 'Resume' : 'Break' }}
+                                                    </button>
+                                                </form>
 
-                                            <form wire:submit.prevent="logout" class="flex-fill">
-                                                <button type="submit" class="btn btn-warning btn-block">
-                                                    <i class="fas fa-sign-out-alt mr-1"></i> Logout
-                                                </button>
-                                            </form>
-                                        </div>
+                                                <form wire:submit.prevent="logout" class="flex-fill">
+                                                    <button type="submit" class="btn btn-warning btn-block">
+                                                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                                                    </button>
+                                                </form>
+                                            </div>
 
-                                        {{-- @if ($onBreak && $breakStartTime)
+                                            {{-- @if ($onBreak && $breakStartTime)
                                             <div class="mt-2 text-center text-info font-weight-bold">
                                                 <small>On break for {{ $breakMinutes }} minute(s)</small>
                                             </div>
                                         @endif --}}
+                                        @endif
                                     @endif
                                 </div>
 
@@ -968,13 +974,17 @@
             console.log('[Livewire] livewire:load fired ✅');
 
 
+            @if ($agent != null)
 
-            const iframe = document.getElementById('myIframe');
-            iframe.onload = function() {
-                iframe.contentWindow.postMessage({
-                    man_no: {{ $agent->endpoint }}
-                }, 'http://localhost:8000');
-            };
+
+
+                const iframe = document.getElementById('myIframe');
+                iframe.onload = function() {
+                    iframe.contentWindow.postMessage({
+                        man_no: {{ $agent->endpoint }}
+                    }, 'http://localhost:8000');
+                };
+            @endif
 
         });
 
@@ -1064,7 +1074,7 @@
     </script>
 
     <script>
-        window.addEventListener('load', () => {
+        window.addEventListener('livewire:load', () => {
             const apiUrl = "http://10.44.0.70:8088/ari/bridges?api_key=asterisk:asterisk";
 
 
@@ -1129,7 +1139,7 @@
 
 
                     if (data.type === "Dial" &&
-                        data.dialstring == {{ $agent->endpoint }}
+                        data.dialstring == {{$agent&& $agent->endpoint }}
                     ) {
                         // alert( incomingCall);
 
@@ -1148,13 +1158,18 @@
                             const filename = parts[5];
                             const agent = parts[2].slice(-4);
 
+                            console.error("Error: app_data does not contain enough parts. open modal for agent",agent);
+
                             if (agent == {{ $agent->endpoint }}) {
                                 console.log("agent:", agent);
                                 console.log("filename:", filename);
                                 Livewire.emit('filename', filename);
 
                                 const modal = new bootstrap.Modal(document.getElementById(
-                                    'updateTransactionCodeModal'));
+                                    'updateTransactionCodeModal'), {
+                                    backdrop: 'static', // Prevents closing on clicking outside
+                                    keyboard: false // Allows closing with the escape key (optional, defaults to true)
+                                });
                                 modal.show();
                             }
                         } else {
@@ -1189,5 +1204,48 @@
 
             reConnect()
         })
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const updateTransactionCodeModalElement = document.getElementById('updateTransactionCodeModal');
+            const selectElement = updateTransactionCodeModalElement.querySelector('#transactionCode');
+            const dismissButtons = updateTransactionCodeModalElement.querySelectorAll('[data-dismiss="modal"]');
+            const cancelButton = updateTransactionCodeModalElement.querySelector(
+                '.modal-footer .btn-secondary[data-dismiss="modal"]');
+            const updateTransactionCodeModal = bootstrap.Modal.getInstance(updateTransactionCodeModalElement);
+
+            if (updateTransactionCodeModalElement && selectElement && cancelButton && updateTransactionCodeModal) {
+                const toggleCancelButtonVisibility = () => {
+                    if (selectElement.value) {
+                        cancelButton.style.display = 'none';
+                    } else {
+                        cancelButton.style.display = '';
+                    }
+                };
+
+                toggleCancelButtonVisibility();
+                selectElement.addEventListener('change', toggleCancelButtonVisibility);
+                updateTransactionCodeModalElement.addEventListener('show.bs.modal', toggleCancelButtonVisibility);
+
+                dismissButtons.forEach(button => {
+                    button.addEventListener('click', function(event) {
+                        if (!selectElement.value) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            alert('Please choose a transaction code before closing.');
+                        } else {
+                            updateTransactionCodeModal.hide(); // Use native Bootstrap API
+                        }
+                    });
+                });
+
+                window.addEventListener('close-modal', event => {
+                    if (event.detail.modalId === 'updateTransactionCodeModal') {
+                        updateTransactionCodeModal.hide(); // Use native Bootstrap API
+                    }
+                });
+            }
+        });
     </script>
 @endpush

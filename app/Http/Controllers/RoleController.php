@@ -49,8 +49,11 @@ dd(123);
         return redirect('roles')->with('status', 'Role Created Successfully');
     }
 
-    public function edit(Role $role)
+    public function edit($roleId)
     {
+        // dd($role);
+         $role = Role::find($roleId);
+
         return view('role-permission.role.edit', [
             'role' => $role
         ]);

@@ -225,6 +225,10 @@ use App\Http\Livewire\RolesAndPermissions\UserManagement;
 use App\Http\Controllers\Report\GeneralReportController;
 use App\Http\Livewire\Report\ReportController;
 use App\Http\Livewire\GeneralReport;
+
+// use App\Http\Livewire\Live\DialEventsComponent;
+use App\Http\Livewire\Live\StasisEndEventComponent;
+use App\Http\Livewire\Live\StasisStartEventComponent;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Livewire\Live\Supervisor\KnowledgeBase\KnowledgeBaseManager;
@@ -250,51 +254,79 @@ Route::middleware(['auth', 'role:super-admin|admin|agent'])->group(function () {
     Route::post('/change-password', [PasswordController::class, 'update']);
 
 
-    Route::get('/', DashboardIndex::class)->name('reports.index');
-    Route::get('/reports/index', DashboardIndex::class)->name('reports.index');
-    Route::get('/reports/call/summary/records', CallSummaryRecords::class)->name('reports.call.summary.records');
-    Route::get('/reports/call/detail/records', CallDetailRecords::class)->name('reports.call.detail.records');
-    Route::get('/reports/show/cdr/{id}', CallDetailRecords::class)->name('reports.show.cdr');
-    Route::get('/reports/search', SearchCDR::class)->name('reports.search');
 
-    // User Management
-    Route::get('/users/profile', UserProfile::class)->name('user.profile');
-    Route::get('/users/show/{id}', ShowUser::class)->name('user.show');
-    Route::get('/users/create-user', CreateNewUser::class)->name('user.create');
-    Route::get('/users/list-all', ListAllUsers::class)->name('user.list');
-    Route::get('/users/block/index', SuspendIndex::class)->name('suspend.index');
-    Route::get('/users/suspend/all/create', SuspendAllForm::class)->name('suspend.all.create');
-    Route::get('/users/suspend/{user}/create', SuspendForm::class)->name('suspend.one.create');
-    Route::get('/users/un-suspend/all/create', UnSuspendAllForm::class)->name('un-suspend.all.create');
-    Route::get('/users/un-suspend/{user}/create', UnSuspendForm::class)->name('un-suspend.one.create');
 
-    // Configuration
-    Route::get('/config/destinations', Destination::class)->name('config.destinations');
-    Route::get('/config/contexts', Contexts::class)->name('config.contexts');
-    Route::get('/config/show/contexts/{id}', ShowContexts::class)->name('config.show.contexts');
-    Route::get('/configurations/pbx-credentials', PbxCredentials::class)->name('configurations.pbx-credentials');
+    Route::middleware(['role:super-admin|admin'])->group(function () {
+        // Password Management
+        Route::get('/', DashboardIndex::class)->name('reports.index');
+        Route::get('/reports/index', DashboardIndex::class)->name('reports.index');
+        Route::get('/reports/call/summary/records', CallSummaryRecords::class)->name('reports.call.summary.records');
+        Route::get('/reports/call/detail/records', CallDetailRecords::class)->name('reports.call.detail.records');
+        Route::get('/reports/show/cdr/{id}', CallDetailRecords::class)->name('reports.show.cdr');
+        Route::get('/reports/search', SearchCDR::class)->name('reports.search');
+    });
+
+
+
+    Route::middleware(['role:super-admin|admin'])->group(function () {
+        // User Management
+        Route::get('/users/profile', UserProfile::class)->name('user.profile');
+        Route::get('/users/show/{id}', ShowUser::class)->name('user.show');
+        Route::get('/users/create-user', CreateNewUser::class)->name('user.create');
+        Route::get('/users/list-all', ListAllUsers::class)->name('user.list');
+        Route::get('/users/block/index', SuspendIndex::class)->name('suspend.index');
+        Route::get('/users/suspend/all/create', SuspendAllForm::class)->name('suspend.all.create');
+        Route::get('/users/suspend/{user}/create', SuspendForm::class)->name('suspend.one.create');
+        Route::get('/users/un-suspend/all/create', UnSuspendAllForm::class)->name('un-suspend.all.create');
+        Route::get('/users/un-suspend/{user}/create', UnSuspendForm::class)->name('un-suspend.one.create');
+    });
+
+    Route::middleware(['role:super-admin|admin'])->group(function () {
+        // Configuration
+        Route::get('/config/destinations', Destination::class)->name('config.destinations');
+        Route::get('/config/contexts', Contexts::class)->name('config.contexts');
+        Route::get('/config/show/contexts/{id}', ShowContexts::class)->name('config.show.contexts');
+        Route::get('/configurations/pbx-credentials', PbxCredentials::class)->name('configurations.pbx-credentials');
+    });
 
     // Live Components
-    Route::get('/live/dashboard', DashboardController::class)->name('live.dashboard');
-    Route::get('/live/recordings/show/{id}', RecordingsShow::class)->name('live.recordings.show');
-    Route::get('/live/recordings', Recordings::class)->name('live.recordings');
-    Route::get('/live/agent/dashboard/{id}', AgentDashboardController::class)->name('live.agent.dashboard');
-    Route::get('/live/agent/manage', ManageAgents::class)->name('live.agent.manage');
-    Route::get('/live/agent/show/{id}', AgentShow::class)->name('live.agent.show');
-    Route::get('/live/supervisor/dashboard', SupervisorDashboard::class)->name('live.supervisor.dashboard');
-    Route::get('/live/transactionCodes', TransactionCode::class)->name('live.transactionCodes');
+    // Route::get('/live/dashboard', DashboardController::class)->name('live.dashboard');
 
-    // Sessions
-    Route::get('/session/call-sessions', CallSessionsController::class)->name('session.call-sessions');
-    Route::get('/session/call-sessions/show/{id}', ShowCallSession::class)->name('session.call-sessions.show');
+
+    Route::get('/live/agent/dashboard/{id}', AgentDashboardController::class)->name('live.agent.dashboard');
+
+
+
+
+
+    Route::middleware(['role:super-admin|admin'])->group(function () {
+
+        Route::get('/live/recordings/show/{id}', RecordingsShow::class)->name('live.recordings.show');
+        Route::get('/live/recordings', Recordings::class)->name('live.recordings');
+        Route::get('/live/agent/manage', ManageAgents::class)->name('live.agent.manage');
+        Route::get('/live/agent/show/{id}', AgentShow::class)->name('live.agent.show');
+        Route::get('/live/supervisor/dashboard', SupervisorDashboard::class)->name('live.supervisor.dashboard');
+        Route::get('/live/transactionCodes', TransactionCode::class)->name('live.transactionCodes');
+
+        // Sessions
+        Route::get('/session/call-sessions', CallSessionsController::class)->name('session.call-sessions');
+        Route::get('/session/call-sessions/show/{id}', ShowCallSession::class)->name('session.call-sessions.show');
+    });
+
 
     // Report Routes (Added missing ones)
-    Route::post('/reports/generate', [GeneralReportController::class, 'generateReport'])->name('reports.generate');
-    Route::post('/reports/export', [GeneralReportController::class, 'exportReport'])->name('reports.export');
-    Route::post('/reports/email', [GeneralReportController::class, 'emailReport'])->name('reports.email');
-    Route::post('/reports/configure-automated', [GeneralReportController::class, 'configureAutomatedReports'])->name('reports.configure-automated');
-    Route::get('/general-report', GeneralReport::class)->name('general-report');
-    Route::get('/download-pdf', [\App\Http\Controllers\ReportExportController::class, 'downloadPDF'])->name('download.pdf');
+    Route::middleware(['role:super-admin|admin'])->group(function () {
+        Route::post('/reports/generate', [GeneralReportController::class, 'generateReport'])->name('reports.generate');
+        Route::post('/reports/export', [GeneralReportController::class, 'exportReport'])->name('reports.export');
+        Route::post('/reports/email', [GeneralReportController::class, 'emailReport'])->name('reports.email');
+        Route::post('/reports/configure-automated', [GeneralReportController::class, 'configureAutomatedReports'])->name('reports.configure-automated');
+        Route::get('/general-report', GeneralReport::class)->name('general-report');
+        Route::get('/download-pdf', [\App\Http\Controllers\ReportExportController::class, 'downloadPDF'])->name('download.pdf');
+    });
+
+    Route::get('live/stasis-end-stats', StasisEndEventComponent::class)->name('live.stasis-end-stats');
+    Route::get('live/stasis-start-stats', StasisStartEventComponent::class)->name('live.stasis-start-stats');
+
 
 });
 
@@ -304,9 +336,10 @@ Route::middleware(['auth', 'role:super-admin|admin'])->group(function () {
     Route::get('/permissions/{permissionId}/delete', [App\Http\Controllers\PermissionController::class, 'destroy']);
 
     Route::get('/roles', RoleComponent::class)->name('roles.index');
-//    Route::get('/roles/create', App\Http\Livewire\RolesAndPermissions\RoleComponent::class)->name('roles-component.create');
+    //    Route::get('/roles/create', App\Http\Livewire\RolesAndPermissions\RoleComponent::class)->name('roles-component.create');
     Route::get('/roles/create', RoleComponent::class)->name('roles.create');
     Route::get('/roles/{roleId}/delete', [App\Http\Controllers\RoleController::class, 'destroy']);
+    Route::get('/roles/{roleId}/edit', [App\Http\Controllers\RoleController::class, 'edit'])->name('role.roledid.edit');
     Route::get('/roles/{roleId}/give-permissions', [App\Http\Controllers\RoleController::class, 'addPermissionToRole'])->name('role.roledid.give-permissions');
     Route::put('/roles/{roleId}/give-permissions', [App\Http\Controllers\RoleController::class, 'givePermissionToRole']);
 
@@ -350,5 +383,3 @@ Route::get('/audio/convert-mp3', function (\Illuminate\Http\Request $request) {
 
     return response()->download($mp3Path);
 })->name('audio.convert.mp3');
-
-

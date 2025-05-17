@@ -174,7 +174,7 @@ class DashboardController extends Component
 
         // );
         // }
-        $this->dispatchBrowserEvent('closeSessionModal');
+        // $this->dispatchBrowserEvent('closeSessionModal');
         // Set success message
         session()->flash('message', 'Session saved successfully.');
     }
@@ -182,7 +182,21 @@ class DashboardController extends Component
     public function render()
     {
         // dd($user->myAgentDetails);
-        $this->agent_num = $this->agent->endpoint;
+        $this->agent_num = $this->agent !=null? $this->agent->endpoint:null;
+
+        if($this->agent == null) {
+            return view('livewire.live.agent.dashboard-controller', [
+                'agent' => $this->agent,
+                'api_server' => null,
+                'ws_server' => null,
+                'totalCalls' => 0,
+                'answeredCalls' => 0,
+                'missedCalls' => 0,
+                'averageCallTime' => 0,
+                'lastFiveCalls' => [],
+                'customer_details' => $this->customer_details,
+            ]);
+        }
         $api_server = config("app.API_SERVER_ENDPOINT");
         $ws_server = config("app.WS_SERVER_ENDPOINT");
 
@@ -248,7 +262,7 @@ class DashboardController extends Component
             $seconds = round($averageDurationInSeconds % 60); // Round to the nearest second
 
             if ($seconds == 0) {
-                $averageDurationFormatted = $minutes . ' min';
+                $averageDurationFormatted = $seconds . ' min';
             } else {
                 $averageDurationFormatted = $minutes . ':' . $seconds;
             }
@@ -420,16 +434,33 @@ class DashboardController extends Component
             session()->flash('error', 'Error: ' . $e->getMessage());
         }
     }
+    // public function editTCode()
+    // {
+
+    //     // dd($this->t_code);
+    //     Recordings::where('file_name', $this->recordFilename)
+    //         ->update(['transaction_code' => $this->t_code]);
+    //     $this->t_code = null;
+    //     session()->flash('success', 'Transaction code updated successfully!');
+    //     // dd($this->recordFilename);
+
+    // }
+
     public function editTCode()
     {
-
         // dd($this->t_code);
-        Recordings::where('file_name', $this->recordFilename)
+        $updated = Recordings::where('file_name', $this->recordFilename)
             ->update(['transaction_code' => $this->t_code]);
-        $this->t_code = null;
-        session()->flash('success', 'Transaction code updated successfully!');
-        // dd($this->recordFilename);
 
+        if ($updated) {
+            $this->t_code = null; // Clear the selected value
+            session()->flash('success', 'Transaction code updated successfully!');
+            $this->emit('refresh');
+        } else {
+            session()->flash('error', 'Failed to update transaction code.');
+            // Optionally, you could dispatch an event to show an error message in the modal
+        }
+        // dd($this->recordFilename);
     }
     public function break()
     {
@@ -562,6 +593,11 @@ class DashboardController extends Component
 
     public function calculateTotalBreakDuration()
     {
+
+        if($this->agent == null) {
+            $this->totalBreakDuration = '00:00:00';
+            return;
+        }
 
 
         $totalSeconds = AgentBreak::where('agent_id', $this->agent->id)

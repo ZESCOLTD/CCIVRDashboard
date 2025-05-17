@@ -44,6 +44,7 @@ class UserComponent extends Component
             $search = strtolower($this->search);
             $query->where(function ($query) use ($search) {
                 $query->whereRaw('LOWER(man_no) like ?', ['%' . $search . '%'])
+                    ->orWhereRaw('LOWER(name) like ?', ['%' . $search . '%'])
                     ->orWhereRaw('LOWER(firstname) like ?', ['%' . $search . '%'])
                     ->orWhereRaw('LOWER(middlename) like ?', ['%' . $search . '%'])
                     ->orWhereRaw('LOWER(lastname) like ?', ['%' . $search . '%']);
