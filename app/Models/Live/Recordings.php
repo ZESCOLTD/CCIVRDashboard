@@ -35,7 +35,7 @@ class Recordings extends Model
         'transaction_code'
     ];
 
-    protected $with = ['tCode'];
+    protected $with = ['tCode','agent'];
 
     public function myUser()
     {
@@ -49,7 +49,7 @@ class Recordings extends Model
 
     public function agent()
     {
-        return $this->belongsTo(CCAgent::class, 'dst', 'endpoint');
+        return $this->belongsTo(CCAgent::class, 'dst','endpoint');
     }
 
     public function tCode()
@@ -82,5 +82,12 @@ class Recordings extends Model
     public function comments()
     {
         return $this->hasMany(RecordingComment::class, 'recordings_id', 'id');
+    }
+
+    public function getDurationInSecondsAttribute()
+    {
+        $answerDate = Carbon::parse($this->answerdate);
+        $hangupDate = Carbon::parse($this->hangupdate);
+        return $hangupDate->diffInSeconds($answerDate);
     }
 }

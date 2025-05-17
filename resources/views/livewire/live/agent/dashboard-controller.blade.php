@@ -200,8 +200,8 @@
                                 <div class="mt-3">
                                     @if (in_array($agent->status, ['LOGGED_OUT', 'WITHDRAWN']))
                                         <form wire:submit.prevent="login">
-                                            <button type="submit" class="btn btn-success btn-block">
-                                                <i class="fas fa-sign-in-alt mr-1"></i> Login
+                                            <button type="submit" class="btn btn-success btn-block session-start-btn">
+                                                <i class="fas fa-sign-in-alt fa-fw"></i> Shift Start
                                             </button>
                                         </form>
                                     @else
