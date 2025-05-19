@@ -29,6 +29,9 @@ class GeneralReport extends Component
     public $startTime;
     public $endTime;
     public $label;
+    public $from;
+    public $to;
+    public $summary_calls_today;
     public $reportType;
     public $agentIds = [];
     public $queueIds = [];
@@ -40,6 +43,7 @@ class GeneralReport extends Component
     public $selectedAgent = ''; // optional
     // Email properties
     public $emailRecipients = '';
+    public $total_calls_yesterday;
     public $emailSubject = '';
     public $emailMessage = '';
     // Automated reports
@@ -117,25 +121,31 @@ class GeneralReport extends Component
                     $this->generateDailyReport($startDate, $endDate);
                     $this->reportTitle = 'Daily Report - ' . $startDate->format('Y-m-d');
                     break;
+
                 case 'weekly':
                     $this->generateWeeklyReport($startDate, $endDate);
                     $this->reportTitle = 'Weekly Report - Week of ' . $startDate->format('Y-m-d');
                     break;
+
                 case 'agent':
                     $this->generateAgentPerformanceReport($startDate, $endDate);
                     $this->reportTitle = 'Agent Performance Report';
                     break;
+
                 case 'queue':
                     $this->generateQueuePerformanceReport($startDate, $endDate);
                     $this->reportTitle = 'Queue Performance Report';
                     break;
+
                 case 'sms':
                     $this->generateSMSReport($startDate, $endDate);
                     $this->reportTitle = 'SMS Broadcast Report';
                     break;
+
                 default:
-                    throw new \InvalidArgumentException("Unknown report type");
+                    throw new \InvalidArgumentException("Unknown report type: " . $this->reportType);
             }
+
 
             $this->dateRange = $startDate->format('Y-m-d H:i') . ' to ' . $endDate->format('Y-m-d H:i');
             $this->dispatchBrowserEvent('report-generated');
@@ -156,6 +166,12 @@ class GeneralReport extends Component
 
     protected function generateDailyReport($startDate, $endDate)
     {
+        $queues = $this->getQueueIds();
+        if (empty($queues)) {
+            $this->reportData = [];
+            return;
+        }
+
         $this->reportData = CallDetailsRecordModel::query()
             ->select([
                 DB::raw('dst as label'),
@@ -165,91 +181,174 @@ class GeneralReport extends Component
                 DB::raw('avg(duration) as avg_duration')
             ])
             ->whereBetween('calldate', [$startDate, $endDate])
-            ->whereIn('dst', $this->getQueueIds())
+            ->whereIn('dst', $queues)
             ->groupBy('dst')
-            ->orderBy('total_calls', 'desc')
+            ->orderByRaw($this->getQueueOrderBy()) // ✅ Custom order using FIELD
             ->paginate()
             ->toArray()['data'];
-        dd($this->reportData);
     }
 
     protected function getQueueOrderBy()
     {
         $queues = $this->getQueueIds();
-        $orderBy = "FIELD(dst, ";
+        if (empty($queues)) return 'dst ASC';
 
-        foreach ($queues as $index => $queue) {
-            $orderBy .= "'" . $queue . "'";
-            if ($index < count($queues) - 1) {
-                $orderBy .= ", ";
-            }
-        }
-
-        $orderBy .= ") ASC";
-        return $orderBy;
+        $quotedQueues = array_map(fn($q) => DB::getPdo()->quote($q), $queues);
+        return "FIELD(dst, " . implode(', ', $quotedQueues) . ")";
     }
 
 
     protected function generateWeeklyReport($startDate, $endDate)
     {
+        $queues = $this->getQueueIds();
+        if (empty($queues)) {
+            $this->reportData = [];
+            return;
+        }
+
         $this->reportData = CallDetailsRecordModel::query()
-            ->select(
+            ->select([
                 DB::raw('DATE(calldate) as label'),
                 DB::raw('count(*) as total_calls'),
                 DB::raw('sum(case when disposition = "ANSWERED" then 1 else 0 end) as answered'),
                 DB::raw('sum(case when disposition = "ABANDONED" then 1 else 0 end) as abandoned'),
                 DB::raw('avg(duration) as avg_duration'),
-                DB::raw('avg(wait_time) as avg_wait_time'),
-                DB::raw('avg(talk_time) as avg_talk_time'),
-                DB::raw('max(wait_time) as max_wait_time'),
                 DB::raw('HOUR(calldate) as hour'),
                 DB::raw('count(case when wait_time <= 20 then 1 else null end) as sla_compliant')
-            )
+            ])
             ->whereBetween('calldate', [$startDate, $endDate])
-            ->whereIn('dst', $this->getQueueIds())
+            ->whereIn('dst', $queues)
             ->groupBy(DB::raw('DATE(calldate)'))
             ->orderBy('label')
             ->get()
             ->map(function ($item) {
-                $item->sla_compliance = $item->total_calls > 0
-                    ? round(($item->sla_compliant / $item->total_calls) * 100, 2)
-                    : 0;
-                return $item;
+                $total = $item->total_calls ?: 1;
+
+                return [
+                    'label' => $item->label,
+                    'total_calls' => $item->total_calls,
+                    'answered' => $item->answered,
+                    'abandoned' => $item->abandoned,
+                    'avg_duration' => gmdate("H:i:s", (int) $item->avg_duration),
+                    'peak_hour' => $item->hour,
+                    'sla_compliance' => round(($item->sla_compliant / $total) * 100, 2),
+                ];
             })
             ->toArray();
     }
 
 
-    protected function generateAgentPerformanceReport($startDate, $endDate)
+
+
+
+//    protected function generateAgentPerformanceReport($startDate, $endDate)
+//    {
+//        try {
+//            $agents = \App\Models\Live\CCAgent::select('id', 'name', 'endpoint')
+//                ->get()
+//                ->keyBy('endpoint');
+//
+//
+//            $subQueryAbandoned = DB::table('cdr')
+//                ->select('dst', DB::raw('COUNT(*) as abandoned'))
+//                ->groupBy('dst');
+//
+//
+//            $results = DB::table('recordings as r')
+//                ->select(
+//                    'r.dst',
+//                    DB::raw('COUNT(*) as answered'),
+//                    'cdr_sub.abandoned'
+//                )
+//                ->leftJoinSub($subQueryAbandoned, 'cdr_sub', 'cdr_sub.dst', '=', 'r.dst')
+//                ->whereNotNull('r.dst')
+//                ->groupBy('r.dst', 'cdr_sub.abandoned')
+//                ->limit(10)
+//                ->get();
+//
+//
+//            $this->reportData = $results->map(function ($item) use ($agents) {
+//                $recordings = Recordings::where('dst', $item->dst)->get();
+//                $totalSeconds = $recordings->sum(function ($rec) {
+//                    return $rec->duration_in_seconds ?? 0;
+//                });
+//                $count = $recordings->count();
+//                $avgSeconds = $count > 0 ? (int) ($totalSeconds / $count) : 0;
+//
+//                $answered = $item->answered ?? 0;
+//                $abandoned = $item->abandoned ?? 0;
+//                $totalCalls = $answered + $abandoned;
+//                $satisfaction = $totalCalls > 0 ? round(($answered / $totalCalls) * 100, 2) : 0;
+//
+//                // Replace match() with if-elseif-else for PHP 7.x
+//                if ($satisfaction >= 90) {
+//                    $rating = 'Excellent';
+//                    $flag = 'green'; // 90 - 100
+//                } elseif ($satisfaction >= 75) {
+//                    $rating = 'Good';
+//                    $flag = 'green'; // 75 - 89
+//                } elseif ($satisfaction >= 50) {
+//                    $rating = 'Fair';
+//                    $flag = 'orange'; // 50 - 74
+//                } else {
+//                    $rating = 'Poor';
+//                    $flag = 'red'; // Below 50
+//                }
+//
+//
+//                return [
+//                    'label' => $item->dst,
+//                    'dst' => $item->dst,
+//                    'agent_name' => $agents[$item->dst]->name ?? 'Unknown',
+//                    'total_calls' => $totalCalls,
+//                    'answered' => $answered,
+//                    'abandoned' => $abandoned,
+//                    'avg_duration' => gmdate('H:i:s', $avgSeconds),
+//                    'satisfaction' => $satisfaction . '%',
+//                    'rating' => $rating,
+//                ];
+//            })->toArray();
+//
+//
+//        } catch (\Exception $e) {
+//            $this->reportData = [];
+//            // Log error if needed
+//        }
+//    }
+
+    protected function generateAgentPerformanceReport($startDate, $endDate, $selectedAgent = null)
     {
         try {
-            $agents = \App\Models\Live\CCAgent::select('id', 'name', 'endpoint')
-                ->get()
-                ->keyBy('endpoint');
-
+            $agents = \App\Models\Live\CCAgent::select('id', 'name', 'endpoint')->get()->keyBy('endpoint');
 
             $subQueryAbandoned = DB::table('cdr')
                 ->select('dst', DB::raw('COUNT(*) as abandoned'))
                 ->groupBy('dst');
 
-
-            $results = DB::table('recordings as r')
+            // Main query
+            $query = DB::table('recordings as r')
                 ->select(
                     'r.dst',
                     DB::raw('COUNT(*) as answered'),
                     'cdr_sub.abandoned'
                 )
                 ->leftJoinSub($subQueryAbandoned, 'cdr_sub', 'cdr_sub.dst', '=', 'r.dst')
-                ->whereNotNull('r.dst')
-                ->groupBy('r.dst', 'cdr_sub.abandoned')
-                ->get();
+                ->limit(10)
+                ->whereNotNull('r.dst');
 
+            // Apply filter if agent is selected
+            if (!empty($selectedAgent)) {
+                $agent = \App\Models\Live\CCAgent::find($selectedAgent);
+                if ($agent) {
+                    $query->where('r.dst', $agent->endpoint);
+                }
+            }
+
+            $results = $query->groupBy('r.dst', 'cdr_sub.abandoned')->get();
 
             $this->reportData = $results->map(function ($item) use ($agents) {
                 $recordings = Recordings::where('dst', $item->dst)->get();
-                $totalSeconds = $recordings->sum(function ($rec) {
-                    return $rec->duration_in_seconds ?? 0;
-                });
+                $totalSeconds = $recordings->sum(fn($rec) => $rec->duration_in_seconds ?? 0);
                 $count = $recordings->count();
                 $avgSeconds = $count > 0 ? (int) ($totalSeconds / $count) : 0;
 
@@ -258,21 +357,16 @@ class GeneralReport extends Component
                 $totalCalls = $answered + $abandoned;
                 $satisfaction = $totalCalls > 0 ? round(($answered / $totalCalls) * 100, 2) : 0;
 
-                // Replace match() with if-elseif-else for PHP 7.x
                 if ($satisfaction >= 90) {
                     $rating = 'Excellent';
-                    $flag = 'green'; // 90 - 100
                 } elseif ($satisfaction >= 75) {
                     $rating = 'Good';
-                    $flag = 'green'; // 75 - 89
                 } elseif ($satisfaction >= 50) {
                     $rating = 'Fair';
-                    $flag = 'orange'; // 50 - 74
                 } else {
                     $rating = 'Poor';
-                    $flag = 'red'; // Below 50
                 }
-
+//                dd($this->generateAgentPerformanceReport($this->startDate, $this->endDate, $this->selectedAgent));
 
                 return [
                     'label' => $item->dst,
@@ -288,11 +382,13 @@ class GeneralReport extends Component
             })->toArray();
 
 
+
         } catch (\Exception $e) {
             $this->reportData = [];
-            // Log error if needed
+            // Log the error if needed
         }
     }
+
 
 
 
