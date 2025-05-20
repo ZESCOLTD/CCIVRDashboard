@@ -23,8 +23,8 @@
                                         <label for="reportType">Report Type</label>
                                         <select class="form-control" wire:model="reportType" id="reportType" required>
                                             <option value="">-- Select Report --</option>
-                                            <option value="daily">Daily Summary</option>
-                                            <option value="weekly">Weekly Summary</option>
+                                            <option value="daily">Daily & Weekly Summary</option>
+{{--                                            <option value="weekly">Weekly Summary</option>--}}
                                             <option value="agent">Agent Performance</option>
                                             <option value="queue">Queue Performance</option>
                                             <option value="sms">SMS Broadcast Report</option>
