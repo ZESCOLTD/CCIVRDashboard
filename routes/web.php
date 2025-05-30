@@ -299,7 +299,7 @@ Route::middleware(['auth', 'role:super-admin|admin|agent'])->group(function () {
 
 
 
-    Route::middleware(['role:super-admin|admin'])->group(function () {
+    Route::middleware(['role:super-admin|admin|quality-assurance'])->group(function () {
 
         Route::get('/live/recordings/show/{id}', RecordingsShow::class)->name('live.recordings.show');
         Route::get('/live/recordings', Recordings::class)->name('live.recordings');
@@ -313,9 +313,23 @@ Route::middleware(['auth', 'role:super-admin|admin|agent'])->group(function () {
         Route::get('/session/call-sessions/show/{id}', ShowCallSession::class)->name('session.call-sessions.show');
     });
 
+    Route::middleware(['role:super-admin|admin|quality-assurance|supervisor'])->group(function () {
+
+        // Route::get('/live/recordings/show/{id}', RecordingsShow::class)->name('live.recordings.show');
+        // Route::get('/live/recordings', Recordings::class)->name('live.recordings');
+        Route::get('/live/agent/manage', ManageAgents::class)->name('live.agent.manage');
+        Route::get('/live/agent/show/{id}', AgentShow::class)->name('live.agent.show');
+        Route::get('/live/supervisor/dashboard', SupervisorDashboard::class)->name('live.supervisor.dashboard');
+        Route::get('/live/transactionCodes', TransactionCode::class)->name('live.transactionCodes');
+
+        // Sessions
+        Route::get('/session/call-sessions', CallSessionsController::class)->name('session.call-sessions');
+        Route::get('/session/call-sessions/show/{id}', ShowCallSession::class)->name('session.call-sessions.show');
+    });
+
 
     // Report Routes (Added missing ones)
-    Route::middleware(['role:super-admin|admin'])->group(function () {
+    Route::middleware(['role:super-admin|admin|quality-assurance'])->group(function () {
         Route::post('/reports/generate', [GeneralReportController::class, 'generateReport'])->name('reports.generate');
         Route::post('/reports/export', [GeneralReportController::class, 'exportReport'])->name('reports.export');
         Route::post('/reports/email', [GeneralReportController::class, 'emailReport'])->name('reports.email');

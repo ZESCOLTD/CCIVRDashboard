@@ -1139,7 +1139,7 @@
 
 
                     if (data.type === "Dial" &&
-                        data.dialstring == {{$agent&& $agent->endpoint }}
+                        data.dialstring == {{ $agent->endpoint }}
                     ) {
                         // alert( incomingCall);
 
