@@ -56,39 +56,39 @@
                                         @switch($agent->status)
                                             @case('LOGGED_IN')
                                             @case('AgentState.LOGGEDIN')
-                                                <span class="badge badge-success"><i class="fas fa-circle mr-1"></i>LOGGED
-                                                    IN</span>
+                                                <span class="badge badge-success"><i class="fas fa-circle mr-1"></i>Logged
+                                                    in</span>
                                             @break
 
                                             @case('LOGGED_OUT')
                                             @case('AgentState.LOGGEDOUT')
-                                                <span class="badge badge-secondary"><i class="fas fa-circle mr-1"></i>LOGGED
-                                                    OUT</span>
+                                                <span class="badge badge-secondary"><i class="fas fa-circle mr-1"></i>Logged
+                                                    out</span>
                                             @break
 
                                             @case('IDLE')
                                             @case('AgentState.IDLE')
                                                 <span class="badge badge-warning text-dark"><i
-                                                        class="fas fa-circle mr-1"></i>IDLE</span>
+                                                        class="fas fa-circle mr-1"></i>Idle</span>
                                             @break
 
                                             @case('WITHDRAWN')
                                             @case('AgentState.WITHDRAWN')
                                                 <span class="badge badge-danger"><i
-                                                        class="fas fa-circle mr-1"></i>WITHDRAWN</span>
+                                                        class="fas fa-circle mr-1"></i>Withdrawn</span>
                                             @break
 
                                             @case('WRAPPING_UP')
                                             @case('AgentState.WRAPPINGUP')
 
                                             @case('ON_BREAK')
-                                                <span class="badge badge-info"><i class="fas fa-circle mr-1"></i>ON BREAK</span>
+                                                <span class="badge badge-info"><i class="fas fa-circle mr-1"></i>On break</span>
                                             @break
 
                                             @case('IN_CONVERSATION')
                                             @case('AgentState.ONCONVERSATION')
-                                                <span class="badge badge-primary"><i class="fas fa-circle mr-1"></i>IN
-                                                    CONVERSATION</span>
+                                                <span class="badge badge-primary"><i class="fas fa-circle mr-1"></i>In
+                                                    conversation</span>
                                             @break
 
                                             @default
@@ -107,19 +107,19 @@
                                     <i class="fas fa-calendar-alt"></i>
                                 </div>
                                 <div>
-                                    <h5 class="mb-0">Session Info</h5>
+                                    <h5 class="mb-0">Shift Information</h5>
                                 </div>
                             </div>
                             <div class="mb-3">
                                 <label class="text-info small d-flex align-items-center">
-                                    <i class="fas fa-plug mr-2"></i>Recorder Websocket:
+                                    <i class="fas fa-plug mr-2"></i>Recorder Connection status:
                                     <input type="text" id="ws_endpoint" value='{{ $ws_server }}' hidden>
-                                    <span id="ws-info" wire:ignore class="badge badge-info ml-2">Connecting...</span>
+                                    <span id="ws-info" wire:ignore class="badge badge-info ml-2">Not connected</span>
                                 </label>
                             </div>
                             <div>
                                 <strong class="d-flex align-items-center">
-                                    <i class="fas fa-clock mr-2"></i>Current Session:
+                                    <i class="fas fa-clock mr-2"></i>Current Shift:
                                 </strong>
                                 @if ($currentSession)
                                     <div class="d-flex align-items-center mt-1 mb-2">
@@ -136,7 +136,7 @@
                                     </div>
                                 @else
                                     <div class="alert alert-warning py-1 px-2 mt-2 small">
-                                        <i class="fas fa-exclamation-triangle mr-2"></i>No session selected
+                                        <i class="fas fa-exclamation-triangle mr-2"></i>No shifted selected
                                     </div>
                                     {{-- <script>
 
@@ -164,17 +164,17 @@
                                 <div class="d-flex align-items-center mb-2">
                                     <i class="fas fa-user-circle mr-2 text-secondary"></i>
                                     <strong>Caller ID:</strong>
-                                    <span class="ml-2 text-info" id="incoming-call">+1234567890</span>
+                                    <span class="ml-2 text-info" id="incoming-call">--</span>
                                 </div>
                                 <div class="d-flex align-items-center">
                                     <i class="fas fa-stopwatch mr-2 text-secondary"></i>
                                     <strong>Duration:</strong>
-                                    <span class="ml-2">00:03:15</span>
+                                    <span class="ml-2">--:--:--</span>
                                 </div>
                                 <div class="d-flex align-items-center">
                                     <i class="fas fa-stopwatch mr-2 text-secondary"></i>
                                     <strong>Calls in Queue:</strong>
-                                    <h3 id="queue-calls" wire:ignore class="ml-2">0</h3>
+                                    <h3 id="queue-calls" wire:ignore class="ml-2">--</h3>
                                 </div>
 
                                 @if ($agent && $agent->status === config('constants.agent_status.ON_BREAK'))
