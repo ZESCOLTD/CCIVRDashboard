@@ -2,6 +2,7 @@
 <div class="row">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
 
+
     <div class="col-md-12">
         <div class="card">
             <div class="card-header bg-orange text-white">
@@ -22,8 +23,8 @@
                                         <label for="reportType">Report Type</label>
                                         <select class="form-control" wire:model="reportType" id="reportType" required>
                                             <option value="">-- Select Report --</option>
-                                            <option value="daily">Daily Summary</option>
-                                            <option value="weekly">Weekly Summary</option>
+                                            <option value="daily">Daily & Weekly Summary</option>
+{{--                                            <option value="weekly">Weekly Summary</option>--}}
                                             <option value="agent">Agent Performance</option>
                                             <option value="queue">Queue Performance</option>
                                             <option value="sms">SMS Broadcast Report</option>
@@ -33,15 +34,27 @@
                                     </div>
 
                                     <!-- Agent Filter (Optional) -->
+{{--                                    @if($reportType === 'agent')--}}
+{{--                                        <div class="form-group" wire:ignore>--}}
+{{--                                            <label for="selectedAgent">Filter by Agent (Optional)</label>--}}
+{{--                                            <select class="form-control" id="selectedAgent">--}}
+{{--                                                <option value="">-- All Agents --</option>--}}
+{{--                                                @foreach($agents as $agent)--}}
+{{--                                                    <option value="{{ $agent->id }}" {{ $selectedAgent == $agent->id ? 'selected' : '' }}>--}}
+{{--                                                        {{ $agent->name }}--}}
+{{--                                                    </option>--}}
+{{--                                                @endforeach--}}
+{{--                                            </select>--}}
+{{--                                        </div>--}}
+{{--                                    @endif--}}
+
                                     @if($reportType === 'agent')
-                                        <div class="form-group" wire:ignore>
+                                        <div class="form-group">
                                             <label for="selectedAgent">Filter by Agent (Optional)</label>
-                                            <select class="form-control" id="selectedAgent">
+                                            <select class="form-control" id="selectedAgent" wire:model.defer="selectedAgent">
                                                 <option value="">-- All Agents --</option>
                                                 @foreach($agents as $agent)
-                                                    <option value="{{ $agent->id }}" {{ $selectedAgent == $agent->id ? 'selected' : '' }}>
-                                                        {{ $agent->name }}
-                                                    </option>
+                                                    <option value="{{ $agent->id }}">{{ $agent->name }}</option>
                                                 @endforeach
                                             </select>
                                         </div>
@@ -186,6 +199,7 @@
                                     @if(!empty($reportData) && is_array($reportData))
                                     <div class="table-responsive">
                                         <table class="table table-striped">
+                                            <table id="reportTable" class="table table-striped">
                                             <thead class="thead-dark">
                                             <tr>
                                                 <th>{{ $reportType === 'weekly' ? 'Day' : ($reportType === 'agent' ? 'Agent' : ($reportType === 'queue' ? 'Queue' : 'Time')) }}</th>
@@ -201,13 +215,30 @@
                                             <tbody>
                                             @foreach($reportData as $item) <!-- Directly loop over array -->
                                             <tr>
-                                                <td>{{ $item['label'] }}</td> <!-- Access as array -->
+{{--                                                <td>{{ $item['label'] }}: {{ $item['agent_name'] }}</td> <!-- Access as array -->--}}
+                                                <td>{{ $item['label'] }}: {{ $item['agent_name'] ?? 'N/A' }}</td>
+
                                                 <td>{{ $item['total_calls'] }}</td>
                                                 <td>{{ $item['answered'] ?? 'N/A' }}</td>
                                                 <td>{{ $item['abandoned'] ?? 'N/A' }}</td>
                                                 <td>{{ $item['avg_duration'] ?? 'N/A' }}</td>
                                                 @if($reportType === 'agent')
-                                                    <td>{{ $item['satisfaction'] ?? 'N/A' }}%</td>
+                                                    @php
+                                                        $satisfaction = $item['satisfaction'] ?? null;
+                                                        if ($satisfaction >= 90) {
+                                                            $color = 'green';
+                                                        } elseif ($satisfaction >= 75) {
+                                                            $color = 'green';
+                                                        } elseif ($satisfaction >= 50) {
+                                                            $color = 'orange';
+                                                        } else {
+                                                            $color = 'red';
+                                                        }
+                                                    @endphp
+
+                                                    <td style="color: {{ $satisfaction !== null ? $color : 'black' }}">
+                                                        {{ $satisfaction !== null ? $satisfaction . '%' : 'N/A' }}
+                                                    </td>
                                                 @endif
                                             </tr>
                                             @endforeach
@@ -258,7 +289,7 @@
                             <table class="table table-striped">
                                 <thead class="thead-dark">
                                 <tr>
-                                    <th>Agent</th>
+                                    <th>Agent111</th>
                                     <th>Total Calls</th>
                                     <th>Calls Received (by Number)</th>
                                     <th>Avg Talk Time</th>
@@ -271,7 +302,9 @@
                                 <tbody>
                                 @foreach($reportData as $item)
                                     <tr>
-                                        <td>{{ $item['label'] }}</td>
+{{--                                        <td>{{ $item['label'] }}:{{ $item['agent_name'] }}</td>--}}
+                                        <td>{{ $item['label'] }}: {{ $item['agent_name'] ?? 'N/A' }}</td>
+
                                         <td>{{ $item['total_calls'] }}</td>
                                         <td>{{ $item['dst_call_count'] ?? 0 }}</td>
                                         <td>{{ $item['avg_talk_time'] ?? 'N/A' }}</td>
@@ -297,126 +330,66 @@
 
 
 <!-- Weekly Report Modal -->
-{{--<div class="modal fade" id="weeklyModal" tabindex="-1" role="dialog" aria-labelledby="weeklyModalLabel" aria-hidden="true" wire:ignore.self>--}}
-{{--    <div class="modal-dialog modal-xl" role="document">--}}
-{{--        <div class="modal-content">--}}
-{{--            <div class="modal-header bg-primary text-white">--}}
-{{--                <h5 class="modal-title" id="weeklyModalLabel">Weekly Report - Week of {{ $startDate ?? '' }}</h5>--}}
-{{--                <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">--}}
-{{--                    <span aria-hidden="true">&times;</span>--}}
-{{--                </button>--}}
-{{--            </div>--}}
-{{--            <div class="modal-body">--}}
-{{--                @if($reportData && $reportType === 'weekly')--}}
-{{--                    <div class="table-responsive">--}}
-{{--                        <table class="table table-bordered" id="weeklyReportTable">--}}
-{{--                            <thead class="thead-dark">--}}
-{{--                            <tr>--}}
-{{--                                <th>Day</th>--}}
-{{--                                <th>Total Calls</th>--}}
-{{--                                <th>Answered</th>--}}
-{{--                                <th>Abandoned</th>--}}
-{{--                                <th>Avg Duration</th>--}}
-{{--                                <th>Peak Hour</th>--}}
-{{--                                <th>SLA Compliance</th>--}}
-{{--                            </tr>--}}
-{{--                            </thead>--}}
-{{--                            <tbody>--}}
-{{--                            @foreach($reportData as $item)--}}
-{{--                                <tr>--}}
-{{--                                    <td>{{ $item['label'] }}</td>--}}
-{{--                                    <td>{{ $item['total_calls'] }}</td>--}}
-{{--                                    <td>{{ $item['answered'] ?? 'N/A' }}</td>--}}
-{{--                                    <td>{{ $item['abandoned'] ?? 'N/A' }}</td>--}}
-{{--                                    <td>{{ $item['avg_duration'] ?? 'N/A' }}</td>--}}
-{{--                                    <td>{{ $item['peak_hour'] ?? 'N/A' }}</td>--}}
-{{--                                    <td>{{ $item['sla_compliance'] ?? 'N/A' }}%</td>--}}
-{{--                                </tr>--}}
-{{--                            @endforeach--}}
-{{--                            </tbody>--}}
-{{--                        </table>--}}
-{{--                    </div>--}}
-{{--                @endif--}}
-{{--            </div>--}}
-{{--            <div class="modal-footer">--}}
-{{--                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>--}}
-{{--                <button type="button" class="btn btn-primary" onclick="window.print()">--}}
-{{--                    <i class="fas fa-print mr-2"></i> Print--}}
-{{--                </button>--}}
-{{--            </div>--}}
-{{--        </div>--}}
-{{--    </div>--}}
-{{--</div>--}}
-
-<!-- Agent Performance Modal -->
-<div class="modal fade" id="agentModal" tabindex="-1" role="dialog" aria-labelledby="agentModalLabel" aria-hidden="true" wire:ignore.self>
+<div class="modal fade" id="weeklyModal" tabindex="-1" role="dialog" aria-labelledby="weeklyModalLabel" aria-hidden="true" wire:ignore.self>
     <div class="modal-dialog modal-xl" role="document">
         <div class="modal-content">
-            <div class="modal-header bg-orange text-white">
-                <h5 class="modal-title" id="agentModalLabel">Agent Performance Report</h5>
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="weeklyModalLabel">Weekly Report - Week of {{ $startDate ?? '' }}</h5>
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-
             <div class="modal-body">
-                <div wire:loading class="text-center py-5">
-                    <i class="fas fa-spinner fa-spin fa-3x"></i>
-                    <p>Generating agent report...</p>
-                </div>
-
-                <div wire:loading.remove>
-                    @if($reportData && $reportType === 'agent' && is_array($reportData))
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-striped" id="agentReportTable">
-                                <thead class="thead-dark">
+                @if($reportData && $reportType === 'weekly')
+                    <div wire:loading wire:target="generateWeeklyReport" class="text-center my-3">
+                        <div class="spinner-border text-primary" role="status"></div>
+                        <p>Generating report...</p>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="weeklyReportTable">
+                            <thead class="thead-dark">
+                            <tr>
+                                <th>Day</th>
+                                <th>Total Calls</th>
+                                <th>Answered</th>
+                                <th>Abandoned</th>
+                                <th>Avg Duration</th>
+                                <th>Peak Hour</th>
+                                <th>SLA Compliance (%)</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($reportData as $item)
                                 <tr>
-                                    <th>Agent</th>
-                                    <th>Calls Handled</th>
-                                    <th>Calls Received (by Number)</th>
-                                    <th>Avg Talk Time</th>
-                                    <th>Avg Hold Time</th>
-                                    <th>First Call Res</th>
-                                    <th>Satisfaction</th>
-                                    <th>Wrap Up Time</th>
+                                    <td>{{ $item['label'] }}</td>
+                                    <td>{{ $item['total_calls'] }}</td>
+                                    <td>{{ $item['answered'] }}</td>
+                                    <td>{{ $item['abandoned'] }}</td>
+                                    <td>{{ $item['avg_duration'] }}</td>
+                                    <td>{{ $item['peak_hour'] }}</td>
+                                    <td>{{ $item['sla_compliance'] }}%</td>
                                 </tr>
-                                </thead>
-                                <tbody>
-                                @foreach($reportData as $item)
-                                    <tr>
-                                        <td>{{ $item['label'] }}</td>
-                                        <td>{{ $item['total_calls'] }}</td>
-                                        <td>{{ $item['dst_call_count'] ?? 0 }}</td>
-                                        <td>{{ $item['avg_talk_time'] ?? 'N/A' }}</td>
-                                        <td>{{ $item['avg_hold_time'] ?? 'N/A' }}</td>
-                                        <td>{{ $item['first_call_resolution'] ?? 'N/A' }}%</td>
-                                        <td>{{ $item['satisfaction'] ?? 'N/A' }}%</td>
-                                        <td>{{ $item['wrap_up_time'] ?? 'N/A' }}</td>
-                                    </tr>
-                                @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <div class="alert alert-info">
-                            No agent performance data available. Please generate a report.
-                        </div>
-                    @endif
-                </div>
+                            @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @else
+                    <p class="text-center text-muted">No report data available.</p>
+                @endif
             </div>
-
-            <div class="modal-footer justify-content-between">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                    <i class="fas fa-times mr-1"></i> Close
-                </button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" onclick="window.print()">
-                    <i class="fas fa-print mr-1"></i> Print
+                    <i class="fas fa-print mr-2"></i> Print
                 </button>
             </div>
         </div>
     </div>
 </div>
 
+
+
+<!-- Agent Performance Modal -->
 
 
 <!-- Queue Performance Modal -->
@@ -430,34 +403,35 @@
                 </button>
             </div>
             <div class="modal-body">
-                @if($reportData && $reportType === 'queue')
+                @if($reportData && $reportType === 'agent' && is_iterable($reportData) && count($reportData) > 0)
                     <div class="table-responsive">
-                        <table class="table table-bordered" id="queueReportTable">
+                        <table class="table table-bordered table-striped" id="agentReportTable">
                             <thead class="thead-dark">
                             <tr>
-                                <th>Queue</th>
-                                <th>Calls Offered</th>
-                                <th>Calls Answered</th>
-                                <th>Abandon Rate</th>
-                                <th>Avg Wait Time</th>
-                                <th>Max Wait Time</th>
-                                <th>SLA Compliance</th>
+                                <th>Agent Name (DST)</th>
+                                <th>Total Calls</th>
+                                <th>Answered</th>
+                                <th>Abandoned</th>
+                                <th>Avg Duration (s)</th>
                             </tr>
                             </thead>
                             <tbody>
                             @foreach($reportData as $item)
                                 <tr>
-                                    <td>{{ $item['label'] }}</td>
-                                    <td>{{ $item['total_calls'] }}</td>
-                                    <td>{{ $item['answered'] ?? 'N/A' }}</td>
-                                    <td>{{ $item['abandon_rate'] ?? 'N/A' }}%</td>
-                                    <td>{{ $item['avg_wait_time'] ?? 'N/A' }}</td>
-                                    <td>{{ $item['max_wait_time'] ?? 'N/A' }}</td>
-                                    <td>{{ $item['sla_compliance'] ?? 'N/A' }}%</td>
+                                    <td>{{ $item['label'] ?? $item['dst'] ?? 'N/A' }}</td>
+                                    <td>{{ $item['agent_name'] ?? 'Unknown' }}</td>
+                                    <td>{{ $item['total_calls'] ?? 0 }}</td>
+                                    <td>{{ $item['answered'] ?? 0 }}</td>
+                                    <td>{{ $item['abandoned'] ?? 0 }}</td>
+                                    <td>{{ $item['avg_duration'] ?? '00:00:00' }}</td>
                                 </tr>
                             @endforeach
                             </tbody>
                         </table>
+                    </div>
+                @else
+                    <div class="alert alert-info">
+                        No agent performance data available. Please generate a report.
                     </div>
                 @endif
             </div>
@@ -575,6 +549,8 @@
         }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+{{--    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap4.min.js"></script>--}}
+
 
 @endpush
 
@@ -645,6 +621,21 @@
             });
         });
     </script>
+
+{{--    <script>--}}
+{{--        $(document).ready(function () {--}}
+{{--            $('#reportTable').DataTable({--}}
+{{--                pageLength: 10,--}}
+{{--                lengthMenu: [5, 10, 25, 50],--}}
+{{--                ordering: true,--}}
+{{--                language: {--}}
+{{--                    search: "Search Table:",--}}
+{{--                    lengthMenu: "Show _MENU_ entries"--}}
+{{--                }--}}
+{{--            });--}}
+{{--        });--}}
+{{--    </script>--}}
+
 
 @endpush
 {{-- REPORT MODULE END --}}

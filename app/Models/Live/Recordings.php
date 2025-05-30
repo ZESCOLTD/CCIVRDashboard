@@ -35,7 +35,7 @@ class Recordings extends Model
         'transaction_code'
     ];
 
-    protected $with = ['tCode'];
+    protected $with = ['tCode','agent'];
 
     public function myUser()
     {
@@ -49,7 +49,7 @@ class Recordings extends Model
 
     public function agent()
     {
-        return $this->belongsTo(CCAgent::class, 'dst', 'endpoint');
+        return $this->belongsTo(CCAgent::class, 'dst','endpoint');
     }
 
     public function tCode()
