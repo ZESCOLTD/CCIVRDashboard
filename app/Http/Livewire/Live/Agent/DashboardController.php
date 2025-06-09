@@ -186,7 +186,7 @@ class DashboardController extends Component
 
         if($this->agent == null) {
             return view('livewire.live.agent.dashboard-controller', [
-                'agent' => $this->agent,
+                'agent' => "Please Ensure you are assigned a valid agent number",
                 'api_server' => null,
                 'ws_server' => null,
                 'totalCalls' => 0,
