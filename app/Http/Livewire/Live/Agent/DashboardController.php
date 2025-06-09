@@ -387,10 +387,10 @@ class DashboardController extends Component
         $server = config("app.API_SERVER_ENDPOINT");
 
         try {
-            // $response = Http::get($server . '/online/' . $this->agent_num);
-            // $data = $response->json();
+            $response = Http::get($server . '/online/' . $this->agent_num);
+            $data = $response->json();
 
-            // if ($data['status'] === true) {
+            if ($data['status'] === true) {
                 $this->agent->state = config('constants.agent_state.LOGGED_IN');
                 $this->agent->status = config('constants.agent_status.IDLE');
                 $this->agent->save();
@@ -427,9 +427,9 @@ class DashboardController extends Component
                 session()->flash('message', 'Successfully logged in to session: ' . $this->currentSession->name );
                 // session()->flash('message', 'Successfully logged in to session: ' . $this->currentSession->name . ' (' . $data['endpoint'] . ')');
                 $this->emitSelf('refresh'); // Optional, if other components are listening
-            // } else {
-            //     session()->flash('error', 'Agent ' . $data['endpoint'] . ' is not online.');
-            // }
+            } else {
+                session()->flash('error', 'Agent ' . $data['endpoint'] . ' is not online.');
+            }
         } catch (\Exception $e) {
             session()->flash('error', 'Error: ' . $e->getMessage());
         }
