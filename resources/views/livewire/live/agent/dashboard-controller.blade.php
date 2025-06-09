@@ -982,30 +982,13 @@
                 iframe.onload = function() {
                     iframe.contentWindow.postMessage({
                         man_no: {{ $agent->endpoint }}
-                    }, 'http://localhost:8000');
+                    }, 'https://ivr.zesco.co.zm:443');
                 };
             @endif
 
         });
 
 
-
-        document.addEventListener('show-session-modal', () => {
-            console.log('[Livewire] show-session-modal fired ✅');
-
-            const modal = new bootstrap.Modal(document.getElementById('sessionModal'));
-
-            modal.show();
-
-        });
-
-        document.addEventListener('closeSessionModal', () => {
-            console.log('[Livewire] closeSessionModal fired ✅');
-            // const modal = bootstrap.Modal.getInstance(document.getElementById('sessionModal'));
-
-            //     modal.hide();
-
-        });
     </script>
     <script>
         document.addEventListener('livewire:load', function() {
@@ -1061,21 +1044,28 @@
                     el.innerHTML = highlighted;
                 });
             });
+
+            Livewire.on('closeModal', () => {
+            const modal = bootstrap.Modal.getInstance(document.getElementById('knowledgeModal'));
+            if (modal) {
+                modal.hide();
+            }
+        });
         });
     </script>
 
-    <script defer>
+    {{-- <script defer>
         Livewire.on('closeModal', () => {
             const modal = bootstrap.Modal.getInstance(document.getElementById('knowledgeModal'));
             if (modal) {
                 modal.hide();
             }
         });
-    </script>
+    </script> --}}
 
     <script>
         window.addEventListener('livewire:load', () => {
-            const apiUrl = "http://10.44.0.70:8088/ari/bridges?api_key=asterisk:asterisk";
+            const apiUrl = "https://ivr.zesco.co.zm:8089/ari/bridges?api_key=asterisk:asterisk";
 
 
 
@@ -1122,6 +1112,7 @@
 
                 var ws_address = document.getElementById("ws_endpoint");
                 var ws_socket = document.getElementById("ws-info");
+                console.log("WebSocket address:", ws_address.value);
 
 
                 const socket = new WebSocket(ws_address.value);
