@@ -185,17 +185,19 @@ class DashboardController extends Component
         $this->agent_num = $this->agent !=null? $this->agent->endpoint:null;
 
         if($this->agent == null) {
-            return view('livewire.live.agent.dashboard-controller', [
-                'agent' => "Please Ensure you are assigned a valid agent number",
-                'api_server' => null,
-                'ws_server' => null,
-                'totalCalls' => 0,
-                'answeredCalls' => 0,
-                'missedCalls' => 0,
-                'averageCallTime' => 0,
-                'lastFiveCalls' => [],
-                'customer_details' => $this->customer_details,
-            ]);
+            return view('livewire.live.agent.dashboard-null-endpoint',
+            //  [
+            //     'agent' => "Please Ensure you are assigned a valid agent number",
+            //     'api_server' => null,
+            //     'ws_server' => null,
+            //     'totalCalls' => 0,
+            //     'answeredCalls' => 0,
+            //     'missedCalls' => 0,
+            //     'averageCallTime' => 0,
+            //     'lastFiveCalls' => [],
+            //     'customer_details' => $this->customer_details,
+            // ]
+        );
         }
         $api_server = config("app.API_SERVER_ENDPOINT");
         $ws_server = config("app.WS_SERVER_ENDPOINT");
