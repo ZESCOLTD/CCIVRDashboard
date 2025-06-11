@@ -25,8 +25,27 @@ class CreateNewUser extends Component
     public $StaffNumber;
     public $Directorate;
 
+    public $phrisSearchResults = []; // Stores the collection of PhrisUserDetails for the select dropdown
+
+
+    public function updatedStaffNumber()
+    {
+        $searchQuery = trim($this->StaffNumber); // Remove leading/trailing whitespace
+
+        if (empty($searchQuery) || strlen($searchQuery) <= 3) { // Optional: require minimum 3 characters for search
+            return;
+        }
+        $this->phrisSearchResults = PhrisUserDetails::where('con_per_no', 'like', '%' . $searchQuery . '%')
+        ->orWhere('name', 'like', '%' . $searchQuery . '%') // Also search by name
+        ->limit(10) // Limit results to avoid overwhelming the client
+        ->get();
+        // dd($this->phrisSearchResults);
+        // return $this->StaffNumber;
+    }
+
     public function updatedSelectedEmployee($value)
     {
+        // dd($value);
         if ($this->selectedEmployee) {
 
             $newUserPhris = PhrisUserDetails::where('con_per_no', $value)->first();

@@ -253,7 +253,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/change-password', [PasswordController::class, 'showChangeForm'])->name('password.change');
     Route::post('/change-password', [PasswordController::class, 'update']);
 
-
+    Route::get('/getManNumbersFiltered', [Controller::class, 'getManNumbers'])->name('getManNumbersFiltered');
 
 
     Route::middleware(['role:super-admin|admin'])->group(function () {
