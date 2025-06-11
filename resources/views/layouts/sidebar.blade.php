@@ -1,4 +1,5 @@
-@if (Auth::user()->hasRole('agent'))
+@if (Auth::user()->hasRole('agent') && Auth::user()->getRoleNames()->count()==1)
+
 @else
     <aside class="main-sidebar sidebar-light-gray elevation-5">
         <!-- Brand Logo -->
@@ -23,7 +24,7 @@
                     {{-- DASHBOARD --}}
                     <li class="nav-header" style="font-weight: bold; text-transform: uppercase;">Dashboard & Overview
                     </li>
-                    @if (!Auth::user()->hasRole('agent'))
+                    @if (Auth::user()->hasRole('admin') || Auth::user()->hasRole('qa-supervisor') || Auth::user()->hasRole('qa-officer'))
                         <li class="nav-item">
                             <a href="{{ route('reports.index') }}" class="nav-link">
                                 <i class="fas fa-tachometer-alt nav-icon"></i>
@@ -45,7 +46,7 @@
                     </li>
 
                     {{-- REPORTS --}}
-                    @if (!Auth::user()->hasRole('agent'))
+                    @if (Auth::user()->hasRole('qa-supervisor') || Auth::user()->hasRole('qa-officer'))
                         <li class="nav-header">Reports & Analytics</li>
                         <li class="nav-item">
                             <a href="{{ route('general-report') }}" class="nav-link">
@@ -76,7 +77,7 @@
 
 
                     {{-- CONFIGURATION --}}
-                    @if (!Auth::user()->hasRole('agent'))
+                    @if (Auth::user()->hasRole('admin') )
                         <li class="nav-header">Call Centre Configuration</li>
                         <li class="nav-item">
                             <a href="{{ route('config.destinations') }}" class="nav-link">
@@ -117,7 +118,7 @@
                     @endif
 
                     {{-- USERS --}}
-                    @if (!Auth::user()->hasRole('agent'))
+                    @if (Auth::user()->hasRole('admin') || Auth::user()->hasRole('super-admin'))
                         <li class="nav-header">User & Role Management</li>
                         <li class="nav-item">
                             <a href="{{ route('user.list') }}" class="nav-link">

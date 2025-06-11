@@ -245,7 +245,7 @@ Route::get('/audio/{file?}/{extension?}', [AudioController::class, 'embedAudio']
 Auth::routes();
 
 // Main Application Routes
-Route::middleware(['auth', 'role:super-admin|admin|agent'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     // Dashboard and Reports
     Route::middleware(['auth', 'check.weak.password'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -299,7 +299,7 @@ Route::middleware(['auth', 'role:super-admin|admin|agent'])->group(function () {
 
 
 
-    Route::middleware(['role:super-admin|admin|quality-assurance'])->group(function () {
+    Route::middleware(['role:super-admin|admin|qa-officer|qa-supervisor'])->group(function () {
 
         Route::get('/live/recordings/show/{id}', RecordingsShow::class)->name('live.recordings.show');
         Route::get('/live/recordings', Recordings::class)->name('live.recordings');
@@ -313,7 +313,7 @@ Route::middleware(['auth', 'role:super-admin|admin|agent'])->group(function () {
         Route::get('/session/call-sessions/show/{id}', ShowCallSession::class)->name('session.call-sessions.show');
     });
 
-    Route::middleware(['role:super-admin|admin|quality-assurance|supervisor'])->group(function () {
+    Route::middleware(['role:super-admin|admin|qa-officer|qa-supervisor'])->group(function () {
 
         // Route::get('/live/recordings/show/{id}', RecordingsShow::class)->name('live.recordings.show');
         // Route::get('/live/recordings', Recordings::class)->name('live.recordings');
@@ -329,7 +329,7 @@ Route::middleware(['auth', 'role:super-admin|admin|agent'])->group(function () {
 
 
     // Report Routes (Added missing ones)
-    Route::middleware(['role:super-admin|admin|quality-assurance'])->group(function () {
+    Route::middleware(['role:super-admin|admin|qa-officer|qa-supervisor'])->group(function () {
         Route::post('/reports/generate', [GeneralReportController::class, 'generateReport'])->name('reports.generate');
         Route::post('/reports/export', [GeneralReportController::class, 'exportReport'])->name('reports.export');
         Route::post('/reports/email', [GeneralReportController::class, 'emailReport'])->name('reports.email');
