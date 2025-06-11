@@ -175,7 +175,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="password_field">Password</label>
-                                <input wire:model="password" type="password" id="password_field"
+                                <input wire:model.defer="password" type="password" id="password_field"
                                     class="form-control" placeholder="Enter password for the new user" />
                                 @error('password')
                                     <span class="error text-danger">{{ $message }}</span>
