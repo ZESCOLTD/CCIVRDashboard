@@ -46,7 +46,7 @@
                     </li>
 
                     {{-- REPORTS --}}
-                    @if (Auth::user()->hasRole('qa-supervisor') || Auth::user()->hasRole('qa-officer'))
+                    @if (Auth::user()->hasRole('qa-supervisor') || Auth::user()->hasRole('qa-officer')|| Auth::user()->hasRole('admin'))
                         <li class="nav-header">Reports & Analytics</li>
                         <li class="nav-item">
                             <a href="{{ route('general-report') }}" class="nav-link">
