@@ -290,7 +290,7 @@
                             <i class="fas fa-times"></i>
                         </div>
                         <div class="stats-content">
-                            <h6>Missed Calls</h6>
+                            <h6>Unanswered Calls</h6>
                             <h3>{{ $missedCalls }}</h3>
                             <div class="trend down">
                                 <i class="fas fa-arrow-down"></i> 5% <span class="trend-text">vs yesterday</span>

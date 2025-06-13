@@ -626,6 +626,9 @@ $(document).ready(function () {
             localDB.setItem("SipUsername", event.data.man_no);
             localDB.setItem("SipPassword", event.data.man_no);
             localDB.setItem("profileName", event.data.man_no);
+
+            window.location.reload(true);
+            console.warn("Reloading page with new SIP Username and Password");
             // localDB.setItem("ServerPath", "/ws");
             // localDB.setItem("SipDomain", "ivr.zesco.co.zm");
         //}
