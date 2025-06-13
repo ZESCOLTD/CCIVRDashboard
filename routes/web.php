@@ -225,7 +225,7 @@ use App\Http\Livewire\RolesAndPermissions\UserManagement;
 use App\Http\Controllers\Report\GeneralReportController;
 use App\Http\Livewire\Report\ReportController;
 use App\Http\Livewire\GeneralReport;
-
+use App\Http\Livewire\Live\Agent\OutboundComponent;
 // use App\Http\Livewire\Live\DialEventsComponent;
 use App\Http\Livewire\Live\StasisEndEventComponent;
 use App\Http\Livewire\Live\StasisStartEventComponent;
@@ -294,6 +294,8 @@ Route::middleware(['auth'])->group(function () {
 
 
     Route::get('/live/agent/dashboard/{id}', AgentDashboardController::class)->name('live.agent.dashboard');
+
+    Route::get('/live/agent/outbound/{id}', OutboundComponent::class)->name('live.agent.outbound');
 
 
 

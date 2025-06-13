@@ -35,7 +35,13 @@
                     <li class="nav-item">
                         <a href="{{ route('live.agent.dashboard', auth()->user()->id) }}" class="nav-link">
                             <i class="fas fa-user nav-icon"></i>
-                            <p>Agent Dashboard</p>
+                            <p>Inbound Agent</p>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{{ route('live.agent.outbound', auth()->user()->id) }}" class="nav-link">
+                            <i class="fas fa-user nav-icon"></i>
+                            <p>Outbound Agent</p>
                         </a>
                     </li>
                     <li class="nav-item">

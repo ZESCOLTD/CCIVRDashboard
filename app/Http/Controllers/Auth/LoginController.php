@@ -53,8 +53,11 @@ class LoginController extends Controller
 
     protected function authenticated(Request $request, $user)
     {
-        if ($user->hasRole('agent')) {
+        if ($user->hasRole('agent') && $user->getRoleNames()->count()==1) {
             return redirect()->route('live.agent.dashboard', ['id' => $user->id]);
+        }
+        else if($user->hasRole('agent') && $user->hasRole('outbound') && $user->getRoleNames()->count()==2) {
+            return redirect()->route('live.agent.outbound', ['id' => $user->id]);
         }
 
         return redirect()->intended($this->redirectTo);
