@@ -247,16 +247,16 @@ Auth::routes();
 // Main Application Routes
 Route::middleware(['auth'])->group(function () {
     // Dashboard and Reports
-    Route::middleware(['auth', 'check.weak.password'])->group(function () {
+    // Route::middleware(['auth', 'check.weak.password'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    });
+    // });
     Route::get('/change-password', [PasswordController::class, 'showChangeForm'])->name('password.change');
     Route::post('/change-password', [PasswordController::class, 'update']);
 
     Route::get('/getManNumbersFiltered', [Controller::class, 'getManNumbers'])->name('getManNumbersFiltered');
 
 
-    Route::middleware(['role:super-admin|admin'])->group(function () {
+    // Route::middleware(['role:super-admin|admin'])->group(function () {
         // Password Management
         Route::get('/', DashboardIndex::class)->name('reports.index');
         Route::get('/reports/index', DashboardIndex::class)->name('reports.index');
@@ -264,11 +264,11 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/reports/call/detail/records', CallDetailRecords::class)->name('reports.call.detail.records');
         Route::get('/reports/show/cdr/{id}', CallDetailRecords::class)->name('reports.show.cdr');
         Route::get('/reports/search', SearchCDR::class)->name('reports.search');
-    });
+    // });
 
 
 
-    Route::middleware(['role:super-admin|admin'])->group(function () {
+    // Route::middleware(['role:super-admin|admin'])->group(function () {
         // User Management
         Route::get('/users/profile', UserProfile::class)->name('user.profile');
         Route::get('/users/show/{id}', ShowUser::class)->name('user.show');
@@ -279,15 +279,15 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/users/suspend/{user}/create', SuspendForm::class)->name('suspend.one.create');
         Route::get('/users/un-suspend/all/create', UnSuspendAllForm::class)->name('un-suspend.all.create');
         Route::get('/users/un-suspend/{user}/create', UnSuspendForm::class)->name('un-suspend.one.create');
-    });
+    // });
 
-    Route::middleware(['role:super-admin|admin'])->group(function () {
+    // Route::middleware(['role:super-admin|admin'])->group(function () {
         // Configuration
         Route::get('/config/destinations', Destination::class)->name('config.destinations');
         Route::get('/config/contexts', Contexts::class)->name('config.contexts');
         Route::get('/config/show/contexts/{id}', ShowContexts::class)->name('config.show.contexts');
         Route::get('/configurations/pbx-credentials', PbxCredentials::class)->name('configurations.pbx-credentials');
-    });
+    // });
 
     // Live Components
     // Route::get('/live/dashboard', DashboardController::class)->name('live.dashboard');
