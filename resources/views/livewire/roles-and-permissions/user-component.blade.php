@@ -17,7 +17,7 @@
                     <div class="card-header">
                         <h4>Users
                             @can('create user')
-                            <a href="{{ url('users/create') }}" class="btn btn-primary float-end">Add User</a>
+                            <a href="{{ route('user.create') }}" class="btn btn-primary float-end">Add User</a>
                             @endcan
                         </h4>
                     </div>

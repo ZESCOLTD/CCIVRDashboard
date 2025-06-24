@@ -27,6 +27,12 @@ class CreateNewUser extends Component
 
     public $phrisSearchResults = []; // Stores the collection of PhrisUserDetails for the select dropdown
 
+    protected $rules = [
+        'StaffNumber' => 'required',
+        'StaffEmail' => 'required|email',
+        'password' => 'required|min:6',
+    ];
+
 
     public function updatedStaffNumber()
     {
@@ -36,9 +42,9 @@ class CreateNewUser extends Component
             return;
         }
         $this->phrisSearchResults = PhrisUserDetails::where('con_per_no', 'like', '%' . $searchQuery . '%')
-        ->orWhere('name', 'like', '%' . $searchQuery . '%') // Also search by name
-        ->limit(10) // Limit results to avoid overwhelming the client
-        ->get();
+            ->orWhere('name', 'like', '%' . $searchQuery . '%') // Also search by name
+            ->limit(10) // Limit results to avoid overwhelming the client
+            ->get();
         // dd($this->phrisSearchResults);
         // return $this->StaffNumber;
     }
@@ -50,35 +56,35 @@ class CreateNewUser extends Component
 
             $newUserPhris = PhrisUserDetails::where('con_per_no', $value)->first();
 
-//            #attributes: array:27 [▼
-//            "con_per_no" => "72699"
-//    "alt_per_no" => null
-//    "contract_type" => "PERMANENT CONTRACT"
-//    "con_st_code" => "ACT"
-//    "con_wef_date" => "2016-01-04 00:00:00"
-//    "con_wet_date" => "2049-07-06 00:00:00"
-//    "name" => "KELLY  KINYAMA"
-//    "nrc" => "141691/10/1"
-//    "group_type" => "UNIONISED"
-//    "job_title" => "TELECOMMS ASSISTANT"
-//    "grade" => "GP7"
-//    "functional_section" => "TELECOMS"
-//    "directorate" => "CORPORATE SUPPORT SERVICES DIRECTORATE"
-//    "location" => "FIBRECOM"
-//    "pay_point" => "CORPORATE SUPPORT SERVICES"
-//    "bu_code" => "12500"
-//    "cc_code" => "12240"
-//    "staff_email" => "KKINYAMA@ZESCO.CO.ZM"
-//    "job_code" => "TELECOMMS ASSISTANT"
-//    "dob" => "1989-07-07 00:00:00"
-//    "sex" => "M"
-//    "mobile_no" => "260972462922"
-//    "station" => "LUSAKA"
-//    "union_affiliation" => null
-//    "account_number" => "0000001014476"
-//    "branch_code" => "021451"
-//    "bank_code" => "02"
-//  ]
+            //            #attributes: array:27 [▼
+            //            "con_per_no" => "72699"
+            //    "alt_per_no" => null
+            //    "contract_type" => "PERMANENT CONTRACT"
+            //    "con_st_code" => "ACT"
+            //    "con_wef_date" => "2016-01-04 00:00:00"
+            //    "con_wet_date" => "2049-07-06 00:00:00"
+            //    "name" => "KELLY  KINYAMA"
+            //    "nrc" => "141691/10/1"
+            //    "group_type" => "UNIONISED"
+            //    "job_title" => "TELECOMMS ASSISTANT"
+            //    "grade" => "GP7"
+            //    "functional_section" => "TELECOMS"
+            //    "directorate" => "CORPORATE SUPPORT SERVICES DIRECTORATE"
+            //    "location" => "FIBRECOM"
+            //    "pay_point" => "CORPORATE SUPPORT SERVICES"
+            //    "bu_code" => "12500"
+            //    "cc_code" => "12240"
+            //    "staff_email" => "KKINYAMA@ZESCO.CO.ZM"
+            //    "job_code" => "TELECOMMS ASSISTANT"
+            //    "dob" => "1989-07-07 00:00:00"
+            //    "sex" => "M"
+            //    "mobile_no" => "260972462922"
+            //    "station" => "LUSAKA"
+            //    "union_affiliation" => null
+            //    "account_number" => "0000001014476"
+            //    "branch_code" => "021451"
+            //    "bank_code" => "02"
+            //  ]
 
             //dd($newUserPhris);
             $this->name = $newUserPhris->name;
@@ -92,7 +98,7 @@ class CreateNewUser extends Component
             $this->StaffNumber = $newUserPhris->con_per_no;
             $this->Directorate = $newUserPhris->directorate;
 
-//            $this->user->name = $newUserPhris->name;
+            //            $this->user->name = $newUserPhris->name;
         }
     }
 
@@ -101,42 +107,77 @@ class CreateNewUser extends Component
         return view('livewire.user.user-overview.create-new-user');
     }
 
+    // public function submit()
+    // {
+    //     // Validate Form Request
+    //     //$this->validate();
+    //     try {
+    //         // Create Config Destination
+    //         User::updateOrCreate(
+    //             [
+    //                 'man_no' => $this->StaffNumber
+    //             ],
+    //             [
+    //                 'name' => $this->name,
+    //                 'position' => $this->Position,
+    //                 'division' => $this->Division,
+    //                 'grade' => $this->EmployeeGrade,
+
+    //                 'email' => $this->StaffEmail,
+    //                 'status'=> 0,
+
+    //                 'location' => $this->Department,
+    //                 'man_no' => $this->StaffNumber,
+    //                 'directorate' => $this->Directorate,
+    //                 'password' => Hash::make($this->password)
+    //             ]
+
+    //         );
+
+    //         // Set Flash Message
+    //         session()->flash('success', 'User Created Successfully!!');
+    //         // Reset Form Fields After Creating Config Destination
+    //         $this->resetFields();
+    //     } catch (\Exception $e) {
+    //         // Set Flash Message
+    //         //dd($e);
+    //         session()->flash('error', 'Something goes wrong while creating user!!'.$e->getMessage());
+    //         // Reset Form Fields After Creating Config Destination
+    //         $this->resetFields();
+    //     }
+    // }
+
     public function submit()
     {
+        // Validate required fields
         // Validate Form Request
-        //$this->validate();
+        $this->validate();
+
         try {
-            // Create Config Destination
-            User::updateOrCreate(
-                [
-                    'man_no' => $this->StaffNumber
-                ],
-                [
-                    'name' => $this->name,
-                    'position' => $this->Position,
-                    'division' => $this->Division,
-                    'grade' => $this->EmployeeGrade,
+            // Check if user already exists
+            if (User::where('man_no', $this->StaffNumber)->exists()) {
+                session()->flash('error', 'User already exists with staff number: ' . $this->StaffNumber);
+                return;
+            }
 
-                    'email' => $this->StaffEmail,
-                    'status'=> 0,
+            // Create new user
+            User::create([
+                'name' => $this->name,
+                'position' => $this->Position,
+                'division' => $this->Division,
+                'grade' => $this->EmployeeGrade,
+                'email' => $this->StaffEmail,
+                'status' => 0,
+                'location' => $this->Department,
+                'man_no' => $this->StaffNumber,
+                'directorate' => $this->Directorate,
+                'password' => Hash::make($this->password),
+            ]);
 
-                    'location' => $this->Department,
-                    'man_no' => $this->StaffNumber,
-                    'directorate' => $this->Directorate,
-                    'password' => Hash::make($this->password)
-                ]
-
-            );
-
-            // Set Flash Message
-            session()->flash('success', 'User Created Successfully!!');
-            // Reset Form Fields After Creating Config Destination
+            session()->flash('success', 'User created successfully!');
             $this->resetFields();
         } catch (\Exception $e) {
-            // Set Flash Message
-            //dd($e);
-            session()->flash('error', 'Something goes wrong while creating user!!'.$e->getMessage());
-            // Reset Form Fields After Creating Config Destination
+            session()->flash('error', 'Something went wrong: ' . $e->getMessage());
             $this->resetFields();
         }
     }
@@ -155,7 +196,4 @@ class CreateNewUser extends Component
         $this->Directorate = '';
         $this->password = '';
     }
-
-
-
 }
