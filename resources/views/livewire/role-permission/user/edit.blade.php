@@ -44,12 +44,29 @@
                             @enderror
                         </div>
 
+                        {{-- Separate div for Current Roles --}}
                         <div class="mb-3">
-                            <label>Roles</label>
+                            <label>Current Roles</label>
+                            <div class="border p-2 bg-light rounded">
+                                @forelse ($roles as $role) {{-- Using $roles directly from the component --}}
+                                    <span class="badge bg-primary me-1">{{ $role }}</span>
+                                @empty
+                                    <span class="text-muted">No roles assigned.</span>
+                                @endforelse
+                            </div>
+                        </div>
+
+                        {{-- Multiple Select for Editing Roles --}}
+                        <div class="mb-3">
+                            <label>Update Roles</label>
                             <select wire:model="roles" multiple class="form-control">
-                                <option value="">Select Role</option>
+                                {{-- <option value="">Select Role</option> This option is typically not useful for multiple selects --}}
                                 @foreach ($allRoles as $role)
-                                    <option value="{{ $role }}">{{ $role }}</option>
+                                    {{-- The 'selected' attribute is handled by wire:model for multiple selects,
+                                        but explicit check can sometimes improve initial rendering or fallback --}}
+                                    <option value="{{ $role }}" {{ in_array($role, $roles) ? 'selected' : '' }}>
+                                        {{ $role }}
+                                    </option>
                                 @endforeach
                             </select>
 
