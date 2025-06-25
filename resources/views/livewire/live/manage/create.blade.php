@@ -4,7 +4,7 @@
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="createModalLabel">Update Contexts</h5>
+                <h5 class="modal-title" id="createModalLabel">Create Agent</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span>×</span>
                 </button>
@@ -14,7 +14,7 @@
                 <div class="modal-body">
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col">
                             <div class="mb-3">
                                 <label class="form-label">Man No.</label>
                                 <input class="form-control text-muted" wire:model="agent_man_no">
@@ -30,7 +30,7 @@
                             </div>
 
                         </div>
-                        <div class="col-md-6">
+                        {{-- <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Set number:</label>
                                 <input class="form-control text-muted" wire:model.defer="agent_set_number">
@@ -45,7 +45,7 @@
                                 <input class="form-control text-muted" wire:model.defer="agent_status">
                             </div>
 
-                        </div>
+                        </div> --}}
                     </div>
 
                 </div>

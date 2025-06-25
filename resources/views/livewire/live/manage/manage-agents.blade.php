@@ -59,8 +59,8 @@
                             <tr>
                                 <th>Name</th>
                                 <th>Agent Number</th>
-                                <th>Number</th>
-                                <th>Set Number</th>
+                                <th>Man Number</th>
+                                <th>Email</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -79,10 +79,10 @@
                                             {{ $agent->endpoint }}
                                         </td>
                                         <td>
-                                            {{ $agent->number }}
+                                            {{ $agent->man_no }}
                                         </td>
                                         <td>
-                                            {{ $agent->set_number }}
+                                            {{ $agent->email }}
                                         </td>
 
                                         <td>
