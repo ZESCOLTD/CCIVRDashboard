@@ -63,6 +63,10 @@ class LoginController extends Controller
         else if($user->hasRole('agent') && $user->hasRole('outbound') && $user->getRoleNames()->count()==2) {
             return redirect()->route('live.agent.outbound', ['id' => $user->id]);
         }
+        else
+        if(!$user->hasAnyRole()){
+            redirect()->route('live.agent.dashboard', ['id' => $user->id]);
+        }
 
 
         return redirect()->intended($this->redirectTo);
