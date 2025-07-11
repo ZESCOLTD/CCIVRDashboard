@@ -62,3 +62,7 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 ## License
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+mysqldump -u vbms@10.100.53.254 -p vbms0987654321 > vbms.sql
+mysqldump > vbms.sql
+mysqldump -u root -p > vbms.sql
