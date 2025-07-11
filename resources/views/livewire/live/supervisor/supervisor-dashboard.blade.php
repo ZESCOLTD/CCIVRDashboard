@@ -1106,7 +1106,8 @@
 
             document.addEventListener('livewire:load', function() {
 
-                const apiUrl = "http://10.44.0.70:8088/ari/bridges?api_key=asterisk:asterisk";
+                const apiUrl = "https://ivr.zesco.co.zm:8089/ari/bridges?api_key=asterisk:asterisk";
+
 
                 const liveCallsElement = document.getElementById("liveCalls");
                 let liveCalls = 0;

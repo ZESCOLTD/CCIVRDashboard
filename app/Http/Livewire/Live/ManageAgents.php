@@ -659,8 +659,8 @@ class ManageAgents extends Component
                 'endpoint' => $this->agent_endpoint,
                 'user_id' => $this->agent_user_id,
                 'set_number' => $this->agent_set_number,
-                'state' => $this->agent_status,
-                'status' => $this->agent_state
+                'state' => 'LOGGED_OUT',
+                'status' => 'LOGGED_OUT'
             ]
         );
         $this->resetFields();
