@@ -663,7 +663,18 @@ class ManageAgents extends Component
                 'status' => $this->agent_state
             ]
         );
+        $this->resetFields();
         session()->flash('success', 'Agent created successfully.');
+    }
+
+    public function resetFields(){
+        $this->agent_man_no= '';
+        $this->agent_name = '';
+        $this->agent_endpoint = '';
+        $this->agent_user_id = '';
+        $this->agent_set_number = '';
+        $this->agent_status = '';
+        $this->agent_state = '';
     }
 
     public function updatedAgentManNo()
