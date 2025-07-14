@@ -78,7 +78,7 @@ class DashboardController extends Component
 
         $user = $this->user;
         $this->agent = $user->myAgentDetails;
-        $this->calculateTotalBreakDuration();
+        $this->calculateTotalBreakDurationForToday();
         // Load all available sessions
         $this->sessions = CallSession::all();
 
@@ -424,7 +424,7 @@ class DashboardController extends Component
 
                 // Refresh local data
                 $this->agent = $this->agent->fresh();
-                $this->calculateTotalBreakDuration(); // Recalculate break duration after login
+                $this->calculateTotalBreakDurationForToday(); // Recalculate break duration after login
 
                 session()->flash('message', 'Successfully logged in to session: ' . $this->currentSession->name );
                 // session()->flash('message', 'Successfully logged in to session: ' . $this->currentSession->name . ' (' . $data['endpoint'] . ')');
