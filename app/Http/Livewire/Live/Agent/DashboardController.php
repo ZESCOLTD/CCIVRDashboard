@@ -516,6 +516,7 @@ class DashboardController extends Component
     }
     public function logout()
     {
+        $this->resume();
         $this->agent->state =  config('constants.agent_state.LOGGED_OUT');
         $this->agent->status =  config('constants.agent_status.LOGGED_OUT');
         $this->agent->save();
