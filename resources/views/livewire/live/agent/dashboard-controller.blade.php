@@ -134,6 +134,11 @@
                                         </div>
                                         <div><i class="far fa-clock mr-2"></i>To: {{ $currentSession->time_to }}</div>
                                     </div>
+                                    <div>
+                                        <i class="fas fa-stopwatch mr-2"></i>
+                                        <strong>Total Break Duration:</strong>
+                                        <span class="text-info">{{ $totalBreakDuration }}</span>
+                                    </div>
                                 @else
                                     <div class="alert alert-warning py-1 px-2 mt-2 small">
                                         <i class="fas fa-exclamation-triangle mr-2"></i>No shifted selected
