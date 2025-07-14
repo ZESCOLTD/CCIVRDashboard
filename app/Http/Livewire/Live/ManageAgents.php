@@ -665,6 +665,7 @@ class ManageAgents extends Component
         );
         $this->resetFields();
         session()->flash('success', 'Agent created successfully.');
+        $this->dispatchBrowserEvent('closeModal');
     }
 
     public function resetFields(){

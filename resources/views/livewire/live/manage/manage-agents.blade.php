@@ -116,3 +116,33 @@
 
     </div>
 </div>
+
+
+@push('custom-scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('[Livewire] livewire:load fired ✅');
+
+
+
+            document.addEventListener('closeModal', function() {
+                console.log('[Livewire] livewire:closeModal fired ✅');
+
+                // const creatModal = bootstrap.Modal.getInstance('createModal');
+                // creatModal.hide(); // Use native Bootstrap API
+
+                const createModalElement = document.getElementById('createModal');
+                if (createModalElement) {
+                    createModalElement.style.display = 'none'; // Hide the element
+                    createModalElement.classList.remove('show'); // Remove Bootstrap's 'show' class
+                    document.body.classList.remove('modal-open'); // Remove body class to fix scrolling
+                    const backdrop = document.querySelector('.modal-backdrop'); // Remove backdrop if exists
+                    if (backdrop) {
+                        backdrop.remove();
+                    }
+                }
+            });
+
+        });
+    </script>
+@endpush
