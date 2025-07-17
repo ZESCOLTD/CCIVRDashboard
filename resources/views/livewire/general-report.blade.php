@@ -205,6 +205,7 @@
                                                 <th>{{ $reportType === 'weekly' ? 'Day' : ($reportType === 'agent' ? 'Agent' : ($reportType === 'queue' ? 'Queue' : 'Time')) }}</th>
                                                 <th>Total Calls</th>
                                                 <th>Answered</th>
+                                                <th>Missed</th>
                                                 <th>Abandoned</th>
                                                 <th>Avg Duration</th>
                                                 @if($reportType === 'agent')
@@ -220,6 +221,7 @@
 
                                                 <td>{{ $item['total_calls'] }}</td>
                                                 <td>{{ $item['answered'] ?? 'N/A' }}</td>
+                                                <td>{{ $item['missed'] ?? 'N/A' }}</td>
                                                 <td>{{ $item['abandoned'] ?? 'N/A' }}</td>
                                                 <td>{{ $item['avg_duration'] ?? 'N/A' }}</td>
                                                 @if($reportType === 'agent')

@@ -19,6 +19,8 @@ use App\Models\Live\Recordings;
 use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 
+use App\Models\Live\DialEventLog;
+
 class GeneralReport extends Component
 {
     public $agent;
@@ -68,6 +70,8 @@ class GeneralReport extends Component
     public function updatedReportType($value)
     {
 
+        // dd($value);
+
         $this->startDate = null;
         $this->endDate = null;
         $this->startTime = null;
@@ -88,8 +92,8 @@ class GeneralReport extends Component
     public function generateReport()
     {
 
-       $this->validate([
-            'reportType' => 'required|in:daily,weekly,agent,queue,sms',
+        $this->validate([
+            'reportType' => 'required|in:daily,weekly,agent,queue,sms,transaction',
             'startDate' => 'required|date',
             'endDate' => 'required|date|after_or_equal:startDate',
             'startTime' => 'nullable|date_format:H:i',
@@ -143,6 +147,12 @@ class GeneralReport extends Component
                     $this->reportTitle = 'SMS Broadcast Report';
                     break;
 
+                case 'transaction':
+
+                    $this->generateTransactionCodeReport($startDate, $endDate);
+                    $this->reportTitle = 'Transaction Code Report';
+                    break;
+
                 default:
                     throw new \InvalidArgumentException("Unknown report type: " . $this->reportType);
             }
@@ -150,7 +160,6 @@ class GeneralReport extends Component
 
             $this->dateRange = $startDate->format('Y-m-d H:i') . ' to ' . $endDate->format('Y-m-d H:i');
             $this->dispatchBrowserEvent('report-generated');
-
         } catch (\Exception $e) {
             Log::error('Report generation failed: ' . $e->getMessage(), [
                 'exception' => $e,
@@ -248,50 +257,223 @@ class GeneralReport extends Component
      */
 
 
-    protected function generateAgentPerformanceReport($startDate, $endDate, $selectedAgent = null)
+    // protected function generateAgentPerformanceReport($startDate, $endDate, $selectedAgent = null)
+    // {
+    //     try {
+    //         $agents = \App\Models\Live\CCAgent::select('id', 'name', 'endpoint')->get()->keyBy('endpoint');
+
+    //         $subQueryAbandoned = DB::table('cdr')
+    //             ->select('dst', DB::raw('COUNT(*) as abandoned'))
+    //             ->whereBetween('calldate', [$startDate, $endDate]) // Added date filter
+    //             ->groupBy('dst');
+
+    //         // Main query
+    //         $query = DB::table('recordings as r')
+    //             ->select(
+    //                 'r.dst',
+    //                 DB::raw('COUNT(*) as answered'),
+    //                 'cdr_sub.abandoned'
+    //             )
+    //             ->leftJoinSub($subQueryAbandoned, 'cdr_sub', 'cdr_sub.dst', '=', 'r.dst')
+    //             ->limit(10)
+    //             ->whereNotNull('r.dst')
+    //             ->whereBetween('r.created_at', [$startDate, $endDate]); // Assuming recordings have 'created_at'
+
+    //         // Apply filter if agent is selected
+    //         if (!empty($selectedAgent)) {
+    //             $agent = \App\Models\Live\CCAgent::find($selectedAgent);
+    //             if ($agent) {
+    //                 $query->where('r.dst', $agent->endpoint);
+    //             }
+    //         }
+
+    //         $results = $query->groupBy('r.dst', 'cdr_sub.abandoned')->get();
+
+    //         $this->reportData = $results->map(function ($item) use ($agents, $startDate, $endDate) {
+    //             // When fetching recordings for duration calculation, also apply date filters
+    //             $recordings = Recordings::where('dst', $item->dst)
+    //                                     ->whereBetween('created_at', [$startDate, $endDate]) // Apply date filter
+    //                                     ->get();
+    //             $totalSeconds = $recordings->sum(fn($rec) => $rec->duration_in_seconds ?? 0);
+    //             $count = $recordings->count();
+    //             $avgSeconds = $count > 0 ? (int) ($totalSeconds / $count) : 0;
+
+    //             $answered = $item->answered ?? 0;
+    //             $abandoned = $item->abandoned ?? 0;
+    //             $totalCalls = $answered + $abandoned;
+    //             $satisfaction = $totalCalls > 0 ? round(($answered / $totalCalls) * 100, 2) : 0;
+
+    //             if ($satisfaction >= 90) {
+    //                 $rating = 'Excellent';
+    //             } elseif ($satisfaction >= 75) {
+    //                 $rating = 'Good';
+    //             } elseif ($satisfaction >= 50) {
+    //                 $rating = 'Fair';
+    //             } else {
+    //                 $rating = 'Poor';
+    //             }
+
+    //             return [
+    //                 'label' => $item->dst,
+    //                 'dst' => $item->dst,
+    //                 'agent_name' => $agents[$item->dst]->name ?? 'Unknown',
+    //                 'total_calls' => $totalCalls,
+    //                 'answered' => $answered,
+    //                 'abandoned' => $abandoned,
+    //                 'avg_duration' => gmdate('H:i:s', $avgSeconds),
+    //                 'satisfaction' => $satisfaction . '%',
+    //                 'rating' => $rating,
+    //             ];
+    //         })->toArray();
+
+
+
+    //     } catch (\Exception $e) {
+
+    //         $this->reportData = [];
+
+    //         // Log the error if needed
+    //     }
+    // }
+
+    // protected function generateAgentPerformanceReport($startDate, $endDate)
+    // {
+    //     try {
+    //         $agents = CCAgent::select('id', 'name', 'endpoint')->get();
+    //         $reportResults = [];
+
+    //         // If specific agents are selected, filter the agents list
+    //         $targetAgents = $this->agentIds ? $agents->whereIn('id', $this->agentIds) : $agents;
+
+    //         foreach ($targetAgents as $agent) {
+    //             $agentEndpoint = $agent->endpoint;
+
+    //             // --- Logic inspired by DashboardController's render method ---
+    //             // Get call events for the agent within the date range
+    //             $callEvents = DialEventLog::where('dialstring', $agentEndpoint)
+    //                 ->whereBetween('event_timestamp', [$startDate, $endDate])
+    //                 ->get()
+    //                 ->groupBy(function ($event) {
+    //                     return $event->dialstring . '_' . $event->peer_id . '_' . $event->caller_number;
+    //                 });
+
+
+    //             $answered = 0;
+    //             $missed = 0;
+
+    //             foreach ($callEvents as $key => $events) {
+    //                 $sorted = $events->sortBy('event_timestamp');
+    //                 $lastWithStatus = $sorted->reverse()->first(fn($e) => !empty($e->dialstatus));
+    //                 if ($lastWithStatus) {
+    //                     if ($lastWithStatus->dialstatus === 'ANSWER') {
+    //                         $answered++;
+    //                     } elseif ($lastWithStatus->dialstatus === 'NOANSWER') {
+    //                         $missed++;
+    //                     }
+    //                 }
+    //             }
+
+    //             // Get recordings for the agent within the date range
+    //             $agentRecordings = Recordings::where('agent_number', 'LIKE', "%{$agentEndpoint}%")
+    //                 ->whereBetween('created_at', [$startDate, $endDate])
+    //                 ->get();
+
+
+    //             $totalDurationInSeconds = $agentRecordings->sum('duration_in_seconds');
+    //             $recordCount = $agentRecordings->count();
+
+    //             $avgSeconds = $recordCount > 0 ? (int) ($totalDurationInSeconds / $recordCount) : 0;
+    //             // --- End of DashboardController inspired logic ---
+
+    //             $totalCalls = $answered + $missed;
+    //             $satisfaction = $totalCalls > 0 ? round(($answered / $totalCalls) * 100, 2) : 0;
+
+    //             if ($satisfaction >= 90) {
+    //                 $rating = 'Excellent';
+    //             } elseif ($satisfaction >= 75) {
+    //                 $rating = 'Good';
+    //             } elseif ($satisfaction >= 50) {
+    //                 $rating = 'Fair';
+    //             } else {
+    //                 $rating = 'Poor';
+    //             }
+
+    //             $reportResults[] = [
+    //                 'label' => $agent->name, // Agent's name as label
+    //                 'agent_id' => $agent->id,
+    //                 'agent_endpoint' => $agentEndpoint,
+    //                 'total_calls' => $totalCalls,
+    //                 'answered' => $answered,
+    //                 'missed' => $missed,
+    //                 'avg_duration' => gmdate('H:i:s', $avgSeconds),
+    //                 'satisfaction' => $satisfaction . '%',
+    //                 'rating' => $rating,
+    //             ];
+    //         }
+
+    //         $this->reportData = $reportResults;
+
+    //     } catch (\Exception $e) {
+    //         $this->reportData = [];
+    //         Log::error('Agent Performance Report generation failed: ' . $e->getMessage(), [
+    //             'exception' => $e,
+    //             'startDate' => $startDate,
+    //             'endDate' => $endDate,
+    //             'agentIds' => $this->agentIds,
+    //         ]);
+    //     }
+    // }
+
+    protected function generateAgentPerformanceReport($startDate, $endDate)
     {
         try {
-            $agents = \App\Models\Live\CCAgent::select('id', 'name', 'endpoint')->get()->keyBy('endpoint');
+            $agents = CCAgent::select('id', 'name', 'endpoint')->get();
+            $reportResults = [];
 
-            $subQueryAbandoned = DB::table('cdr')
-                ->select('dst', DB::raw('COUNT(*) as abandoned'))
-                ->whereBetween('calldate', [$startDate, $endDate]) // Added date filter
-                ->groupBy('dst');
+            // If specific agents are selected, filter the agents list
+            $targetAgents = $this->agentIds ? $agents->whereIn('id', $this->agentIds) : $agents;
 
-            // Main query
-            $query = DB::table('recordings as r')
-                ->select(
-                    'r.dst',
-                    DB::raw('COUNT(*) as answered'),
-                    'cdr_sub.abandoned'
-                )
-                ->leftJoinSub($subQueryAbandoned, 'cdr_sub', 'cdr_sub.dst', '=', 'r.dst')
-                ->limit(10)
-                ->whereNotNull('r.dst')
-                ->whereBetween('r.created_at', [$startDate, $endDate]); // Assuming recordings have 'created_at'
+            foreach ($targetAgents as $agent) {
+                $agentEndpoint = $agent->endpoint;
 
-            // Apply filter if agent is selected
-            if (!empty($selectedAgent)) {
-                $agent = \App\Models\Live\CCAgent::find($selectedAgent);
-                if ($agent) {
-                    $query->where('r.dst', $agent->endpoint);
+                // --- Logic inspired by DashboardController's render method ---
+                // Get call events for the agent within the date range
+                $callEvents = DialEventLog::where('dialstring', $agentEndpoint)
+                    ->whereBetween('event_timestamp', [$startDate, $endDate])
+                    ->get()
+                    ->groupBy(function ($event) {
+                        return $event->dialstring . '_' . $event->peer_id . '_' . $event->caller_number;
+                    });
+
+
+                $answered = 0;
+                $missed = 0;
+
+                foreach ($callEvents as $key => $events) {
+                    $sorted = $events->sortBy('event_timestamp');
+                    $lastWithStatus = $sorted->reverse()->first(fn($e) => !empty($e->dialstatus));
+                    if ($lastWithStatus) {
+                        if ($lastWithStatus->dialstatus === 'ANSWER') {
+                            $answered++;
+                        } elseif ($lastWithStatus->dialstatus === 'NOANSWER') {
+                            $missed++;
+                        }
+                    }
                 }
-            }
 
-            $results = $query->groupBy('r.dst', 'cdr_sub.abandoned')->get();
+                // Get recordings for the agent within the date range
+                $agentRecordings = Recordings::where('agent_number', 'LIKE', "%{$agentEndpoint}%")
+                    ->whereBetween('created_at', [$startDate, $endDate])
+                    ->get();
 
-            $this->reportData = $results->map(function ($item) use ($agents, $startDate, $endDate) {
-                // When fetching recordings for duration calculation, also apply date filters
-                $recordings = Recordings::where('dst', $item->dst)
-                                        ->whereBetween('created_at', [$startDate, $endDate]) // Apply date filter
-                                        ->get();
-                $totalSeconds = $recordings->sum(fn($rec) => $rec->duration_in_seconds ?? 0);
-                $count = $recordings->count();
-                $avgSeconds = $count > 0 ? (int) ($totalSeconds / $count) : 0;
 
-                $answered = $item->answered ?? 0;
-                $abandoned = $item->abandoned ?? 0;
-                $totalCalls = $answered + $abandoned;
+                $totalDurationInSeconds = $agentRecordings->sum('duration_in_seconds');
+                $recordCount = $agentRecordings->count();
+
+                $avgSeconds = $recordCount > 0 ? (int) ($totalDurationInSeconds / $recordCount) : 0;
+                // --- End of DashboardController inspired logic ---
+
+                $totalCalls = $answered + $missed;
                 $satisfaction = $totalCalls > 0 ? round(($answered / $totalCalls) * 100, 2) : 0;
 
                 if ($satisfaction >= 90) {
@@ -304,30 +486,33 @@ class GeneralReport extends Component
                     $rating = 'Poor';
                 }
 
-                return [
-                    'label' => $item->dst,
-                    'dst' => $item->dst,
-                    'agent_name' => $agents[$item->dst]->name ?? 'Unknown',
-                    'total_calls' => $totalCalls,
-                    'answered' => $answered,
-                    'abandoned' => $abandoned,
-                    'avg_duration' => gmdate('H:i:s', $avgSeconds),
-                    'satisfaction' => $satisfaction . '%',
-                    'rating' => $rating,
-                ];
-            })->toArray();
+                // Only add agent to report if they have total calls greater than 0
+                if ($totalCalls > 0) { //
+                    $reportResults[] = [
+                        'label' => $agent->name, // Agent's name as label
+                        'agent_id' => $agent->id,
+                        'agent_endpoint' => $agentEndpoint,
+                        'total_calls' => $totalCalls,
+                        'answered' => $answered,
+                        'missed' => $missed,
+                        'avg_duration' => gmdate('H:i:s', $avgSeconds),
+                        'satisfaction' => $satisfaction . '%',
+                        'rating' => $rating,
+                    ];
+                }
+            }
 
-
-
+            $this->reportData = $reportResults;
         } catch (\Exception $e) {
-
             $this->reportData = [];
-
-            // Log the error if needed
+            Log::error('Agent Performance Report generation failed: ' . $e->getMessage(), [
+                'exception' => $e,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+                'agentIds' => $this->agentIds,
+            ]);
         }
     }
-
-
 
     protected function generateQueuePerformanceReport($startDate, $endDate)
     {
@@ -381,6 +566,63 @@ class GeneralReport extends Component
                 'opt_outs' => 3
             ]
         ];
+    }
+
+    protected function generateTransactionCodeReport($startDate, $endDate)
+    {
+        try {
+            // Fetch recordings within the date range that have a transaction code
+            $recordings = Recordings::with('tCode') // Eager load the transaction code relationship
+                // ->whereNotNull('transaction_code')
+                ->whereBetween('hangupdate', [$startDate, $endDate])
+                ->get();
+
+                // dd($recordings);
+            // Group recordings by transaction code
+            $groupedRecordings = $recordings->groupBy('transaction_code');
+
+
+
+            $reportResults = [];
+
+            foreach ($groupedRecordings as $transactionCodeValue => $recordingsCollection) {
+                $totalCalls = $recordingsCollection->count();
+                // $totalDurationSeconds = $recordingsCollection->sum('billsec'); // Summing the billsec attribute
+
+                // Get the transaction code name from the first recording in the group
+                // Assuming all recordings in a group have the same transaction code name
+                $transactionCodeName = $recordingsCollection->first()->tCode->name ?? 'N/A (Code: ' . $transactionCodeValue . ')';
+
+                // $avgDurationSeconds = $totalCalls > 0 ? (int) ($totalDurationSeconds / $totalCalls) : 0;
+
+                $reportResults[] = [
+                    'label' => $transactionCodeName,
+                    'transaction_code' => $transactionCodeValue,
+                    'total_calls' => $totalCalls,
+                    // 'total_duration' => gmdate('H:i:s', $totalDurationSeconds),
+                    // 'avg_duration' => gmdate('H:i:s', $avgDurationSeconds),
+                ];
+            }
+
+            // dd($reportResults);
+
+            // Sort the report results by total_calls in descending order
+            usort($reportResults, function($a, $b) {
+                return $b['total_calls'] <=> $a['total_calls'];
+            });
+
+            // dd($reportResults);
+
+            $this->reportData = $reportResults;
+
+        } catch (\Exception $e) {
+            $this->reportData = [];
+            Log::error('Transaction Code Report generation failed: ' . $e->getMessage(), [
+                'exception' => $e,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+            ]);
+        }
     }
 
     public function exportToExcel()
@@ -452,7 +694,6 @@ class GeneralReport extends Component
             $this->dispatchBrowserEvent('show-success', [
                 'message' => 'Report has been emailed successfully!'
             ]);
-
         } catch (\Exception $e) {
             $this->dispatchBrowserEvent('show-error', [
                 'message' => 'Failed to send email: ' . $e->getMessage()
@@ -490,9 +731,23 @@ class GeneralReport extends Component
     protected function getQueueIds()
     {
         return [
-            'cc-3', 'cc-7', 'cc-13', 'cc-15', 'cc-20', 'cc-6', 'cc-18',
-            'cc-4', 'cc-14', 'cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12',
-            'cc-16', 'cc-17', 'cc-21'
+            'cc-3',
+            'cc-7',
+            'cc-13',
+            'cc-15',
+            'cc-20',
+            'cc-6',
+            'cc-18',
+            'cc-4',
+            'cc-14',
+            'cc-8',
+            'cc-9',
+            'cc-10',
+            'cc-11',
+            'cc-12',
+            'cc-16',
+            'cc-17',
+            'cc-21'
         ];
     }
 
@@ -518,8 +773,5 @@ class GeneralReport extends Component
     {
 
         return view('livewire.general-report');
-
     }
-
-
 }
