@@ -514,34 +514,132 @@ class GeneralReport extends Component
         }
     }
 
+    // protected function generateQueuePerformanceReport($startDate, $endDate)
+    // {
+    //     $this->reportData = CallDetailsRecordModel::query()
+    //         ->select(
+    //             'dst as label',
+    //             DB::raw('count(*) as total_calls'),
+    //             DB::raw('sum(case when disposition = "ANSWERED" then 1 else 0 end) as answered'),
+    //             DB::raw('sum(case when disposition = "ABANDONED" then 1 else 0 end) as abandoned'),
+    //             DB::raw('avg(wait_time) as avg_wait_time'),
+    //             DB::raw('max(wait_time) as max_wait_time'),
+    //             DB::raw('count(case when wait_time <= 20 then 1 else null end) as sla_compliant')
+    //         )
+    //         ->whereBetween('calldate', [$startDate, $endDate])
+    //         ->whereIn('dst', $this->queueIds ?: $this->getQueueIds())
+    //         ->groupBy('dst')
+    //         ->orderBy('total_calls', 'desc')
+    //         ->get()
+    //         ->map(function ($item) {
+    //             $item->abandon_rate = $item->total_calls > 0
+    //                 ? round(($item->abandoned / $item->total_calls) * 100, 2)
+    //                 : 0;
+    //             $item->sla_compliance = $item->total_calls > 0
+    //                 ? round(($item->sla_compliant / $item->total_calls) * 100, 2)
+    //                 : 0;
+    //             return $item;
+    //         })
+    //         ->toArray();
+    // }
+
     protected function generateQueuePerformanceReport($startDate, $endDate)
     {
-        $this->reportData = CallDetailsRecordModel::query()
-            ->select(
-                'dst as label',
-                DB::raw('count(*) as total_calls'),
-                DB::raw('sum(case when disposition = "ANSWERED" then 1 else 0 end) as answered'),
-                DB::raw('sum(case when disposition = "ABANDONED" then 1 else 0 end) as abandoned'),
-                DB::raw('avg(wait_time) as avg_wait_time'),
-                DB::raw('max(wait_time) as max_wait_time'),
-                DB::raw('count(case when wait_time <= 20 then 1 else null end) as sla_compliant')
-            )
-            ->whereBetween('calldate', [$startDate, $endDate])
-            ->whereIn('dst', $this->queueIds ?: $this->getQueueIds())
-            ->groupBy('dst')
-            ->orderBy('total_calls', 'desc')
-            ->get()
-            ->map(function ($item) {
-                $item->abandon_rate = $item->total_calls > 0
-                    ? round(($item->abandoned / $item->total_calls) * 100, 2)
-                    : 0;
-                $item->sla_compliance = $item->total_calls > 0
-                    ? round(($item->sla_compliant / $item->total_calls) * 100, 2)
-                    : 0;
-                return $item;
-            })
-            ->toArray();
+        try {
+            $reportResults = [];
+
+            // Get all unique endpoints that are associated with agents (CCAgent::endpoint)
+            // as these are the "queues" that agents are part of.
+            $allAgentEndpoints = CCAgent::distinct('endpoint')->pluck('endpoint')->filter()->values()->toArray();
+
+            // Filter these endpoints based on selected queueIds if provided.
+            // If no specific queueIds are selected, consider all agent endpoints as part of the overall queue.
+            $targetEndpointsForQueue = $this->queueIds ? array_intersect($allAgentEndpoints, $this->queueIds) : $allAgentEndpoints;
+
+            // Initialize aggregated totals for the "Overall Queue Performance"
+            $totalAnswered = 0;
+            $totalMissed = 0;
+            $totalDurationAllQueues = 0;
+            $totalRecordCountAllQueues = 0;
+
+            // Iterate through each relevant endpoint to sum up their statistics
+            foreach ($targetEndpointsForQueue as $endpoint) {
+                // Aggregate call events for this specific endpoint (queue)
+                $callEvents = DialEventLog::where('dialstring', $endpoint)
+                    ->whereBetween('event_timestamp', [$startDate, $endDate])
+                    ->get()
+                    ->groupBy(function ($event) {
+                        return $event->dialstring . '_' . $event->peer_id . '_' . $event->caller_number;
+                    });
+
+                $answeredForEndpoint = 0;
+                $missedForEndpoint = 0;
+
+                foreach ($callEvents as $key => $events) {
+                    $sorted = $events->sortBy('event_timestamp');
+                    $lastWithStatus = $sorted->reverse()->first(fn($e) => !empty($e->dialstatus));
+                    if ($lastWithStatus) {
+                        if ($lastWithStatus->dialstatus === 'ANSWER') {
+                            $answeredForEndpoint++;
+                        } elseif ($lastWithStatus->dialstatus === 'NOANSWER') {
+                            $missedForEndpoint++;
+                        }
+                    }
+                }
+                $totalAnswered += $answeredForEndpoint;
+                $totalMissed += $missedForEndpoint;
+
+                // Aggregate recordings for this specific endpoint (queue)
+                $recordingsForEndpoint = Recordings::where('agent_no', $endpoint)
+                    ->whereBetween('created_at', [$startDate, $endDate])
+                    ->get();
+
+                $totalDurationForEndpoint = $recordingsForEndpoint->sum('duration_in_seconds');
+                $recordCountForEndpoint = $recordingsForEndpoint->count();
+
+                $totalDurationAllQueues += $totalDurationForEndpoint;
+                $totalRecordCountAllQueues += $recordCountForEndpoint;
+            }
+
+            $overallTotalCalls = $totalAnswered + $totalMissed;
+            $overallAvgDurationSeconds = $totalRecordCountAllQueues > 0 ? (int) ($totalDurationAllQueues / $totalRecordCountAllQueues) : 0;
+            $overallSatisfaction = $overallTotalCalls > 0 ? round(($totalAnswered / $overallTotalCalls) * 100, 2) : 0;
+
+            $overallRating = 'Poor';
+            if ($overallSatisfaction >= 90) {
+                $overallRating = 'Excellent';
+            } elseif ($overallSatisfaction >= 75) {
+                $overallRating = 'Good';
+            } elseif ($overallSatisfaction >= 50) {
+                $overallRating = 'Fair';
+            }
+
+            // Only add the overall queue report if there are total calls
+            if ($overallTotalCalls > 0) {
+                $reportResults[] = [
+                    'label' => 'Overall Queue Performance', // A single label for the aggregated report
+                    'total_calls' => $overallTotalCalls,
+                    'answered' => $totalAnswered,
+                    'missed' => $totalMissed,
+                    'avg_duration' => gmdate('H:i:s', $overallAvgDurationSeconds),
+                    'satisfaction' => $overallSatisfaction . '%',
+                    'rating' => $overallRating,
+                ];
+            }
+
+            $this->reportData = $reportResults;
+
+        } catch (\Exception $e) {
+            $this->reportData = [];
+            Log::error('Queue Performance Report generation failed: ' . $e->getMessage(), [
+                'exception' => $e,
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+                'queueIds' => $this->queueIds, // Keep this for logging purposes
+            ]);
+        }
     }
+
 
     protected function generateSMSReport($startDate, $endDate)
     {
