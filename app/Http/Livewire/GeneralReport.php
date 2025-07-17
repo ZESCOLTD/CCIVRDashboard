@@ -689,7 +689,7 @@ class GeneralReport extends Component
 
                 // Get the transaction code name from the first recording in the group
                 // Assuming all recordings in a group have the same transaction code name
-                $transactionCodeName = $recordingsCollection->first()->tCode->name ?? 'N/A (Code: ' . $transactionCodeValue . ')';
+                $transactionCodeName = $recordingsCollection->first()->tCode->name ?? 'No Transaction Code: ' . $transactionCodeValue . ')';
 
                 // $avgDurationSeconds = $totalCalls > 0 ? (int) ($totalDurationSeconds / $totalCalls) : 0;
 
