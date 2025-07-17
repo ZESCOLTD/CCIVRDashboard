@@ -2,7 +2,7 @@
 
 namespace App\Exports;
 
-use App\Models\CallDetailsRecordModel;
+use App\Models\CDR\CallDetailsRecordModel;
 use Maatwebsite\Excel\Concerns\FromCollection;
 
 class GeneralReportExport implements FromCollection
