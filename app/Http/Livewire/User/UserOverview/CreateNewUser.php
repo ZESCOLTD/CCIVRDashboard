@@ -157,6 +157,7 @@ class CreateNewUser extends Component
             // Check if user already exists
             if (User::where('man_no', $this->StaffNumber)->exists()) {
                 session()->flash('error', 'User already exists with staff number: ' . $this->StaffNumber);
+                $this->resetFields();
                 return;
             }
 
