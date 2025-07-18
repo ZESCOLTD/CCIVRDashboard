@@ -174,15 +174,74 @@ class GeneralReport extends Component
         }
     }
 
+
+
+    // protected function generateDailyReport($startDate, $endDate)
+    // {
+    //     $queues = $this->getQueueIds();
+    //     if (empty($queues)) {
+    //         $this->reportData = [];
+    //         return;
+    //     }
+
+    //     $this->reportData = CallDetailsRecordModel::query()
+    //         ->select([
+    //             DB::raw('dst as label'),
+    //             DB::raw('count(*) as total_calls'),
+    //             DB::raw('sum(case when disposition = "ANSWERED" then 1 else 0 end) as answered'),
+    //             DB::raw('sum(case when disposition = "ABANDONED" then 1 else 0 end) as abandoned'),
+    //             DB::raw('avg(duration) as avg_duration')
+    //         ])
+    //         ->whereBetween('calldate', [$startDate, $endDate])
+    //         ->whereIn('dst', $queues)
+    //         ->groupBy('dst')
+    //         ->orderByRaw($this->getQueueOrderBy()) // ✅ Custom order using FIELD
+    //         ->paginate()
+    //         ->toArray()['data'];
+    // }
+    // protected function generateDailyReport($startDate, $endDate)
+    // {
+    //     // Hardcoded queue destinations based on CallSummaryRecords::render()
+    //     $queues = ['cc-3', 'cc-7', 'cc-13', 'cc-15', 'cc-20', 'cc-6', 'cc-18', 'cc-4', 'cc-14', 'cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12', 'cc-16', 'cc-17', 'cc-21'];
+
+    //     if (empty($queues)) {
+    //         $this->reportData = [];
+    //         return;
+    //     }
+
+    //     // Hardcoded orderByRaw string based on CallSummaryRecords::render()
+    //     $queueOrderByRaw = "FIELD(dst , 'cc-3', 'cc-7', 'cc-13', 'cc-15','cc-20', 'cc-6','cc-18', 'cc-4', 'cc-14','cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12','cc-16', 'cc-17','cc-21') ASC";
+
+    //     $this->reportData = CallDetailsRecordModel::query()
+    //         ->select([
+    //             DB::raw('dst as label'),
+    //             DB::raw('count(*) as total_calls'),
+    //             DB::raw('sum(case when disposition = "ANSWERED" then 1 else 0 end) as answered'),
+    //             DB::raw('sum(case when disposition = "ABANDONED" then 1 else 0 end) as abandoned'),
+    //             DB::raw('avg(duration) as avg_duration')
+    //         ])
+    //         ->whereBetween('calldate', [$startDate, $endDate])
+    //         ->whereIn('dst', $queues)
+    //         ->groupBy('dst')
+    //         ->orderByRaw($queueOrderByRaw) // Uses the hardcoded order
+    //         ->get() // Changed from paginate() to get()
+    //         ->toArray(); // Convert collection to array
+    //         dd($this->reportData); // Debugging line to check the output
+    // }
+
     protected function generateDailyReport($startDate, $endDate)
     {
-        $queues = $this->getQueueIds();
+        $queues = ['cc-3', 'cc-7', 'cc-13', 'cc-15', 'cc-20', 'cc-6', 'cc-18', 'cc-4', 'cc-14', 'cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12', 'cc-16', 'cc-17', 'cc-21'];
+
         if (empty($queues)) {
             $this->reportData = [];
             return;
         }
 
-        $this->reportData = CallDetailsRecordModel::query()
+        $queueOrderByRaw = "FIELD(dst , 'cc-3', 'cc-7', 'cc-13', 'cc-15','cc-20', 'cc-6','cc-18', 'cc-4', 'cc-14','cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12','cc-16', 'cc-17','cc-21') ASC";
+
+        // Step 1: Run your original, working aggregation query
+        $aggregatedData = CallDetailsRecordModel::query()
             ->select([
                 DB::raw('dst as label'),
                 DB::raw('count(*) as total_calls'),
@@ -193,10 +252,37 @@ class GeneralReport extends Component
             ->whereBetween('calldate', [$startDate, $endDate])
             ->whereIn('dst', $queues)
             ->groupBy('dst')
-            ->orderByRaw($this->getQueueOrderBy()) // ✅ Custom order using FIELD
-            ->paginate()
-            ->toArray()['data'];
+            ->orderByRaw($queueOrderByRaw)
+            ->get()
+            ->toArray();
+
+        // Step 2: Get all relevant destination descriptions from ConfigDestinationsModel
+        // Use 'description' instead of 'name'
+        $destinationConfigs = ConfigDestinationsModel::whereIn('destination', $queues)
+                                                    ->get(['destination', 'description']) // <-- Changed 'name' to 'description'
+                                                    ->keyBy('destination')
+                                                    ->toArray();
+
+        // Step 3: Create a simple lookup map
+        $destinationDescriptions = [];
+        foreach ($destinationConfigs as $destinationCode => $config) {
+            $destinationDescriptions[$destinationCode] = $config['description']; // <-- Changed 'name' to 'description'
+        }
+
+        // Step 4: Loop through aggregated data and add the destination description
+        $finalReportData = [];
+        foreach ($aggregatedData as $row) {
+            $destinationLabel = $row['label']; // This is your 'dst' value
+
+            // Check if we have a matching description in our lookup map
+            $row['my_destination_name'] = $destinationDescriptions[$destinationLabel] ?? 'Unknown Destination'; // Keep alias consistent
+
+            $finalReportData[] = $row;
+        }
+
+        $this->reportData = $finalReportData;
     }
+
 
     protected function getQueueOrderBy()
     {
@@ -503,6 +589,8 @@ class GeneralReport extends Component
             }
 
             $this->reportData = $reportResults;
+
+            // dd($this->reportData); // Debugging line to check the output
         } catch (\Exception $e) {
             $this->reportData = [];
             Log::error('Agent Performance Report generation failed: ' . $e->getMessage(), [
@@ -628,7 +716,6 @@ class GeneralReport extends Component
             }
 
             $this->reportData = $reportResults;
-
         } catch (\Exception $e) {
             $this->reportData = [];
             Log::error('Queue Performance Report generation failed: ' . $e->getMessage(), [
@@ -675,7 +762,7 @@ class GeneralReport extends Component
                 ->whereBetween('hangupdate', [$startDate, $endDate])
                 ->get();
 
-                // dd($recordings);
+            // dd($recordings);
             // Group recordings by transaction code
             $groupedRecordings = $recordings->groupBy('transaction_code');
 
@@ -705,14 +792,13 @@ class GeneralReport extends Component
             // dd($reportResults);
 
             // Sort the report results by total_calls in descending order
-            usort($reportResults, function($a, $b) {
+            usort($reportResults, function ($a, $b) {
                 return $b['total_calls'] <=> $a['total_calls'];
             });
 
             // dd($reportResults);
 
             $this->reportData = $reportResults;
-
         } catch (\Exception $e) {
             $this->reportData = [];
             Log::error('Transaction Code Report generation failed: ' . $e->getMessage(), [
@@ -870,6 +956,6 @@ class GeneralReport extends Component
     public function render()
     {
 
-        return view('livewire.general-report');
+        return view('livewire.general-report2');
     }
 }
