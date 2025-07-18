@@ -195,5 +195,6 @@ class CreateNewUser extends Component
         $this->StaffNumber = '';
         $this->Directorate = '';
         $this->password = '';
+        $this->selectedEmployee='';
     }
 }
