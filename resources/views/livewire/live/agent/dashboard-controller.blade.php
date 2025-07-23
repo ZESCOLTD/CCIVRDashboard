@@ -1204,44 +1204,23 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            const updateTransactionCodeModalElement = document.getElementById('updateTransactionCodeModal');
-            const selectElement = updateTransactionCodeModalElement.querySelector('#transactionCode');
-            const dismissButtons = updateTransactionCodeModalElement.querySelectorAll('[data-dismiss="modal"]');
-            const cancelButton = updateTransactionCodeModalElement.querySelector(
-                '.modal-footer .btn-secondary[data-dismiss="modal"]');
-            const updateTransactionCodeModal = bootstrap.Modal.getInstance(updateTransactionCodeModalElement);
+            document.addEventListener('closeModal', function() {
+                console.log('closeModal fired ✅');
 
-            if (updateTransactionCodeModalElement && selectElement && cancelButton && updateTransactionCodeModal) {
-                const toggleCancelButtonVisibility = () => {
-                    if (selectElement.value) {
-                        cancelButton.style.display = 'none';
-                    } else {
-                        cancelButton.style.display = '';
+                // const creatModal = bootstrap.Modal.getInstance('createModal');
+                // creatModal.hide(); // Use native Bootstrap API
+
+                const createModalElement = document.getElementById('updateTransactionCodeModal');
+                if (createModalElement) {
+                    createModalElement.style.display = 'none'; // Hide the element
+                    createModalElement.classList.remove('show'); // Remove Bootstrap's 'show' class
+                    document.body.classList.remove('modal-open'); // Remove body class to fix scrolling
+                    const backdrop = document.querySelector('.modal-backdrop'); // Remove backdrop if exists
+                    if (backdrop) {
+                        backdrop.remove();
                     }
-                };
-
-                toggleCancelButtonVisibility();
-                selectElement.addEventListener('change', toggleCancelButtonVisibility);
-                updateTransactionCodeModalElement.addEventListener('show.bs.modal', toggleCancelButtonVisibility);
-
-                dismissButtons.forEach(button => {
-                    button.addEventListener('click', function(event) {
-                        if (!selectElement.value) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            alert('Please choose a transaction code before closing.');
-                        } else {
-                            updateTransactionCodeModal.hide(); // Use native Bootstrap API
-                        }
-                    });
-                });
-
-                window.addEventListener('close-modal', event => {
-                    if (event.detail.modalId === 'updateTransactionCodeModal') {
-                        updateTransactionCodeModal.hide(); // Use native Bootstrap API
-                    }
-                });
-            }
+                }
+            });
         });
     </script>
 @endpush

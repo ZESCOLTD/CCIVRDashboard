@@ -458,9 +458,12 @@ class DashboardController extends Component
             $this->t_code = null; // Clear the selected value
             session()->flash('success', 'Transaction code updated successfully!');
             $this->emit('refresh');
+            $this->dispatchBrowserEvent('closeModal');
+
         } else {
             session()->flash('error', 'Failed to update transaction code.');
             // Optionally, you could dispatch an event to show an error message in the modal
+            $this->dispatchBrowserEvent('closeModal');
         }
         // dd($this->recordFilename);
     }
