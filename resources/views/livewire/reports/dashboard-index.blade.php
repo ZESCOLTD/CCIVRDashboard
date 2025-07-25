@@ -213,6 +213,7 @@
                     data-chart-series='@json($todayDstDist->map(fn($row) => ['name' => $row->dst, 'y' => $row->total]))'>
                     <div class="chart-placeholder">Loading Daily Destination Distribution Chart...</div>
                 </div>
+
             </div>
             <div class="col-md-6">
                 <div id="hourly-calls" class="chart-container" style="height: 350px;"

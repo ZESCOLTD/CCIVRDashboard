@@ -29,8 +29,8 @@ class DashboardIndex extends Component
     public function render()
     {
         $user = Auth::user();
-          // Define cache duration in seconds (1 hour = 3600 seconds)
-          $cacheDuration = 3600;
+        // Define cache duration in seconds (1 hour = 3600 seconds)
+        $cacheDuration = 1800;
 
 
         // Define reusable variables
@@ -88,53 +88,71 @@ class DashboardIndex extends Component
 
 
 
-             // --- Chart Data Caching ---
+        // --- Chart Data Caching ---
 
 
         // Data for charts (these remain collections)
         // Daily Calls (Last 30 Days)
-            $dailyCalls = Cache::remember('dailyCalls', $cacheDuration, function () use ($dstExtensions) {
-                return CallDetailsRecordModel::selectRaw('DATE(calldate) as date, COUNT(*) as total')
+        $dailyCalls = Cache::remember('dailyCalls', $cacheDuration, function () use ($dstExtensions) {
+            return CallDetailsRecordModel::selectRaw('DATE(calldate) as date, COUNT(*) as total')
                 ->whereIn('dst', $dstExtensions)
                 ->where('calldate', '>=', now()->subDays(30))
                 ->groupBy('date')
                 ->orderBy('date')
                 ->get();
-            });
+        });
 
         $monthlyCalls = Cache::remember('monthlyCalls', $cacheDuration, function () use ($dstExtensions) {
-        return CallDetailsRecordModel::selectRaw("DATE_FORMAT(calldate, '%Y-%m') as month, COUNT(*) as total")
-            ->whereIn('dst', $dstExtensions)
-            ->where('calldate', '>=', now()->subMonths(12))
-            ->groupBy('month')
-            ->orderBy('month')
-            ->get();
+            return CallDetailsRecordModel::selectRaw("DATE_FORMAT(calldate, '%Y-%m') as month, COUNT(*) as total")
+                ->whereIn('dst', $dstExtensions)
+                ->where('calldate', '>=', now()->subMonths(12))
+                ->groupBy('month')
+                ->orderBy('month')
+                ->get();
         });
 
 
         $dailyCustomers =  Cache::remember('dailyCustomers', $cacheDuration, function () use ($dstExtensions) {
             return CallDetailsRecordModel::selectRaw('DATE(calldate) as date, COUNT(DISTINCT src) as total')
-            ->whereIn('dst', $dstExtensions)
-            ->where('calldate', '>=', now()->subDays(30))
-            ->groupBy('date')
-            ->orderBy('date')
-            ->get();
-    });
+                ->whereIn('dst', $dstExtensions)
+                ->where('calldate', '>=', now()->subDays(30))
+                ->groupBy('date')
+                ->orderBy('date')
+                ->get();
+        });
 
         $todayDstDist =  Cache::remember('todayDstDist', $cacheDuration, function () use ($dstExtensions) {
             return CallDetailsRecordModel::select('dst', \DB::raw('COUNT(*) as total'))
-            ->whereDate('calldate', Carbon::today())
-            ->groupBy('dst')
-            ->get();
-    });
+                ->whereDate('calldate', Carbon::today())
+                ->groupBy('dst')
+                ->get();
+        });
+
+
+
+        // $todayDstDist = Cache::remember('todayDstDist', $cacheDuration, function () use ($dstExtensions) {
+        //     return CallDetailsRecordModel::select('dst', DB::raw('COUNT(*) as total'))
+        //         ->whereDate('calldate', Carbon::today())
+        //         ->whereIn('dst', $dstExtensions)
+        //         ->with('myDestination')
+        //         ->groupBy('dst')
+        //         ->get()
+        //         ->map(function ($row) {
+        //             return [
+        //                 'name' => $row->myDestination ?? $row->dst,
+        //                 'y' => $row->total,
+        //             ];
+        //         })
+        //         ->toArray(); // <- converts to array for consistency in Blade
+        // });
 
         $hourlyCalls =  Cache::remember('hourlyCalls', $cacheDuration, function () use ($dstExtensions) {
             return CallDetailsRecordModel::selectRaw('HOUR(calldate) as hour, COUNT(*) as total')
-            ->whereDate('calldate', Carbon::today())
-            ->groupBy('hour')
-            ->orderBy('hour')
-            ->get();
-    });
+                ->whereDate('calldate', Carbon::today())
+                ->groupBy('hour')
+                ->orderBy('hour')
+                ->get();
+        });
 
         return view('livewire.reports.dashboard-index', compact(
             'total_calls_today_count', // Use this for the card count
