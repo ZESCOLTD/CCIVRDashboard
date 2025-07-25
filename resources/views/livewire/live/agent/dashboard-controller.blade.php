@@ -1223,4 +1223,35 @@
             });
         });
     </script>
+
+<script>
+    // Reference to local storage, renamed to avoid potential collisions
+    const sipAgentLocalStorage = window.localStorage;
+
+    // This script will run when the Blade view is rendered on the client-side.
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the manager number from the Blade variable
+        // Ensure $agent->endpoint is available and correctly passed from your Laravel controller
+        const manNo = {{ $agent->endpoint ?? '' }}; // Use Blade syntax to inject the value
+
+        if (manNo) {
+            let oldUserName = sipAgentLocalStorage.getItem("SipUsername");
+
+            // Provision the details to local storage
+            sipAgentLocalStorage.setItem("SipUsername", manNo);
+            sipAgentLocalStorage.setItem("SipPassword", manNo);
+            sipAgentLocalStorage.setItem("profileName", manNo);
+
+            // Reload the page if the username has changed
+            if (oldUserName !== manNo) {
+                console.warn("Reloading page with new SIP Username and Password: " + manNo);
+
+            } else {
+                console.log("SIP Username is already provisioned and matches: " + manNo);
+            }
+        } else {
+            console.warn("Agent endpoint (man_no) not available from Blade view.");
+        }
+    });
+</script>
 @endpush
