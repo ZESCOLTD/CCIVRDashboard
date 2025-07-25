@@ -21,8 +21,8 @@
                 </div>
             @endif
             <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-orange text-white">
-                    <h5 class="mb-0"><i class="fas fa-user-tie mr-2"></i>Agent Dashboard</h5>
+                <div class="card-header text-green">
+                    <h5 class="mb-0"><i class="fas fa-user-tie mr-2  text-orange"></i> <strong>Agent Dashboard</strong></h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -721,9 +721,9 @@
             </style>
             <!-- Knowledge Base Card -->
             <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-orange text-white">
+                <div class="card-header text-green">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="fas fa-book me-2"></i>Agent Knowledge Base</h5>
+                        <h5 class="mb-0"><i class="fas fa-book me-2 text-orange"></i ><strong>Agent Knowledge Base</strong></h5>
                         <small class="text-white-50">Type your topic of interest</small>
                     </div>
                 </div>
@@ -823,9 +823,9 @@
 
 
             <div class="card shadow-sm border-0 mb-4">
-                <div class="card-header bg-orange text-white">
+                <div class="card-header text-green">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="fas fa-search me-2"></i>Customer Details Search</h5>
+                        <h5 class="mb-0"><i class="fas fa-search me-2 text-orange"></i><strong>Customer Details Search</strong></h5>
                         <small class="text-white-50">Search by Meter Serial, Service No, or Complaint No</small>
                     </div>
                 </div>
