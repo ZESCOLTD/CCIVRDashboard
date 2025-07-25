@@ -138,9 +138,7 @@
                                 @if (count($summary_calls_today) > 0)
                                     @foreach ($summary_calls_today as $summary_call_today)
                                         <tr>
-                                            {{--                                            <td> --}}
-                                            {{--                                                {{$summary_call_today->context}} --}}
-                                            {{--                                            </td> --}}
+                                          
                                             <td>
                                                 {{ $summary_call_today->myDestination->option ?? $summary_call_today->dst }}
                                             </td>
