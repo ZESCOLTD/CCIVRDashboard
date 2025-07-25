@@ -160,6 +160,17 @@ class CreateNewUser extends Component
                 $this->resetFields();
                 return;
             }
+            // Attempt to find user details in the PhrisUserDetails table
+            $newUserPhris = PhrisUserDetails::where('con_per_no', $this->StaffNumber)->first();
+
+            // Check if the staff number exists in PhrisUserDetails
+            // If $newUserPhris is null, it means no matching record was found in PhrisUserDetails
+            if (!$newUserPhris) {
+                session()->flash('error', 'Staff number ' . $this->StaffNumber . ' not found in Phris records or is invalid.');
+                $this->resetFields();
+                return;
+            }
+
 
             // Create new user
             User::create([
@@ -196,6 +207,6 @@ class CreateNewUser extends Component
         $this->StaffNumber = '';
         $this->Directorate = '';
         $this->password = '';
-        $this->selectedEmployee='';
+        $this->selectedEmployee = '';
     }
 }

@@ -974,27 +974,7 @@
 </div>
 
 @push('custom-scripts')
-    <script>
-        document.addEventListener('livewire:load', function() {
-            console.log('[Livewire] livewire:load fired ✅');
 
-
-            @if ($agent != null)
-
-
-
-                const iframe = document.getElementById('myIframe');
-                iframe.onload = function() {
-                    iframe.contentWindow.postMessage({
-                        man_no: {{ $agent->endpoint }}
-                    }, 'https://ivr.zesco.co.zm:443');
-                };
-            @endif
-
-        });
-
-
-    </script>
     <script>
         document.addEventListener('livewire:load', function() {
             // Close modal when clicking outside
