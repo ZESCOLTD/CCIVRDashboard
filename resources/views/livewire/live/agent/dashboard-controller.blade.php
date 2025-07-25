@@ -22,7 +22,8 @@
             @endif
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header text-green">
-                    <h5 class="mb-0"><i class="fas fa-user-tie mr-2  text-orange"></i> <strong>Agent Dashboard</strong></h5>
+                    <h5 class="mb-0"><i class="fas fa-user-tie mr-2  text-orange"></i> <strong>Agent
+                            Dashboard</strong></h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
@@ -723,7 +724,8 @@
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header text-green">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="fas fa-book me-2 text-orange"></i ><strong>Agent Knowledge Base</strong></h5>
+                        <h5 class="mb-0"><i class="fas fa-book me-2 text-orange"></i><strong>Agent Knowledge
+                                Base</strong></h5>
                         <small class="text-white-50">Type your topic of interest</small>
                     </div>
                 </div>
@@ -825,7 +827,8 @@
             <div class="card shadow-sm border-0 mb-4">
                 <div class="card-header text-green">
                     <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0"><i class="fas fa-search me-2 text-orange"></i><strong>Customer Details Search</strong></h5>
+                        <h5 class="mb-0"><i class="fas fa-search me-2 text-orange"></i><strong>Customer Details
+                                Search</strong></h5>
                         <small class="text-white-50">Search by Meter Serial, Service No, or Complaint No</small>
                     </div>
                 </div>
@@ -974,7 +977,6 @@
 </div>
 
 @push('custom-scripts')
-
     <script>
         document.addEventListener('livewire:load', function() {
             // Close modal when clicking outside
@@ -1031,11 +1033,11 @@
             });
 
             Livewire.on('closeModal', () => {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('knowledgeModal'));
-            if (modal) {
-                modal.hide();
-            }
-        });
+                const modal = bootstrap.Modal.getInstance(document.getElementById('knowledgeModal'));
+                if (modal) {
+                    modal.hide();
+                }
+            });
         });
     </script>
 
@@ -1134,7 +1136,9 @@
                             const filename = parts[5];
                             const agent = parts[2].slice(-4);
 
-                            console.error("Error: app_data does not contain enough parts. open modal for agent",agent);
+                            console.error(
+                                "Error: app_data does not contain enough parts. open modal for agent",
+                                agent);
 
                             if (agent == {{ $agent->endpoint }}) {
                                 console.log("agent:", agent);
@@ -1204,34 +1208,63 @@
         });
     </script>
 
-<script>
-    // Reference to local storage, renamed to avoid potential collisions
-    const sipAgentLocalStorage = window.localStorage;
+    <script>
+        // Reference to local storage, renamed to avoid potential collisions
+        const sipAgentLocalStorage = window.localStorage;
+        const sessionReloadFlag = window.sessionStorage; // Use sessionStorage for a temporary flag
 
-    // This script will run when the Blade view is rendered on the client-side.
-    document.addEventListener('DOMContentLoaded', function() {
-        // Get the manager number from the Blade variable
-        // Ensure $agent->endpoint is available and correctly passed from your Laravel controller
-        const manNo = {{ $agent->endpoint ?? '' }}; // Use Blade syntax to inject the value
+        // Define the maximum number of reloads allowed for provisioning
+        const MAX_PROVISION_RELOADS = 2;
 
-        if (manNo) {
-            let oldUserName = sipAgentLocalStorage.getItem("SipUsername");
+        // This script will run when the Blade view is rendered on the client-side.
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get the manager number from the Blade variable
+            // Ensure $agent->endpoint is available and correctly passed from your Laravel controller
+            const manNo = "{{ $agent->endpoint ?? '' }}"; // Use Blade syntax to inject the value
 
-            // Provision the details to local storage
-            sipAgentLocalStorage.setItem("SipUsername", manNo);
-            sipAgentLocalStorage.setItem("SipPassword", manNo);
-            sipAgentLocalStorage.setItem("profileName", manNo);
+            console.log("DOMContentLoaded fired.");
+            console.log("manNo from Blade:", manNo);
 
-            // Reload the page if the username has changed
-            if (oldUserName !== manNo) {
-                console.warn("Reloading page with new SIP Username and Password: " + manNo);
+            if (manNo) {
+                let oldUserName = sipAgentLocalStorage.getItem("SipUsername");
+                console.log("oldUserName from localStorage:", oldUserName);
 
+                // Get the current reload count from sessionStorage
+                let reloadCount = parseInt(sessionReloadFlag.getItem('provisionReloadCount') || '0', 10);
+
+                if (oldUserName !== manNo) {
+                    // Provision the details to local storage
+                    sipAgentLocalStorage.setItem("SipUsername", manNo);
+                    sipAgentLocalStorage.setItem("SipPassword", manNo);
+                    sipAgentLocalStorage.setItem("profileName", manNo);
+
+                    // Only reload if the reload count is less than the maximum allowed
+                    if (reloadCount < MAX_PROVISION_RELOADS) {
+                        console.warn("SIP Username changed from '" + oldUserName + "' to '" + manNo +
+                            "'. Triggering page reload (attempt " + (reloadCount + 1) + " of " +
+                            MAX_PROVISION_RELOADS + ").");
+                        sessionReloadFlag.setItem('provisionReloadCount', (reloadCount + 1)
+                    .toString()); // Increment count
+                        window.location.reload(true); // This causes the reload
+                    } else {
+                        // This branch means oldUserName was different, but we've exceeded reload attempts.
+                        console.error("Continuous reload detected: manNo is still different after " +
+                            MAX_PROVISION_RELOADS +
+                            " reloads. Check server-side manNo or localStorage persistence.");
+                        sessionReloadFlag.removeItem(
+                        'provisionReloadCount'); // Clear flag to stop further reloads for this session
+                    }
+                } else {
+                    // Username matches, no reload needed. Reset the reload count.
+                    console.log("SIP Username is already provisioned and matches: " + manNo +
+                    ". No reload needed.");
+                    sessionReloadFlag.removeItem('provisionReloadCount'); // Clear flag as provisioning is stable
+                }
             } else {
-                console.log("SIP Username is already provisioned and matches: " + manNo);
+                console.warn(
+                    "Agent endpoint (man_no) not available from Blade view. Local storage not provisioned.");
+                sessionReloadFlag.removeItem('provisionReloadCount'); // Clear flag if no manNo to provision
             }
-        } else {
-            console.warn("Agent endpoint (man_no) not available from Blade view.");
-        }
-    });
-</script>
+        });
+    </script>
 @endpush
