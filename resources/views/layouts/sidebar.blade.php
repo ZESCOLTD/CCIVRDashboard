@@ -60,13 +60,13 @@
         <li class="nav-item">
             <a href="{{ route('live.supervisor.dashboard') }}" class="nav-link">
                 <i class="fas fa-chalkboard-teacher nav-icon text-orange"></i>
-                <p>Supervisor Dashboard</p>
+                <p>Supervisor</p>
             </a>
         </li>
         <li class="nav-item">
             <a href="{{ route('omnidashboard') }}" class="nav-link">
                 <i class="fas fa-chalkboard-teacher nav-icon text-orange"></i>
-                <p>Omin-cahnnel Dashboard</p>
+                <p>Omni-cahnnel</p>
             </a>
         </li>
 
