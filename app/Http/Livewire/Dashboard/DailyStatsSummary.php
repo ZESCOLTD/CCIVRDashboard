@@ -74,7 +74,7 @@ class DailyStatsSummary extends Component
 
 
         // Add IVR stats
-$merged->push($ivr_previousPeriod);
+// $merged->push($ivr_previousPeriod);
 
 
         return view('livewire.dashboard.daily-stats-summary', [
