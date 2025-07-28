@@ -8,6 +8,12 @@
             default: return '#6c757d'; // bootstrap secondary color fallback
         }
     }
+
+
+    $now1 = now();
+    $dayCurrent = $now1->copy()->subDay()->format('l');     // Last 24 = yesterday
+    $dayPrevious = $now1->copy()->subDays(2)->format('l');  // Previous 24 = day before yesterday
+
 @endphp
 
 <div class="card">
@@ -19,13 +25,17 @@
             <thead>
                 <tr>
                     <th>Network/Channel</th>
-                    <th class="text-right">Sessions</th>
+                    <th class="text-right">{{ $dayPrevious }} (Previous 24)</th>
+                    <th class="text-right">{{ $dayCurrent }} (Last 24)</th>
+                    <th class="text-right">Change</th>
                 </tr>
             </thead>
             <tbody>
             @foreach($dailyStats as $item)
                 @php
                     $color = getNetworkBadgeColor($item->network);
+                    $changeColor = $item->change >= 0 ? 'green' : 'red';
+                    $arrow = $item->change >= 0 ? '↑' : '↓';
                 @endphp
                 <tr>
                     <td>
@@ -33,26 +43,47 @@
                             {{ ucfirst($item->network) }}
                         </span>
                     </td>
-                    <td class="text-right" style="color: {{ $color }}">{{ $item->sessions }}</td>
+                    <td class="text-right">{{ $item->sessions }}</td>
+                    <td class="text-right" style="color: {{ $color }}">{{ $item->previous }}</td>
+                    <td class="text-right" style="color: {{ $changeColor }}">
+                        {{ $arrow }} {{ number_format(abs($item->change), 1) }}%
+                    </td>
                 </tr>
             @endforeach
+
             <tr class="text-bold">
                 <td>Total</td>
+                <td class="text-bold text-right">{{ $dailyStats->sum('previous') }}</td>
                 <td class="text-bold text-right">{{ $dailyStats->sum('sessions') }}</td>
+                <td class="text-bold text-right">
+                    @php
+                        $totalCurrent = $dailyStats->sum('previous');
+                        $totalSessions = $dailyStats->sum('sessions');
+                        $totalChange = $totalSessions > 0
+                            ? (($totalCurrent - $totalSessions) / $totalSessions) * 100
+                            : ($totalCurrent > 0 ? 100 : 0);
+                        $totalColor = $totalChange >= 0 ? 'green' : 'red';
+                        $totalArrow = $totalChange >= 0 ? '↑' : '↓';
+                    @endphp
+                    <span style="color: {{ $totalColor }}">
+                        {{ $totalArrow }} {{ number_format(abs($totalChange), 1) }}%
+                    </span>
+                </td>
             </tr>
             </tbody>
+
         </table>
 
         @php
-    $top = $dailyStats->sortByDesc('sessions')->first();
-    $least = $dailyStats->sortBy('sessions')->first();
-    $total = $dailyStats->sum('sessions');
+    $top = $dailyStats->sortByDesc('previous')->first();
+    $least = $dailyStats->sortBy('previous')->first();
+    $total = $dailyStats->sum('previous');
 @endphp
 
 @php
-    $top = $dailyStats->sortByDesc('sessions')->first();
-    $least = $dailyStats->sortBy('sessions')->first();
-    $total = $dailyStats->sum('sessions');
+    $top = $dailyStats->sortByDesc('previous')->first();
+    $least = $dailyStats->sortBy('previous')->first();
+    $total = $dailyStats->sum('previous');
 
     $topColor = getNetworkBadgeColor($top->network);
     $leastColor = getNetworkBadgeColor($least->network);
@@ -64,9 +95,9 @@
         In the last 24 hours, a total of <strong>{{ number_format($total) }}</strong> sessions were recorded.
         The highest activity was on
         <strong style="color: {{ $topColor }}">{{ ucfirst($top->network) }}</strong>
-        with <strong style="color: {{ $topColor }}">{{ number_format($top->sessions) }}</strong> sessions,
+        with <strong style="color: {{ $topColor }}">{{ number_format($top->previous) }}</strong> sessions,
         while <strong style="color: {{ $leastColor }}">{{ ucfirst($least->network) }}</strong>
-        had the lowest at <strong style="color: {{ $leastColor }}">{{ number_format($least->sessions) }}</strong> sessions.
+        had the lowest at <strong style="color: {{ $leastColor }}">{{ number_format($least->previous) }}</strong> sessions.
     </h4>
 </div>
 
