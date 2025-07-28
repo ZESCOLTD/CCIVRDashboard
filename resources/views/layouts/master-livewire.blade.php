@@ -31,7 +31,9 @@
     <!-- JQVMap -->
     <link rel="stylesheet" href="{{ asset('plugins/jqvmap/jqvmap.min.css') }}">
     <!-- Theme style -->
-    <link rel="stylesheet" href="{{ asset('dist/css/adminlte.min.css') }}">
+    {{-- <link rel="stylesheet" href="{{ asset('dist/css/adminlte.min.css') }}"> --}}
+    <link rel="stylesheet" href="{{asset('')}}css/adminlte.css">
+    <link rel="stylesheet" href="{{asset('')}}css/app.css">
     <!-- overlayScrollbars -->
     <link rel="stylesheet" href="{{ asset('plugins/overlayScrollbars/css/OverlayScrollbars.min.css') }}">
     <!-- Daterange picker -->
@@ -63,7 +65,7 @@
         }
     </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/flatpickr" defer></script>
 
     <script crossorigin src="https://unpkg.com/react@17/umd/react.production.min.js"></script>
@@ -126,11 +128,19 @@
     <!-- /.control-sidebar -->
 </div>
 <!-- ./wrapper -->
-<script src="https://code.highcharts.com/modules/variable-pie.js"></script>
+{{-- <script src="https://code.highcharts.com/modules/variable-pie.js"></script>
+<script src="https://code.highcharts.com/highcharts.js"></script>
+<script src="https://code.highcharts.com/modules/exporting.js"></script>
+<script src="https://code.highcharts.com/modules/export-data.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script> --}}
+
+
 <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/modules/exporting.js"></script>
 <script src="https://code.highcharts.com/modules/export-data.js"></script>
 <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script src="https://code.highcharts.com/modules/series-label.js"></script>
+<script src="https://code.highcharts.com/modules/annotations.js"></script>
 
 
 <!-- jQuery -->
@@ -184,7 +194,7 @@
 <script src="{{ asset('plugins/summernote/summernote-bs4.min.js') }}"></script>
 <!-- overlayScrollbars -->
 <!-- ChartJS -->
-<script src="{{ asset('bower_components/chart.js/Chart.js') }}"></script>
+{{-- <script src="{{ asset('bower_components/chart.js/Chart.js') }}"></script> --}}
 <!-- ChartJS -->
 <!-- FastClick -->
 <script src="{{ asset('bower_components/fastclick/lib/fastclick.js') }}"></script>

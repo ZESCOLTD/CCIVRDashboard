@@ -20,7 +20,7 @@
     </div>
 </div>
 
-@push('js')
+@push('custom-scripts')
     {{-- <div id="network-pie-chart"></div> --}}
 
     <script>

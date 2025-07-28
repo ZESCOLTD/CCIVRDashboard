@@ -17,7 +17,7 @@
     </div>
 </div>
 
-@push('js')
+@push('custom-scripts')
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const minutesChart = Highcharts.chart('minutes-highchart', {

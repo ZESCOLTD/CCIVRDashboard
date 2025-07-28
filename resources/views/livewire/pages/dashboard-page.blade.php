@@ -13,7 +13,7 @@
                 <livewire:dashboard.daily-stats-summary />
             </div>
 
-        
+
               <div class="mb-2 text-bold">
 
               </div>
@@ -53,14 +53,9 @@
 
 
 
-@push('js')
+@push('custom-scripts')
 
-<script src="https://code.highcharts.com/highcharts.js"></script>
-<script src="https://code.highcharts.com/modules/exporting.js"></script>
-<script src="https://code.highcharts.com/modules/export-data.js"></script>
-<script src="https://code.highcharts.com/modules/accessibility.js"></script>
-<script src="https://code.highcharts.com/modules/series-label.js"></script>
-<script src="https://code.highcharts.com/modules/annotations.js"></script>
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         Highcharts.chart('sales-highchart', {
