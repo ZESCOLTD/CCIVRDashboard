@@ -63,6 +63,13 @@
                 <p>Supervisor Dashboard</p>
             </a>
         </li>
+        <li class="nav-item">
+            <a href="{{ route('omnidashboard') }}" class="nav-link">
+                <i class="fas fa-chalkboard-teacher nav-icon text-orange"></i>
+                <p>Omin-cahnnel Dashboard</p>
+            </a>
+        </li>
+
     </ul>
 </li>
 

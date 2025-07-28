@@ -292,6 +292,7 @@ Route::middleware(['auth'])->group(function () {
     // Live Components
     // Route::get('/live/dashboard', DashboardController::class)->name('live.dashboard');
 
+    Route::get('/omnidashboard', \App\Http\Livewire\Pages\DashboardPage::class)->name('omnidashboard');
 
     Route::get('/live/agent/dashboard/{id}', AgentDashboardController::class)->name('live.agent.dashboard');
 

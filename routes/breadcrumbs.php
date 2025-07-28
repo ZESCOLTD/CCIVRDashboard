@@ -163,3 +163,7 @@ Breadcrumbs::for('live.transactionCodes', function ($trail) {
 Breadcrumbs::for('role.roledid.edit', function ($trail, $roleId) {
     $trail->push('Title Here', route('role.roledid.edit', $roleId));
 });
+
+Breadcrumbs::for('omnidashboard', function ($trail) {
+    $trail->push('Omni Channel Dashboard', route('omnidashboard'));
+});
