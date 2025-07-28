@@ -74,7 +74,7 @@
     @livewireStyles
 </head>
 
-<body class="hold-transition sidebar-mini layout-fixed  {{ (Auth::user()->hasRole('agent') && Auth::user()->getRoleNames()->count()==1)?"sidebar-collapse":"" }}" id="agent-body">
+<body class="hold-transition sidebar-mini layout-fixed sidebar-collapse  {{ (Auth::user()->hasRole('agent') && Auth::user()->getRoleNames()->count()==1)?"sidebar-closed":"" }}" id="agent-body">
 <div class="wrapper">
 
     {{-- NAV BAR --}}
