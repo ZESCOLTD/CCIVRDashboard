@@ -1,57 +1,36 @@
-<div class="container-fluid p-2">
+<div class="container-fluid">
+    <div class="row">
 
-    <div class="row g-2">
-
-        <!-- Left Column -->
-        <div class="col-lg-4 col-sm-12">
-            <div class="card card-body ">
-            <h2 class="mb-1 text-uppercase">Usage in the Last 24hrs</h6>
-            <h3 class="text-muted small mb-2">Daily stats summary.</h3>
-
-            <!-- Daily Stats Summary -->
-            <div class="mb-2 text-bold">
-                <livewire:dashboard.daily-stats-summary />
-            </div>
-
-        
-              <div class="mb-2 text-bold">
-
-              </div>
-
+        <div class="col-lg-12">
+            <livewire:dashboard.minute-network-chart/>
         </div>
-    </div>
 
-        <!-- Right Column -->
-        <div class="col-lg-8 col-sm-12">
-            <div class="row g-2">
-                <div class="col-md-4">
-                    <div class="small">
-                        <livewire:dashboard.network-pie-chart />
-                    </div>
-                </div>
-
-                <div class="col-md-8">
-                    <div class="small">
-                        <livewire:dashboard.minute-network-chart />
-                    </div>
-                </div>
-            </div>
-
-             <!-- Full Width Chart -->
-    <div class="row mt-2">
-        <div class="col-sm-12  col-lg-12 ">
-            <div class="small">
-                <livewire:dashboard.hourly-network-chart />
+        <div class="col-lg-6">
+            <livewire:dashboard.hourly-network-chart/>
+            <div class="col-lg-6">
+                <livewire:dashboard.daily-stats-summary/>
             </div>
         </div>
-    </div>
+
+        <div class="col-lg-3">
+            <livewire:dashboard.top-menu-selected-chart/>
+        </div>
+
+        <div class="col-lg-3">
+            <livewire:dashboard.network-pie-chart/>
         </div>
     </div>
-
-
 </div>
 
-
+<!-- Replace canvas with div for Highcharts rendering -->
+<div class="card">
+    <div class="card-header border-0">
+        <h3 class="card-title">Sales Chart</h3>
+    </div>
+    <div class="card-body">
+        <div id="sales-highchart" style="height: 300px;"></div>
+    </div>
+</div>
 
 @push('js')
 

@@ -28,6 +28,9 @@
             title: {
                 text: null
             },
+            credits: {
+        enabled: false // 🚫 removes the watermark
+    },
             xAxis: {
                 categories: @json($minutes),
                 labels: {

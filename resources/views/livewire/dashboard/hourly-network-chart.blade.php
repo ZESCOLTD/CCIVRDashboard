@@ -7,13 +7,26 @@
     <div class="card-body">
         <div class="d-flex">
             <p class="d-flex flex-column">
-                <span class="text-lg">Total</span>
-            </p>
+
+                    @livewire('dashboard.hourly-network-analysis', ['dataset' => $dataset, 'hours' => $hours])
+
         </div>
 
-        <div class="position-relative mb-4">
-            <div id="visitors-highchart" style="height: 300px;"></div>
+
+        <div class="row">
+
+
+            <div class="col-md-12">
+                <div class="position-relative mb-4">
+                    <div id="visitors-highchart" style="height: 300px;"></div>
+                </div>
+
+
+            </div>
+
         </div>
+
+
     </div>
 </div>
 
@@ -28,6 +41,9 @@
             title: {
                 text: null
             },
+            credits: {
+        enabled: false // 🚫 removes the watermark
+    },
             xAxis: {
                 categories: @json($hours),
                 labels: {

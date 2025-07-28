@@ -10,7 +10,7 @@
                 <span class="text-lg">Total</span>
             </p>
             <p class="ml-auto d-flex flex-column text-right">
-                <span class="text-bold"> {{$total}}</span>
+                <span class="text-bold"> {{ $total }}</span>
             </p>
         </div>
 
@@ -21,45 +21,45 @@
 </div>
 
 @push('js')
+    {{-- <div id="network-pie-chart"></div> --}}
 
-{{-- <div id="network-pie-chart"></div> --}}
-
-<script>
-    // document.addEventListener('livewire:load', function () {
-        document.addEventListener('DOMContentLoaded', function () {
-        Highcharts.chart('network-highchart', {
-            chart: {
-                type: 'pie'
-            },
-            title: {
-                text: 'Sessions per Network'
-            },
-            tooltip: {
-                pointFormat: '{series.name}: <b>{point.y}</b>'
-            },
-            accessibility: {
-                point: {
-                    valueSuffix: ''
-                }
-            },
-            plotOptions: {
-                pie: {
-                    allowPointSelect: true,
-                    cursor: 'pointer',
-                    dataLabels: {
-                        enabled: true,
-                        format: '<b>{point.name}</b>: {point.y}'
+    <script>
+        // document.addEventListener('livewire:load', function () {
+        document.addEventListener('DOMContentLoaded', function() {
+            Highcharts.chart('network-highchart', {
+                chart: {
+                    type: 'pie'
+                },
+                title: {
+                    text: 'Sessions per Network'
+                },
+                credits: {
+                    enabled: false // 🚫 removes the watermark
+                },
+                tooltip: {
+                    pointFormat: '{series.name}: <b>{point.y}</b>'
+                },
+                accessibility: {
+                    point: {
+                        valueSuffix: ''
                     }
-                }
-            },
-            series: [{
-                name: 'Sessions',
-                colorByPoint: true,
-                data: @json($data)
-            }]
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.y}'
+                        }
+                    }
+                },
+                series: [{
+                    name: 'Sessions',
+                    colorByPoint: true,
+                    data: @json($data)
+                }]
+            });
         });
-    });
-</script>
-
-
+    </script>
 @endpush
