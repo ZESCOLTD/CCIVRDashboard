@@ -102,7 +102,10 @@ class DashboardController extends Component
         $this->agent = Auth::user()->myAgentDetails;
         $this->calculateTotalBreakDurationForToday();
         // $this->dispatchBrowserEvent('refreshComponent');
-        $this->resume();
+        AgentBreak::where('agent_id', $this->agent->id)
+            ->whereNull('ended_at')
+            ->latest()
+            ->update(['ended_at' => now()]);
         $this->emitSelf('refresh'); // Emit an event to refresh the component
     }
 
