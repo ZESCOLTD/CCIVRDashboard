@@ -12,7 +12,6 @@
                 <livewire:dashboard.daily-stats-summary />
             </div>
 
-
               <div class="mb-2 text-bold">
 
               </div>

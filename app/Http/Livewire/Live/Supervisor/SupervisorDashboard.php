@@ -113,11 +113,11 @@ class SupervisorDashboard extends Component
 
         // Count only LOGGED_IN agents who are also IDLE (grouped correctly)
         $loggedInAgentsCount = CCAgent::where(function ($query) {
-            $query->where('state', 'AgentState.LOGGEDIN')
-                ->orWhere('state', 'LOGGED_IN');
+            $query->whereIn('state', ['AgentState.LOGGEDIN','LOGGED_IN']);
+                // ->orWhere('state', 'LOGGED_IN');
         })->where(function ($query) {
-            $query->where('status', 'IDLE')
-                ->orWhere('status', 'AgentState.IDLE');
+            $query->whereIn('status', ['IDLE','AgentState.IDLE']);
+                // ->orWhere('status', 'AgentState.IDLE');
         })->count();
 
         // answered calls in the last 30 minutes
