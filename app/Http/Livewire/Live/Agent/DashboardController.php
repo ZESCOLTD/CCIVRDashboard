@@ -58,7 +58,7 @@ class DashboardController extends Component
     public $recordFilename;
 
 
-    protected $listeners = ['refresh' => '$refresh', 'filename' => 'filename','showCustomerModal'];
+    protected $listeners = ['refresh' => '$refresh', 'filename' => 'filename','showCustomerModal','refreshComponent' => 'refreshComponent'];
 
     // Logic for customer search start
     public $search_term;
@@ -95,6 +95,14 @@ class DashboardController extends Component
             $this->currentSession = CallSession::find($this->selectedSession);
         }
         // dd($this->currentSession);
+    }
+
+    public function refreshComponent()
+    {
+        $this->agent = Auth::user()->myAgentDetails;
+        $this->calculateTotalBreakDurationForToday();
+        // $this->dispatchBrowserEvent('refreshComponent');
+        $this->emitSelf('refresh'); // Emit an event to refresh the component
     }
 
 

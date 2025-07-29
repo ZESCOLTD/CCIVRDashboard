@@ -1109,6 +1109,7 @@
                     ws_socket.classList.add("badge-success");
                     ws_socket.textContent = "Connected ..";
                     socket.send("Hello Server!");
+                    Livewire.emit('refreshComponent')
                 });
                 socket.addEventListener("message", (event) => {
                     var data = JSON.parse(event.data);
