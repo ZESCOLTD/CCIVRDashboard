@@ -6,7 +6,6 @@
         <div class="col-lg-4 col-sm-12">
             <div class="card card-body ">
             <h2 class="mb-1 text-uppercase">Usage in the Last 24hrs</h6>
-            <h3 class="text-muted small mb-2">Daily stats summary.</h3>
 
             <!-- Daily Stats Summary -->
             <div class="mb-2 text-bold">
