@@ -27,13 +27,13 @@
     </div>
 
     <div class="card-body table-responsive p-0">
-        <table class="table table-striped table-valign-middle">
+        <table class="table table-striped table-valign-start">
             <thead>
                 <tr>
                     <th style="font-size: 1.1rem;">Network/Channel</th>
-                    <th class="text-right" style="font-size: 1.1rem;">{{ $dayPrevious }} (Previous 24)</th>
-                    <th class="text-right" style="font-size: 1.1rem;">{{ $dayCurrent }} (Last 24)</th>
-                    <th class="text-right">Change</th>
+                    <th class="text-right" style="font-size: 1.0rem;">{{ $dayPrevious }}</th>
+                    <th class="text-right" style="font-size: 1.0rem;">{{ $dayCurrent }} </th>
+                    <th class="text-right" style="font-size: 1.0rem;">Change</th>
                 </tr>
             </thead>
             <tbody>
@@ -44,24 +44,24 @@
                         $arrow = $item->change >= 0 ? '↑' : '↓';
                     @endphp
                     <tr>
-                        <td style="font-size: 1.1rem;">
+                        <td style="font-size: 1.5rem;">
                             <span class="badge" style="background-color: {{ $color }}; color: #fff;">
                                 {{ ucfirst($item->network) }}
                             </span>
                         </td>
-                        <td class="text-right" style="font-size: 1.1rem;">{{ $item->previous }}</td>
-                        <td class="text-right" style="color: {{ $color }}; font-size: 1.1rem;">{{ $item->sessions }}</td>
-                        <td class="text-right" style="color: {{ $changeColor }}">
+                        <td class="text-right" style="font-size: 1.5rem;">{{ $item->previous }}</td>
+                        <td class="text-right" style="color: {{ $color }}; font-size: 1.5rem;">{{ $item->sessions }}</td>
+                        <td class="text-right" style="color: {{ $changeColor }}    ; font-size: 0.8rem;">
                             {{ $arrow }} {{ number_format(abs($item->change), 1) }}%
                         </td>
                     </tr>
                 @endforeach
 
                 <tr class="text-bold">
-                    <td style="font-size: 1.1rem;">Total</td>
-                    <td class="text-bold text-right" style="font-size: 1.1rem;">{{ $dailyStats->sum('previous') }}</td>
-                    <td class="text-bold text-right" style="font-size: 1.1rem;">{{ $dailyStats->sum('sessions') }}</td>
-                    <td class="text-bold text-right">
+                    <td style="font-size: 1.5rem;">Total</td>
+                    <td class="text-bold text-right" style="font-size: 1.5rem;">{{ $dailyStats->sum('previous') }}</td>
+                    <td class="text-bold text-right" style="font-size: 1.5rem;">{{ $dailyStats->sum('sessions') }}</td>
+                    <td class="text-bold text-right"   style="font-size: 0.8rem;">
                         @php
                             $totalCurrent = $dailyStats->sum('sessions');
                             $totalPrevious = $dailyStats->sum('previous');
