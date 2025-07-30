@@ -136,7 +136,7 @@
                                     </div>
                                     <div class="progress" style="height: 8px;">
                                         <div class="progress-bar"
-                                            style="background-color: #0f974b; width: {{ $availableAgentsCount>0? (($availableAgentsCount / $totalAgentCount) * 100):"--" }}%;">
+                                            style="background-color: #0f974b; width: {{ $availableAgentsCount > 0 ? ($availableAgentsCount / $totalAgentCount) * 100 : '--' }}%;">
                                         </div>
                                     </div>
                                 </div>
@@ -150,7 +150,7 @@
                                     </div>
                                     <div class="progress" style="height: 8px;">
                                         <div class="progress-bar"
-                                            style="background-color: #28a745; width: {{ $availableAgentsCount>0?(($activeCalls / $availableAgentsCount) * 100):"--" }}%;">
+                                            style="background-color: #28a745; width: {{ $availableAgentsCount > 0 ? ($activeCalls / $availableAgentsCount) * 100 : '--' }}%;">
                                         </div>
                                     </div>
                                 </div>
@@ -182,10 +182,10 @@
                                     data-toggle="modal" data-target="#broadcastModal">
                                     <i class="fas fa-broadcast-tower mr-1"></i> Broadcast Message
                                 </button>
-                                <button class="btn btn-sm mr-2 mb-2" style="background-color: #28a745; color: white;"
-                                    data-toggle="modal" data-target="#agentManagementModal">
-                                    <i class="fas fa-user-plus mr-1"></i> Add Agent
-                                </button>
+                                <a href={{ route('live.supervisor.agent-activity') }} class="btn btn-sm mr-2 mb-2"
+                                    style="background-color: #28a745; color: white;" >
+                                    <i class="fas fa-user-plus mr-1"></i> Agent Activity
+                                </a>
                                 <button class="btn btn-sm mr-2 mb-2" style="background-color: #fd7e14; color: white;">
                                     <i class="fas fa-phone-volume mr-1"></i> Listen to Call
                                 </button>
