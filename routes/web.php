@@ -229,6 +229,7 @@ use App\Http\Livewire\Live\Agent\OutboundComponent;
 // use App\Http\Livewire\Live\DialEventsComponent;
 use App\Http\Livewire\Live\StasisEndEventComponent;
 use App\Http\Livewire\Live\StasisStartEventComponent;
+use App\Http\Livewire\Live\Supervisor\AgentActvity;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Livewire\Live\Supervisor\KnowledgeBase\KnowledgeBaseManager;
@@ -297,6 +298,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/live/agent/dashboard/{id}', AgentDashboardController::class)->name('live.agent.dashboard');
 
     Route::get('/live/agent/outbound/{id}', OutboundComponent::class)->name('live.agent.outbound');
+    Route::get('/live/supervisor/agent-activity', AgentActvity::class)->name('live.supervisor.agent-activity');
 
 
 
