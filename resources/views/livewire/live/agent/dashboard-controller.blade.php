@@ -1039,6 +1039,22 @@
 
     <script>
         window.addEventListener('livewire:load', () => {
+            document.addEventListener('closeModal', function() {
+                console.log('closeModal fired ✅');
+
+
+                const createModalElement = document.getElementById('updateTransactionCodeModal');
+                if (createModalElement) {
+                    createModalElement.style.display = 'none'; // Hide the element
+                    createModalElement.classList.remove('show'); // Remove Bootstrap's 'show' class
+                    document.body.classList.remove('modal-open'); // Remove body class to fix scrolling
+                    const backdrop = document.querySelector('.modal-backdrop'); // Remove backdrop if exists
+                    if (backdrop) {
+                        backdrop.remove();
+                    }
+                }
+            });
+
             const apiUrl = "https://ivr.zesco.co.zm:8089/ari/bridges?api_key=asterisk:asterisk";
 
 
@@ -1176,21 +1192,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            document.addEventListener('closeModal', function() {
-                console.log('closeModal fired ✅');
 
-
-                const createModalElement = document.getElementById('updateTransactionCodeModal');
-                if (createModalElement) {
-                    createModalElement.style.display = 'none'; // Hide the element
-                    createModalElement.classList.remove('show'); // Remove Bootstrap's 'show' class
-                    document.body.classList.remove('modal-open'); // Remove body class to fix scrolling
-                    const backdrop = document.querySelector('.modal-backdrop'); // Remove backdrop if exists
-                    if (backdrop) {
-                        backdrop.remove();
-                    }
-                }
-            });
         });
     </script>
 
