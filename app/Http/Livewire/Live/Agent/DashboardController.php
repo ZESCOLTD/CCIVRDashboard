@@ -264,6 +264,7 @@ class DashboardController extends Component
         $records = $callsQuery->get();
 
         $totalDurationInSeconds = $records->sum('duration_in_seconds');
+        
         $recordCount = $records->count();
 
         $averageDurationFormatted = null;

@@ -259,9 +259,9 @@ class GeneralReport extends Component
         // Step 2: Get all relevant destination descriptions from ConfigDestinationsModel
         // Use 'description' instead of 'name'
         $destinationConfigs = ConfigDestinationsModel::whereIn('destination', $queues)
-                                                    ->get(['destination', 'description']) // <-- Changed 'name' to 'description'
-                                                    ->keyBy('destination')
-                                                    ->toArray();
+            ->get(['destination', 'description']) // <-- Changed 'name' to 'description'
+            ->keyBy('destination')
+            ->toArray();
 
         // Step 3: Create a simple lookup map
         $destinationDescriptions = [];
@@ -642,7 +642,7 @@ class GeneralReport extends Component
 
             // Filter these endpoints based on selected queueIds if provided.
             // If no specific queueIds are selected, consider all agent endpoints as part of the overall queue.
-            $targetEndpointsForQueue = $this->queueIds ? array_intersect($allAgentEndpoints, $this->queueIds) : $allAgentEndpoints;
+            $targetEndpointsForQueue =  $allAgentEndpoints;
 
             // Initialize aggregated totals for the "Overall Queue Performance"
             $totalAnswered = 0;
@@ -650,46 +650,71 @@ class GeneralReport extends Component
             $totalDurationAllQueues = 0;
             $totalRecordCountAllQueues = 0;
 
+
             // Iterate through each relevant endpoint to sum up their statistics
             foreach ($targetEndpointsForQueue as $endpoint) {
                 // Aggregate call events for this specific endpoint (queue)
-                $callEvents = DialEventLog::where('dialstring', $endpoint)
-                    ->whereBetween('event_timestamp', [$startDate, $endDate])
+                // $callEvents = DialEventLog::where('dialstring', $endpoint)
+                //     ->whereBetween('event_timestamp', [$startDate, $endDate])
+                //     ->get()
+                //     ->groupBy(function ($event) {
+                //         return $event->dialstring . '_' . $event->peer_id . '_' . $event->caller_number;
+                //     });
+
+
+                $callEvents = DialEventLog::orderBy('event_timestamp')
+                    ->whereBetween('created_at', [$startDate, $endDate])
                     ->get()
                     ->groupBy(function ($event) {
-                        return $event->dialstring . '_' . $event->peer_id . '_' . $event->caller_number;
+                        return $event->dialstring . '_' . $event->peer_id;
                     });
 
-                $answeredForEndpoint = 0;
-                $missedForEndpoint = 0;
-
-                foreach ($callEvents as $key => $events) {
+                $callResults = $callEvents->map(function ($events, $key) {
                     $sorted = $events->sortBy('event_timestamp');
+
                     $lastWithStatus = $sorted->reverse()->first(fn($e) => !empty($e->dialstatus));
-                    if ($lastWithStatus) {
-                        if ($lastWithStatus->dialstatus === 'ANSWER') {
-                            $answeredForEndpoint++;
-                        } elseif ($lastWithStatus->dialstatus === 'NOANSWER') {
-                            $missedForEndpoint++;
-                        }
-                    }
-                }
+
+                    if (!$lastWithStatus) return null;
+
+                    return [
+                        'dialstring' => $lastWithStatus->dialstring,
+                        'caller_number' => $lastWithStatus->caller_number,
+                        'status' => $lastWithStatus->dialstatus,
+                        'timestamp' => $lastWithStatus->event_timestamp,
+                    ];
+                })->filter(); // remove nulls
+
+
+                $answeredForEndpoint = count($callResults->where('status', 'ANSWER')
+                    ->where('dialstring', $endpoint));
+                $missedForEndpoint = count($callResults->where('status', 'NOANSWER')
+                    ->where('dialstring', $endpoint));
+
                 $totalAnswered += $answeredForEndpoint;
                 $totalMissed += $missedForEndpoint;
 
                 // Aggregate recordings for this specific endpoint (queue)
-                $recordingsForEndpoint = Recordings::where('agent_no', $endpoint)
-                    ->whereBetween('created_at', [$startDate, $endDate])
-                    ->get();
 
-                $totalDurationForEndpoint = $recordingsForEndpoint->sum('duration_in_seconds');
-                $recordCountForEndpoint = $recordingsForEndpoint->count();
 
-                $totalDurationAllQueues += $totalDurationForEndpoint;
-                $totalRecordCountAllQueues += $recordCountForEndpoint;
+
+
+                // $totalDurationForEndpoint = $recordingsForEndpoint->sum('duration_in_seconds');
+
+
+                // $recordCountForEndpoint = $recordingsForEndpoint->count();
+
+                // $totalDurationAllQueues += $totalDurationForEndpoint;
+                // $totalRecordCountAllQueues += $recordCountForEndpoint;
             }
 
+            $recordingsForEndpoints = Recordings::whereBetween('created_at', [$startDate, $endDate])
+                ->get();
+
+            $totalDurationAllQueues = $recordingsForEndpoints->sum('duration_in_seconds');
+            $totalRecordCountAllQueues = $recordingsForEndpoints->count();
+
             $overallTotalCalls = $totalAnswered + $totalMissed;
+
             $overallAvgDurationSeconds = $totalRecordCountAllQueues > 0 ? (int) ($totalDurationAllQueues / $totalRecordCountAllQueues) : 0;
             $overallSatisfaction = $overallTotalCalls > 0 ? round(($totalAnswered / $overallTotalCalls) * 100, 2) : 0;
 
