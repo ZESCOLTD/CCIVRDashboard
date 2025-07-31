@@ -471,7 +471,7 @@ class DashboardController extends Component
             session()->flash('success', 'Transaction code updated successfully!');
 
             $this->dispatchBrowserEvent('closeModal');
-            $this->emitSelf('refresh');
+            // $this->emitSelf('refresh');
 
         } else {
             session()->flash('error', 'Failed to update transaction code.');
