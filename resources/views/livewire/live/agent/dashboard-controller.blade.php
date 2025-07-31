@@ -1032,23 +1032,10 @@
                 });
             });
 
-            Livewire.on('closeModal', () => {
-                const modal = bootstrap.Modal.getInstance(document.getElementById('knowledgeModal'));
-                if (modal) {
-                    modal.hide();
-                }
-            });
         });
     </script>
 
-    {{-- <script defer>
-        Livewire.on('closeModal', () => {
-            const modal = bootstrap.Modal.getInstance(document.getElementById('knowledgeModal'));
-            if (modal) {
-                modal.hide();
-            }
-        });
-    </script> --}}
+
 
     <script>
         window.addEventListener('livewire:load', () => {
@@ -1192,8 +1179,6 @@
             document.addEventListener('closeModal', function() {
                 console.log('closeModal fired ✅');
 
-                // const creatModal = bootstrap.Modal.getInstance('createModal');
-                // creatModal.hide(); // Use native Bootstrap API
 
                 const createModalElement = document.getElementById('updateTransactionCodeModal');
                 if (createModalElement) {
