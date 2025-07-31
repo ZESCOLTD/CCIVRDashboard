@@ -78,8 +78,62 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Team Overview (Right Column) -->
+            <div class="col-md-4 pl-4">
+                <h6 class="card-subtitle mb-3"
+                    style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
+                    <i class="fas fa-users mr-2"></i>Team Overview
+                </h6>
+                <div class="pl-3">
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span style="color: #0f974b;">
+                                <i class="fas fa-user-check mr-1"></i>Active Agents:
+                            </span>
+                            <span style="color: #333;"
+                                id="active-agents">{{ count($availableAgents) }}/{{ $totalAgentCount }}</span>
+                        </div>
+                        {{-- <div class="progress" style="height: 8px;">
+                            <div class="progress-bar"
+                                style="background-color: #0f974b; width: {{ $availableAgentsCount > 0 ? ($availableAgentsCount / $totalAgentCount) * 100 : '--' }}%;">
+                            </div>
+                        </div> --}}
+                    </div>
+                    {{-- <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span style="color: #0f974b;">
+                                <i class="fas fa-phone-alt mr-1"></i>Calls in Progress:
+                            </span>
+                            <span
+                                style="color: #333;">{{ $activeCalls }}/{{ $availableAgentsCount }}</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar"
+                                style="background-color: #28a745; width: {{ $availableAgentsCount > 0 ? ($activeCalls / $availableAgentsCount) * 100 : '--' }}%;">
+                            </div>
+                        </div>
+                    </div> --}}
+                    <div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span style="color: #0f974b;">
+                                <i class="fas fa-hourglass-half mr-1"></i>Queue Wait Time:
+                            </span>
+                            <span style="color: #333;">--:--</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar" style="background-color: #fd7e14; width: 65%;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
+
+
     </div>
+
+
 
     <div class="card mb-5 shadow">
         <div class="card-body">

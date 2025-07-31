@@ -20,12 +20,15 @@ class AgentActvity extends Component
             $query->whereIn('state', ['AgentState.LOGGEDIN','LOGGED_IN'])
                 ;
         })->get();
+
+        $totalAgentCount = CCAgent::count();
         return view('livewire.live.supervisor.agent-actvity',[
             'api_server' => $api_server,
             'ws_server' => $ws_server,
             'sessions' => $sessions,
             'user' => Auth::user(), // Add authenticated user data
             'availableAgents' => $availableAgents,
+            'totalAgentCount' => $totalAgentCount,
         ]);
     }
 }
