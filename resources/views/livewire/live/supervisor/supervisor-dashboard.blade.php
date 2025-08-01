@@ -794,7 +794,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            {{-- <div class="col-md-4">
                                 <div class="card">
                                     <div class="card-body text-center">
                                         <h4>Agent Status Grid</h4>
@@ -820,26 +820,29 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
                         </div>
                         <div class="row mt-3">
                             <div class="col-md-6">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h5 class="text-center">Daily Call Stats</h5>
+                                        {{-- <h5 class="text-center">Daily Call Stats</h5>
                                         <div style="height: 250px;">
                                             <canvas id="dailyStatsChart"></canvas>
-                                        </div>
+                                        </div> --}}
+                                        <div wire:ignore id="daily-call-distribution-chart" style="width:100%; height:250px;"></div>
+
                                     </div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h5 class="text-center">Weekly Call Distribution</h5>
-                                        <div style="height: 250px;">
+                                        {{-- <div style="height: 250px;">
                                             <canvas id="weeklyStatsChart"></canvas>
-                                        </div>
+                                        </div> --}}
+                                        <div wire:ignore id="weekly-call-distribution-chart" style="width:100%; height:250px;"></div>
+
                                     </div>
                                 </div>
                             </div>
@@ -1496,6 +1499,106 @@
                 Livewire.on('refreshComponent', () => {
                     var newCallOutcomeData = JSON.parse(@json($callOutcomeData));
                     myCallOutcomeChart.series[0].setData(newCallOutcomeData, true);
+                });
+            });
+        </script>
+        <script>
+            document.addEventListener('livewire:load', function () {
+                // Get the data and categories from the Livewire component
+                var weeklyCallDistributionData = JSON.parse(@json($weeklyCallDistributionData));
+                var daysOfWeek = JSON.parse(@json($daysOfWeek));
+
+                // Initialize the Highcharts column chart
+                var myWeeklyChart = Highcharts.chart('weekly-call-distribution-chart', {
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: 'Weekly Call Distribution'
+                    },
+                    xAxis: {
+                        categories: daysOfWeek,
+                        crosshair: true
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: 'Number of Calls'
+                        }
+                    },
+                    tooltip: {
+                        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                            '<td style="padding:0"><b>{point.y}</b></td></tr>',
+                        footerFormat: '</table>',
+                        shared: true,
+                        useHTML: true
+                    },
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        }
+                    },
+                    series: weeklyCallDistributionData
+                });
+
+                // Listen for the refreshComponent event to update the chart
+                Livewire.on('refreshComponent', () => {
+                    var newWeeklyCallDistributionData = JSON.parse(@json($weeklyCallDistributionData));
+                    myWeeklyChart.update({
+                        series: newWeeklyCallDistributionData
+                    });
+                });
+            });
+        </script>
+         <script>
+            document.addEventListener('livewire:load', function () {
+                // Get the data and categories from the Livewire component
+                var dailyCallDistributionData = JSON.parse(@json($dailyCallDistributionData));
+                var hoursOfDay = JSON.parse(@json($hoursOfDay));
+
+                // Initialize the Highcharts grouped column chart
+                var myDailyChart = Highcharts.chart('daily-call-distribution-chart', {
+                    chart: {
+                        type: 'column'
+                    },
+                    title: {
+                        text: 'Daily Call Distribution per Hour'
+                    },
+                    xAxis: {
+                        categories: hoursOfDay,
+                        crosshair: true
+                    },
+                    yAxis: {
+                        min: 0,
+                        title: {
+                            text: 'Number of Calls'
+                        }
+                    },
+                    tooltip: {
+                        headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+                        pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+                            '<td style="padding:0"><b>{point.y}</b></td></tr>',
+                        footerFormat: '</table>',
+                        shared: true,
+                        useHTML: true
+                    },
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0.2,
+                            borderWidth: 0
+                        }
+                    },
+                    series: dailyCallDistributionData
+                });
+
+                // Listen for the refreshComponent event to update the chart
+                Livewire.on('refreshComponent', () => {
+                    var newDailyCallDistributionData = JSON.parse(@json($dailyCallDistributionData));
+                    myDailyChart.update({
+                        series: newDailyCallDistributionData
+                    });
                 });
             });
         </script>

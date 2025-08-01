@@ -113,11 +113,11 @@ class SupervisorDashboard extends Component
 
         // Count only LOGGED_IN agents who are also IDLE (grouped correctly)
         $loggedInAgentsCount = CCAgent::where(function ($query) {
-            $query->whereIn('state', ['AgentState.LOGGEDIN','LOGGED_IN']);
-                // ->orWhere('state', 'LOGGED_IN');
+            $query->whereIn('state', ['AgentState.LOGGEDIN', 'LOGGED_IN']);
+            // ->orWhere('state', 'LOGGED_IN');
         })->where(function ($query) {
-            $query->whereIn('status', ['IDLE','AgentState.IDLE']);
-                // ->orWhere('status', 'AgentState.IDLE');
+            $query->whereIn('status', ['IDLE', 'AgentState.IDLE']);
+            // ->orWhere('status', 'AgentState.IDLE');
         })->count();
 
         // answered calls in the last 30 minutes
@@ -194,23 +194,144 @@ class SupervisorDashboard extends Component
         ];
 
         // Prepare data for a Call Outcome Highcharts chart
-$callOutcomeData = [
-    [
-        'name' => 'Answered',
-        'y' => $answered,
-        'color' => '#28a745' // Green for answered
-    ],
-    [
-        'name' => 'Missed',
-        'y' => $missed,
-        'color' => '#ffc107' // Yellow for missed
-    ],
-    [
-        'name' => 'Abandoned',
-        'y' => ($total - ($missed + $answered)), // Use the calculated abandoned value
-        'color' => '#dc3545' // Red for abandoned
-    ],
-];
+        $callOutcomeData = [
+            [
+                'name' => 'Answered',
+                'y' => $answered,
+                'color' => '#28a745' // Green for answered
+            ],
+            [
+                'name' => 'Missed',
+                'y' => $missed,
+                'color' => '#ffc107' // Yellow for missed
+            ],
+            [
+                'name' => 'Abandoned',
+                'y' => ($total - ($missed + $answered)), // Use the calculated abandoned value
+                'color' => '#dc3545' // Red for abandoned
+            ],
+        ];
+
+
+        // Calculate weekly call distribution
+        $startDate = Carbon::now()->startOfWeek(Carbon::MONDAY);
+        $endDate = Carbon::now()->endOfWeek(Carbon::SUNDAY);
+
+        // Get call events for the current week
+        $weeklyCallEvents = DialEventLog::orderBy('event_timestamp')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->get()
+            ->groupBy(function ($event) {
+                return $event->dialstring . '_' . $event->peer_id;
+            });
+
+        // Process events to get the final status for each call
+        $weeklyCallResults = $weeklyCallEvents->map(function ($events) {
+            $lastWithStatus = $events->sortBy('event_timestamp')->reverse()->first(fn($e) => !empty($e->dialstatus));
+            return $lastWithStatus ? [
+                'day' => Carbon::parse($lastWithStatus->event_timestamp)->dayOfWeek,
+                'status' => $lastWithStatus->dialstatus
+            ] : null;
+        })->filter();
+
+        // Initialize data arrays for the chart
+        $daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+        $answeredData = array_fill(0, 7, 0);
+        $missedData = array_fill(0, 7, 0);
+        $abandonedData = array_fill(0, 7, 0);
+
+        // Populate the data arrays with counts for each day
+        foreach ($weeklyCallResults as $call) {
+            $dayIndex = ($call['day'] - 1 + 7) % 7; // Adjust Sunday to be the last day (0-6 index)
+            switch ($call['status']) {
+                case 'ANSWER':
+                    $answeredData[$dayIndex]++;
+                    break;
+                case 'NOANSWER':
+                    $missedData[$dayIndex]++;
+                    break;
+                case 'BUSY':
+                    $abandonedData[$dayIndex]++;
+                    break;
+            }
+        }
+
+        // Prepare the final data structure for Highcharts
+        $weeklyCallDistributionData = [
+            [
+                'name' => 'Answered',
+                'data' => $answeredData,
+                'color' => '#28a745'
+            ],
+            [
+                'name' => 'Missed',
+                'data' => $missedData,
+                'color' => '#ffc107'
+            ],
+            [
+                'name' => 'Abandoned',
+                'data' => $abandonedData,
+                'color' => '#dc3545'
+            ]
+        ];
+
+        // Calculate daily call distribution per hour
+        $hourlyCallEvents = DialEventLog::orderBy('event_timestamp')
+            ->whereDate('created_at', Carbon::today())
+            ->get()
+            ->groupBy(function ($event) {
+                return $event->dialstring . '_' . $event->peer_id;
+            });
+
+        // Process events to get the final status for each call
+        $hourlyCallResults = $hourlyCallEvents->map(function ($events) {
+            $lastWithStatus = $events->sortBy('event_timestamp')->reverse()->first(fn($e) => !empty($e->dialstatus));
+            return $lastWithStatus ? [
+                'hour' => Carbon::parse($lastWithStatus->event_timestamp)->format('H'),
+                'status' => $lastWithStatus->dialstatus
+            ] : null;
+        })->filter();
+
+        // Initialize data arrays for the chart (0-23 hours)
+        $hoursOfDay = array_map(fn($h) => $h . ':00', range(0, 23));
+        $answeredHourlyData = array_fill(0, 24, 0);
+        $missedHourlyData = array_fill(0, 24, 0);
+        $abandonedHourlyData = array_fill(0, 24, 0);
+
+        // Populate the data arrays with counts for each hour
+        foreach ($hourlyCallResults as $call) {
+            $hourIndex = (int) $call['hour'];
+            switch ($call['status']) {
+                case 'ANSWER':
+                    $answeredHourlyData[$hourIndex]++;
+                    break;
+                case 'NOANSWER':
+                    $missedHourlyData[$hourIndex]++;
+                    break;
+                case 'BUSY': // Assuming 'BUSY' or other status represents abandoned calls
+                    $abandonedHourlyData[$hourIndex]++;
+                    break;
+            }
+        }
+
+        // Prepare the final data structure for Highcharts
+        $dailyCallDistributionData = [
+            [
+                'name' => 'Answered',
+                'data' => $answeredHourlyData,
+                'color' => '#28a745'
+            ],
+            [
+                'name' => 'Missed',
+                'data' => $missedHourlyData,
+                'color' => '#ffc107'
+            ],
+            [
+                'name' => 'Abandoned',
+                'data' => $abandonedHourlyData,
+                'color' => '#dc3545'
+            ]
+        ];
 
 
 
@@ -239,6 +360,10 @@ $callOutcomeData = [
             'averageDurationFormatted' => $averageDurationFormatted,
             'agentStatusData' => json_encode($agentStatusData),
             'callOutcomeData' => json_encode($callOutcomeData),
+            'weeklyCallDistributionData' => json_encode($weeklyCallDistributionData),
+            'daysOfWeek' => json_encode($daysOfWeek),
+            'dailyCallDistributionData' => json_encode($dailyCallDistributionData),
+            'hoursOfDay' => json_encode($hoursOfDay),
         ]);
     }
 
@@ -305,6 +430,4 @@ $callOutcomeData = [
 
         return $result;
     }
-
-
 }
