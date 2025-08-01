@@ -342,11 +342,11 @@
                                 delete durationElem.dataset.startedAt;
                                 durationElem.textContent = "00:00:00";
                             }
-                        }else if (data.type === "Dial" && data.dialstatus === "NOANSWER") {
+                        }else if (data.type === "ChannelDestroyed") {
                             // StasisEnd often indicates the end of a call.
                             // The `app_data` might contain the endpoint, or you might need to rely on `channel.name`
                             // For StasisEnd, `channel.dialplan.app_data` format may vary, so let's stick to channel.name for consistency if possible.
-                            const endpoint = getEndpointFromChannelName(data.dialstring);
+                            const endpoint = getEndpointFromChannelName(data.channel?.name);
 
 
                             if (!endpoint) {
