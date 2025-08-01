@@ -342,6 +342,37 @@
                                 delete durationElem.dataset.startedAt;
                                 durationElem.textContent = "00:00:00";
                             }
+                        }else if (data.type === "Dial" && data.dialstatus === "NOANSWER") {
+                            // StasisEnd often indicates the end of a call.
+                            // The `app_data` might contain the endpoint, or you might need to rely on `channel.name`
+                            // For StasisEnd, `channel.dialplan.app_data` format may vary, so let's stick to channel.name for consistency if possible.
+                            const endpoint = getEndpointFromChannelName(data.dialstring);
+
+
+                            if (!endpoint) {
+                                console.warn("StasisEnd: No clean endpoint found from channel.name.");
+                                return;
+                            }
+
+                            const badge = document.getElementById(`badge-${endpoint}`);
+                            const icon = document.getElementById(`icon-${endpoint}`);
+                            const durationElem = document.getElementById(`duration-${endpoint}`);
+
+                            if (badge) {
+                                // Available (after call): Red badge
+                                badge.classList.remove("bg-success", "bg-warning", "text-dark"); // Ensure text-dark is removed
+                                badge.classList.add("bg-danger");
+                                badge.textContent = "AVAILABLE";
+                            }
+                            if (icon) {
+                                // Available: Red user icon (or default user icon)
+                                icon.classList.remove("text-success", "text-warning", "fa-phone-alt", "fa-bell");
+                                icon.classList.add("text-danger", "fa-user-circle"); // Back to user icon
+                            }
+                            if (durationElem) {
+                                delete durationElem.dataset.startedAt;
+                                durationElem.textContent = "00:00:00";
+                            }
                         }
                     } catch (e) {
                         console.error("Failed to parse WebSocket message data or process event:", e, event.data);

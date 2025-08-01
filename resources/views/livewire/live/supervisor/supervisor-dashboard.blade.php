@@ -183,7 +183,7 @@
                                     <i class="fas fa-broadcast-tower mr-1"></i> Broadcast Message
                                 </button>
                                 <a href={{ route('live.supervisor.agent-activity') }} class="btn btn-sm mr-2 mb-2"
-                                    style="background-color: #28a745; color: white;" >
+                                    style="background-color: #28a745; color: white;">
                                     <i class="fas fa-user-plus mr-1"></i> Agent Activity
                                 </a>
                                 <button class="btn btn-sm mr-2 mb-2" style="background-color: #fd7e14; color: white;">
@@ -366,7 +366,7 @@
                                     <span class="info-box-icon"><i class="fas fa-phone-alt"></i></span>
                                     <div class="info-box-content">
                                         <span class="info-box-text">Active Calls</span>
-                                        <span class="info-box-number" id="activeCalls">{{ $activeCalls }}</span>
+                                        <span wire:ignore class="info-box-number" id="activeCalls">{{ $activeCalls }}</span>
                                         <div class="progress">
                                             <div class="progress-bar" style="width: 70%"></div>
                                         </div>
@@ -595,10 +595,13 @@
                         <h5><i class="fas fa-chart-pie mr-2"></i>Agent Status Distribution</h5>
                     </div>
                     <div class="card-body">
-                        <div style="height: 300px;">
+                        {{-- <div style="height: 300px;">
                             <canvas id="agentStatusChart"></canvas>
-                        </div>
-                        <div class="mt-3 text-center">
+                        </div> --}}
+                         {{-- A container for the new Agent Status chart --}}
+    <div wire:ignore id="agent-status-chart" style="width:100%; height:340px;"></div>
+
+                        {{-- <div class="mt-3 text-center">
                             <span class="mr-3"><i class="fas fa-circle text-success"></i> Available
                                 ({{ $availableAgentsCount }})</span>
                             <span class="mr-3"><i class="fas fa-circle text-primary"></i> On Call
@@ -606,7 +609,7 @@
                             <span class="mr-3"><i class="fas fa-circle text-warning"></i> On Break
                                 ({{ $onBreak }})</span>
                             <span><i class="fas fa-circle text-secondary"></i> Offline ({{ $loggedOut }})</span>
-                        </div>
+                        </div> --}}
                     </div>
                 </div>
             </div>
@@ -770,11 +773,11 @@
                                 <div class="card bg-dark text-white">
                                     <div class="card-body text-center">
                                         <h3><i class="fas fa-phone-alt"></i> Live Calls</h3>
-                                        <h1 class="display-4" id="liveCalls">--</h1>
+                                        <h1 wire:ignore class="display-4" id="liveCalls">--</h1>
                                         <div class="mt-3">
-                                            <span class="badge badge-success mr-2">{{ $activeCalls }} In
+                                            <span wire:ignore id="liveCallsBarge" class="badge badge-success mr-2">-- In
                                                 Progress</span>
-                                            <span class="badge badge-warning" id="inQueue">0 In Queue</span>
+                                            <span wire:ignore class="badge badge-warning" id="inQueue">0 In Queue</span>
                                             <span class="badge badge-danger">-- Waiting</span>
                                         </div>
                                     </div>
@@ -783,10 +786,11 @@
                             <div class="col-md-4">
                                 <div class="card">
                                     <div class="card-body text-center">
-                                        <h4>Call Queue Heatmap</h4>
-                                        <div style="height: 200px;">
+                                        {{-- <h4>Call Queue Heatmap</h4> --}}
+                                        {{-- <div style="height: 200px;">
                                             <canvas id="heatmapChart"></canvas>
-                                        </div>
+                                        </div> --}}
+                                        <div wire:ignore id="call-outcome-chart" style="width:100%; height:400px;"></div>
                                     </div>
                                 </div>
                             </div>
@@ -1130,6 +1134,8 @@
                             liveCalls = mixingBridges.length;
                             // Update DOM with the count (you can change this element ID)
                             document.getElementById("activeCalls").textContent = `${mixingBridges.length}`;
+
+                            document.getElementById("liveCallsBarge").textContent = `${mixingBridges.length} In Progress`;
                         })
                         .catch(error => {
                             console.error("Fetch error:", error);
@@ -1425,5 +1431,72 @@
                 // Implement your toast notification here
                 console.log(`${type}: ${message}`);
             }
+        </script>
+
+        <script>
+            document.addEventListener('livewire:load', function() {
+                // Get the data from the Livewire component
+                var agentStatusChartData = JSON.parse(@json($agentStatusData));
+
+                // Initialize the Highcharts chart
+                var myAgentStatusChart = Highcharts.chart('agent-status-chart', {
+                    chart: {
+                        type: 'pie'
+                    },
+                    title: {
+                        text: 'Agent Status Distribution'
+                    },
+                    series: [{
+                        name: 'Agents',
+                        data: agentStatusChartData
+                    }]
+                });
+
+                // Listen for the refreshComponent event to update the chart
+                Livewire.on('refreshComponent', () => {
+                    var newAgentStatusData = JSON.parse(@json($agentStatusData));
+                    myAgentStatusChart.series[0].setData(newAgentStatusData, true);
+                });
+            });
+        </script>
+        <script>
+            document.addEventListener('livewire:load', function () {
+                // Get the data from the Livewire component
+                var callOutcomeChartData = JSON.parse(@json($callOutcomeData));
+
+                // Initialize the Highcharts pie chart
+                var myCallOutcomeChart = Highcharts.chart('call-outcome-chart', {
+                    chart: {
+                        type: 'pie'
+                    },
+                    title: {
+                        text: 'Today\'s Call Outcomes '+{{$totalCalls}}+' Calls'
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: true,
+                                format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+                            }
+                        }
+                    },
+                    series: [{
+                        name: 'Outcomes',
+                        colorByPoint: true,
+                        data: callOutcomeChartData
+                    }]
+                });
+
+                // Listen for the refreshComponent event to update the chart
+                Livewire.on('refreshComponent', () => {
+                    var newCallOutcomeData = JSON.parse(@json($callOutcomeData));
+                    myCallOutcomeChart.series[0].setData(newCallOutcomeData, true);
+                });
+            });
         </script>
     @endpush

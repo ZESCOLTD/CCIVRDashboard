@@ -169,6 +169,49 @@ class SupervisorDashboard extends Component
             $averageDurationFormatted = "No call records found.";
         }
 
+        $agentStatusData = [
+            [
+                'name' => 'Logged In / Idle',
+                'y' => $availableAgentsCount,
+                'color' => '#28a745' // Green
+            ],
+            [
+                'name' => 'On a Call',
+                'y' => $availableAgentsCount - $loggedInAgentsCount,
+                'color' => '#007bff' // Blue
+            ],
+            [
+                'name' => 'On Break',
+                'y' => $onBreak,
+                'color' => '#ffc107' // Yellow
+            ],
+            [
+                'name' => 'Total',
+                'y' => $totalAgentCount,
+                'color' => '#dc3545' // Red
+            ],
+
+        ];
+
+        // Prepare data for a Call Outcome Highcharts chart
+$callOutcomeData = [
+    [
+        'name' => 'Answered',
+        'y' => $answered,
+        'color' => '#28a745' // Green for answered
+    ],
+    [
+        'name' => 'Missed',
+        'y' => $missed,
+        'color' => '#ffc107' // Yellow for missed
+    ],
+    [
+        'name' => 'Abandoned',
+        'y' => ($total - ($missed + $answered)), // Use the calculated abandoned value
+        'color' => '#dc3545' // Red for abandoned
+    ],
+];
+
 
 
         //$ws_server = env("WS_SERVER_ENDPOINT");
@@ -191,8 +234,11 @@ class SupervisorDashboard extends Component
             'answeredCallsThisMonth' => $answeredCallsThisMonth,
             'answeredCallsLast30' => $answeredCallsLast30,
             'abandoned' => $total - ($missed + $answered),
+            'totalCalls' => $total,
             'efficencyLast30' => ceil($efficiencyLast30),
             'averageDurationFormatted' => $averageDurationFormatted,
+            'agentStatusData' => json_encode($agentStatusData),
+            'callOutcomeData' => json_encode($callOutcomeData),
         ]);
     }
 
@@ -259,4 +305,6 @@ class SupervisorDashboard extends Component
 
         return $result;
     }
+
+
 }
