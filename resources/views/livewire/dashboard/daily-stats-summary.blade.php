@@ -59,8 +59,8 @@
 
                 <tr class="text-bold">
                     <td style="font-size: 1.5rem;">Total</td>
-                    <td class="text-bold text-right" style="font-size: 1.5rem;">{{ $dailyStats->sum('previous') }}</td>
                     <td class="text-bold text-right" style="font-size: 1.5rem;">{{ $dailyStats->sum('sessions') }}</td>
+                    <td class="text-bold text-right" style="font-size: 1.5rem;">{{ $dailyStats->sum('previous') }}</td>
                     <td class="text-bold text-right"   style="font-size: 0.8rem;">
                         @php
                             $totalCurrent = $dailyStats->sum('sessions');

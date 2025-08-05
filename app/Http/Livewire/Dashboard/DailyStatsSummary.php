@@ -11,6 +11,9 @@ use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Livewire\Component;
 
+use App\Http\Controllers\AnalyticsController;
+use App\Services\GoogleAnalyticsService;
+
 class DailyStatsSummary extends Component
 {
 
@@ -69,6 +72,22 @@ class DailyStatsSummary extends Component
             ->groupBy('channel_name')
             ->get()
             ->keyBy('network'); // consistent key as 'network'
+    }
+
+
+    function getStatsForWebsite()
+    {
+
+$analyticsService = new GoogleAnalyticsService();
+
+
+// For yesterday
+$totalYesterday = $analyticsService->getTotalUsersByDateRange( 'yesterday', 'yesterday');
+
+// // For last week (replace with actual dates)
+// $totalLastWeek = $analyticsService->getTotalUsersByDateRange($propertyId, '2025-07-01', '2025-07-07');
+
+
     }
 
 

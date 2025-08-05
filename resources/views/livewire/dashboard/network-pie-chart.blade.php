@@ -1,7 +1,15 @@
+
+@php
+    $now1 = now();
+    $current = $now1->format('l'); //  today
+    $dayCurrent = $now1->copy()->subDay()->format('l'); // Last 24 = yesterday
+    $dayPrevious = $now1->copy()->subDays(2)->format('l'); // Previous 24 = day before yesterday
+
+@endphp
 <div class="card">
     <div class="card-header border-0">
         <div class="d-flex justify-content-between">
-            <h3 class="card-title">Network Sessions</h3>
+            <h3 class="card-title"> {{  $current  }}  Network Sessions</h3>
         </div>
     </div>
     <div class="card-body">
@@ -31,7 +39,7 @@
                     type: 'pie'
                 },
                 title: {
-                    text: 'Sessions per Network'
+                    text: 'Active Sessions by Network'
                 },
                 credits: {
                     enabled: false // 🚫 removes the watermark
