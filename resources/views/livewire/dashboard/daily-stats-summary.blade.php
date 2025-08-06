@@ -49,11 +49,12 @@
                                 {{ ucfirst($item->network) }}
                             </span>
                         </td>
-                        {{-- <td class="text-right" style="font-size: 1.5rem;">{{ $item->previous }}</td>
-                        <td class="text-right" style="color: {{ $color }}; font-size: 1.5rem;">{{ $item->sessions }}</td> --}}
+                        <td class="text-right" style="font-size: 1.5rem;">{{ $item->previous }}</td>
+                        <td class="text-right" style="color: {{ $color }}; font-size: 1.5rem;">{{ $item->sessions }}</td>
 
-                        <td class="text-right" style="font-size: 1.5rem;">{{ $item->sessions }}</td>
-                        <td class="text-right" style="color: {{ $color }}; font-size: 1.5rem;">{{ $item->previous }}</td>
+                        {{-- <td class="text-right" style="font-size: 1.5rem;">{{ $item->sessions }}</td>
+                        <td class="text-right" style="color: {{ $color }}; font-size: 1.5rem;">{{ $item->previous }}</td> --}}
+
                         <td class="text-right" style="color: {{ $changeColor }}    ; font-size: 0.8rem;">
                             {{ $arrow }} {{ number_format(abs($item->change), 1) }}%
                         </td>
@@ -97,9 +98,9 @@
                 In the last 24 hours, a total of <strong>{{ number_format($total) }}</strong> sessions were recorded.
                 The highest activity was on
                 <strong style="color: {{ $topColor }}">{{ ucfirst($top->network) }}</strong>
-                with <strong style="color: {{ $topColor }}">{{ number_format($top->previous) }}</strong> sessions,
+                with <strong style="color: {{ $topColor }}">{{ number_format($top->sessions) }}</strong> sessions,
                 while <strong style="color: {{ $leastColor }}">{{ ucfirst($least->network) }}</strong>
-                had the lowest at <strong style="color: {{ $leastColor }}">{{ number_format($least->previous) }}</strong> sessions.
+                had the lowest at <strong style="color: {{ $leastColor }}">{{ number_format($least->sessions) }}</strong> sessions.
             </h4>
         </div>
     </div>
