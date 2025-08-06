@@ -49,8 +49,11 @@
                                 {{ ucfirst($item->network) }}
                             </span>
                         </td>
-                        <td class="text-right" style="font-size: 1.5rem;">{{ $item->previous }}</td>
-                        <td class="text-right" style="color: {{ $color }}; font-size: 1.5rem;">{{ $item->sessions }}</td>
+                        {{-- <td class="text-right" style="font-size: 1.5rem;">{{ $item->previous }}</td>
+                        <td class="text-right" style="color: {{ $color }}; font-size: 1.5rem;">{{ $item->sessions }}</td> --}}
+
+                        <td class="text-right" style="font-size: 1.5rem;">{{ $item->sessions }}</td>
+                        <td class="text-right" style="color: {{ $color }}; font-size: 1.5rem;">{{ $item->previous }}</td>
                         <td class="text-right" style="color: {{ $changeColor }}    ; font-size: 0.8rem;">
                             {{ $arrow }} {{ number_format(abs($item->change), 1) }}%
                         </td>

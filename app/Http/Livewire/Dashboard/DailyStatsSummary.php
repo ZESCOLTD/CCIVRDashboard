@@ -102,11 +102,18 @@ $totalYesterday = $analyticsService->getTotalUsersByDateRange( 'yesterday', 'yes
         $dstExtensions = ['cc-3', 'cc-4', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12', 'cc-13', 'cc-14', 'cc-15', 'cc-16', 'cc-17', 'cc-18', 'cc-20'];
 
         // Get data from each source
-        $ussdToday = self::getStatsForDate(UssdSession::class, $dayBeforeYesterday);
-        $ussdYesterday =  self::getStatsForDate(UssdSession::class, $yesterday);
+        // $ussdToday = self::getStatsForDate(UssdSession::class, $dayBeforeYesterday);
+        // $ussdYesterday =  self::getStatsForDate(UssdSession::class, $yesterday);
 
-        $otherToday =  self::getStatsForDateOtherChannel(OtherChannel::class, $dayBeforeYesterday);
-        $otherYesterday =  self::getStatsForDateOtherChannel(OtherChannel::class, $yesterday);
+        // $otherToday =  self::getStatsForDateOtherChannel(OtherChannel::class, $dayBeforeYesterday);
+        // $otherYesterday =  self::getStatsForDateOtherChannel(OtherChannel::class, $yesterday);
+
+           // Get data from each source
+           $ussdToday = self::getStatsForDate(UssdSession::class, $yesterday);
+           $ussdYesterday =  self::getStatsForDate(UssdSession::class, $dayBeforeYesterday);
+
+           $otherToday =  self::getStatsForDateOtherChannel(OtherChannel::class, $yesterday);
+           $otherYesterday =  self::getStatsForDateOtherChannel(OtherChannel::class, $dayBeforeYesterday);
 
         // Merge all networks
         $allNetworks = $ussdToday->keys()
