@@ -21,7 +21,8 @@ class CCAgent extends Model
         'user_id',
         'set_number',
         'state',
-        'status'
+        'status',
+        'user_status'
     ];
 
     protected $with = ['user'];

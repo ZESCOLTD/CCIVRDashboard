@@ -264,7 +264,7 @@ class DashboardController extends Component
         $records = $callsQuery->get();
 
         $totalDurationInSeconds = $records->sum('duration_in_seconds');
-        
+
         $recordCount = $records->count();
 
         $averageDurationFormatted = null;
@@ -408,6 +408,7 @@ class DashboardController extends Component
             if ($data['status'] === true) {
                 $this->agent->state = config('constants.agent_state.LOGGED_IN');
                 $this->agent->status = config('constants.agent_status.IDLE');
+                $this->agent->user_status = config('constants.agent_status.IDLE'); // Set user status to ONLINE
                 $this->agent->save();
 
                 // Check if the agent has logged into this session before
@@ -523,9 +524,12 @@ class DashboardController extends Component
             $this->agent->status = $this->agent->status === 'ON_BREAK'
                 ? config('constants.agent_status.IDLE')
                 : config('constants.agent_status.ON_BREAK');
+
+                $this->agent->user_status = $status;
         } else {
             // Set any other status directly if needed
             $this->agent->status = $status;
+            $this->agent->user_status = $status;
         }
 
         $this->agent->save();

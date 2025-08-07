@@ -61,6 +61,7 @@
                                 <th>Agent Number</th>
                                 <th>Man Number</th>
                                 <th>Email</th>
+                                <th>State</th>
                                 <th>Status</th>
                                 <th>Action</th>
                             </tr>
@@ -87,6 +88,9 @@
 
                                         <td>
                                             {{ $agent->state }}
+                                        </td>
+                                        <td>
+                                            {{ $agent->status }}
                                         </td>
 
                                         <td>
