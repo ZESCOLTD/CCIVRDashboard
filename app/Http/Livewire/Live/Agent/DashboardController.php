@@ -58,7 +58,7 @@ class DashboardController extends Component
     public $recordFilename;
 
 
-    protected $listeners = ['refresh' => '$refresh', 'filename' => 'filename','showCustomerModal','refreshComponent' => 'refreshComponent'];
+    protected $listeners = ['refresh' => '$refresh', 'filename' => 'filename', 'showCustomerModal', 'refreshComponent' => 'refreshComponent'];
 
     // Logic for customer search start
     public $search_term;
@@ -194,22 +194,23 @@ class DashboardController extends Component
     public function render()
     {
         // dd($user->myAgentDetails);
-        $this->agent_num = $this->agent !=null? $this->agent->endpoint:null;
+        $this->agent_num = $this->agent != null ? $this->agent->endpoint : null;
 
-        if($this->agent == null) {
-            return view('livewire.live.agent.dashboard-null-endpoint',
-            //  [
-            //     'agent' => "Please Ensure you are assigned a valid agent number",
-            //     'api_server' => null,
-            //     'ws_server' => null,
-            //     'totalCalls' => 0,
-            //     'answeredCalls' => 0,
-            //     'missedCalls' => 0,
-            //     'averageCallTime' => 0,
-            //     'lastFiveCalls' => [],
-            //     'customer_details' => $this->customer_details,
-            // ]
-        );
+        if ($this->agent == null) {
+            return view(
+                'livewire.live.agent.dashboard-null-endpoint',
+                //  [
+                //     'agent' => "Please Ensure you are assigned a valid agent number",
+                //     'api_server' => null,
+                //     'ws_server' => null,
+                //     'totalCalls' => 0,
+                //     'answeredCalls' => 0,
+                //     'missedCalls' => 0,
+                //     'averageCallTime' => 0,
+                //     'lastFiveCalls' => [],
+                //     'customer_details' => $this->customer_details,
+                // ]
+            );
         }
         $api_server = config("app.API_SERVER_ENDPOINT");
         $ws_server = config("app.WS_SERVER_ENDPOINT");
@@ -440,7 +441,7 @@ class DashboardController extends Component
                 $this->agent = $this->agent->fresh();
                 $this->calculateTotalBreakDurationForToday(); // Recalculate break duration after login
 
-                session()->flash('message', 'Successfully logged in to session: ' . $this->currentSession->name );
+                session()->flash('message', 'Successfully logged in to session: ' . $this->currentSession->name);
                 // session()->flash('message', 'Successfully logged in to session: ' . $this->currentSession->name . ' (' . $data['endpoint'] . ')');
                 $this->emitSelf('refresh'); // Optional, if other components are listening
             } else {
@@ -525,7 +526,7 @@ class DashboardController extends Component
                 ? config('constants.agent_status.IDLE')
                 : config('constants.agent_status.ON_BREAK');
 
-                $this->agent->user_status = $status;
+            $this->agent->user_status = $status;
         } else {
             // Set any other status directly if needed
             $this->agent->status = $status;
@@ -618,7 +619,7 @@ class DashboardController extends Component
     public function calculateTotalBreakDuration()
     {
 
-        if($this->agent == null) {
+        if ($this->agent == null) {
             $this->totalBreakDuration = '00:00:00';
             return;
         }
@@ -667,26 +668,25 @@ class DashboardController extends Component
     // }
 
     public function calculateTotalBreakDurationForToday()
-{
-    if (!$this->agent) {
-        $this->totalBreakDuration = '00:00:00';
-        return;
+    {
+        if (!$this->agent) {
+            $this->totalBreakDuration = '00:00:00';
+            return;
+        }
+
+        $todayStart = now()->startOfDay();
+        $todayEnd = now()->endOfDay();
+
+        $totalSeconds = AgentBreak::where('agent_id', $this->agent->id)
+            ->where('started_at', '>=', $todayStart)
+            ->where('started_at', '<=', $todayEnd)
+            ->get()
+            ->reduce(function ($carry, $break) {
+                $end = $break->ended_at ?? now(); // still on break if ended_at is null
+                return $carry + $end->diffInSeconds($break->started_at);
+            }, 0);
+
+        $this->totalBreakDuration = gmdate('H:i:s', $totalSeconds);
+        // dd($this->totalBreakDuration);
     }
-
-    $todayStart = now()->startOfDay();
-    $todayEnd = now()->endOfDay();
-
-    $totalSeconds = AgentBreak::where('agent_id', $this->agent->id)
-        ->where('started_at', '>=', $todayStart)
-        ->where('started_at', '<=', $todayEnd)
-        ->get()
-        ->reduce(function ($carry, $break) {
-            $end = $break->ended_at ?? now(); // still on break if ended_at is null
-            return $carry + $end->diffInSeconds($break->started_at);
-        }, 0);
-
-    $this->totalBreakDuration = gmdate('H:i:s', $totalSeconds);
-    // dd($this->totalBreakDuration);
-}
-
 }
