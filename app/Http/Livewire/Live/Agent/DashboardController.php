@@ -541,6 +541,7 @@ class DashboardController extends Component
         $this->resume();
         $this->agent->state =  config('constants.agent_state.LOGGED_OUT');
         $this->agent->status =  config('constants.agent_status.LOGGED_OUT');
+        $this->agent->user_status = config('constants.agent_status.LOGGED_OUT');
         $this->agent->save();
 
         $this->agent->refresh();
