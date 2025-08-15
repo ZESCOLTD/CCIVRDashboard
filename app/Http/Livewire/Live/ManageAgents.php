@@ -27,7 +27,7 @@ class ManageAgents extends Component
 
         'agent_man_no' => 'required',
         'agent_name' => 'required',
-        'agent_endpoint' => 'required',
+        'agent_endpoint' => 'required|string|size:4',
         'agent_user_id' => 'required'
     ];
 
@@ -69,6 +69,7 @@ class ManageAgents extends Component
 
     public function create()
     {
+        $this->validate();
         // dd([$this->agent_name, $this->agent_endpoint]);
 
         $response = Http::withBasicAuth($this->ari_username, $this->ari_password) // THIS IS WHERE BASIC AUTH IS ADDED

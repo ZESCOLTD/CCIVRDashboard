@@ -10,7 +10,7 @@
                 </button>
             </div>
 
-            <form>
+            <form wire:submit.prevent="create">
                 <div class="modal-body">
 
                     <div class="row">
@@ -51,7 +51,7 @@
                 </div>
                 <div class="modal-footer">
                     <div class="d-grid gap-2">
-                        <button wire:click.prevent="create()" class="btn btn-success btn-block">Save</button>
+                        <button type="submit" class="btn btn-success btn-block">Save</button>
                     </div>
                 </div>
             </form>

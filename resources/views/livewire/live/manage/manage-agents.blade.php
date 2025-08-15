@@ -14,8 +14,13 @@
                     </div>
                 @endif
 
-                <button type="button" class="btn btn-sm btn-outline-success" data-toggle="modal"
+                {{-- <button type="button" class="btn btn-sm btn-outline-success" data-toggle="modal"
                     data-target="#createModal">
+                    <i class="fa fa-plus">Add Agent</i>
+                </button> --}}
+
+                <!-- Button to trigger modal -->
+                <button type="button" class="btn btn-sm btn-outline-success" id="openModalButton">
                     <i class="fa fa-plus">Add Agent</i>
                 </button>
 
@@ -126,6 +131,13 @@
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             console.log('[Livewire] livewire:load fired ✅');
+
+            document.getElementById('openModalButton').addEventListener('click', function() {
+                var myModal = new bootstrap.Modal(document.getElementById('createModal'));
+                myModal.show();
+            });
+
+
 
 
 
