@@ -24,6 +24,12 @@ class DashboardIndex extends Component
     public function mount()
     {
         $this->searchTerm = null;
+
+        $user = Auth::user();
+
+        if ($user->hasRole('agent') && $user->getRoleNames()->count()==1) {
+            return redirect()->route('live.agent.dashboard', ['id' => $user->id]);
+        }
     }
 
     public function render()
@@ -31,9 +37,7 @@ class DashboardIndex extends Component
 
         $user = Auth::user();
 
-        if ($user->hasRole('agent') && $user->getRoleNames()->count()==1) {
-            return redirect()->route('live.agent.dashboard', ['id' => $user->id]);
-        }
+
         // Define cache duration in seconds (1 hour = 3600 seconds)
         $cacheDuration = 1800;
 
