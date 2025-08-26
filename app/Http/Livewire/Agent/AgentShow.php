@@ -99,7 +99,7 @@ class AgentShow extends Component
 
     public function unlock()
     {
-        $response = Http::post("https://ivr.zesco.co.zm/unlocked/endpoint/" . $this->agent->endpoint);
+        $response = Http::post("http://10.44.0.56:8001/unlocked/endpoint/" . $this->agent->endpoint);
     }
     public function filterRecordings()
     {
