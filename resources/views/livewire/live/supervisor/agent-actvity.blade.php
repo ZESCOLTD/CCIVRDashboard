@@ -148,7 +148,7 @@
                                 </div>
                                 <h6 class="fw-bold mb-1">{{ $agent->name ?? 'Unnamed Agent' }}</h6>
                                 <span id="badge-{{ $agent->endpoint }}" class="badge bg-success mb-2">
-                                    {{ $agent->state ?? 'Unknown' }}
+                                    {{ $agent->status ?? 'Unknown' }}
                                 </span>
                                 <ul class="list-unstyled small text-muted">
                                     <li>
