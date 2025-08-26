@@ -9,6 +9,7 @@ use App\Models\Live\CCAgent;
 use App\Models\Live\Recordings;
 use App\Models\Live\TransactionCode;
 use App\Models\Live\Recordings as LiveRecordings;
+use Illuminate\Support\Facades\Http;
 
 class AgentShow extends Component
 {
@@ -96,6 +97,10 @@ class AgentShow extends Component
         }
     }
 
+    public function unlock()
+    {
+        $response = Http::post("https://10.44.0.70:8001/unlocked/endpoint/" . $this->agent->endpoint);
+    }
     public function filterRecordings()
     {
 

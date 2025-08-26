@@ -47,6 +47,7 @@
                                     class="btn btn-info mr-3">Edit</button>
                                 <button wire:click.prevent="remove()" onclick="deleteCallSession('{{ $agent->id }}')"
                                     class="btn btn-danger">Remove</button>
+                                <button wire:click.prevent="unlock()" class="btn btn-primary">Unlock</button>
                             </div>
                         </div>
                     </div>
