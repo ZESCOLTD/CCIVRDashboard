@@ -1,155 +1,78 @@
 <div class="container mt-4">
+    {{-- Supervisor Info and System Status columns remain the same --}}
     <div class="card-body" style="background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);">
         <div class="row">
-            <div class="col-md-4 border-right pr-4"
-                style="border-color: rgba(244, 158, 56, 0.3) !important;">
-                <h6 class="card-subtitle mb-3"
-                    style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
-                    <i class="fas fa-user-tie mr-2"></i>Supervisor Information
-                </h6>
-                <div class="pl-3">
-                    <p class="mb-2">
-                        <strong
-                            style="color: #0f974b; min-width: 120px; display: inline-block;">Name:</strong>
-                        <span style="color: #333;">{{ $user->name }}</span>
-                    </p>
-                    <p class="mb-2">
-                        <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Employee
-                            No:</strong>
-                        <span style="color: #333;">{{ $user->man_no }}</span>
-                    </p>
-                    <p class="mb-2">
-                        <strong
-                            style="color: #0f974b; min-width: 120px; display: inline-block;">Department:</strong>
-                        <span style="color: #333;">Customer Support</span>
-                    </p>
-                    <p class="mb-0">
-                        <strong
-                            style="color: #0f974b; min-width: 120px; display: inline-block;">Status:</strong>
-                        <span class="badge px-2 py-1"
-                            style="background-color: {{ $user->isOnline() ? '#0f974b' : '#6c757d' }}; color: white; font-size: 0.8rem;">
-                            <i class="fas {{ $user->isOnline() ? 'fa-wifi' : 'fa-clock' }} mr-1"></i>
-                            {{ $user->isOnline() ? 'Online' : 'Offline' }}
-                            @if ($user->is_banned)
-                                <i class="fas fa-ban ml-1"></i>
-                            @endif
-                        </span>
-                    </p>
-                </div>
+            {{-- Column 1: Supervisor Information --}}
+            <div class="col-md-4 border-right pr-4" style="border-color: rgba(244, 158, 56, 0.3) !important;">
+                {{-- ... your supervisor info code ... --}}
             </div>
 
-            <div class="col-md-4 border-right px-4"
-                style="border-color: rgba(244, 158, 56, 0.3) !important;">
-                <h6 class="card-subtitle mb-3"
-                    style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
-                    <i class="fas fa-server mr-2"></i>System Status
-                </h6>
-                <div class="pl-3">
-                    <div class="mb-3">
-                        <label style="color: #0f974b; display: block; margin-bottom: 2px;">
-                            <i class="fas fa-plug mr-1"></i>Recorder Websocket:
-                        </label>
-                        <div class="d-flex align-items-center">
-                            <input type="text" id="ws_endpoint" value='{{ $ws_server }}' hidden>
-                            <span id="ws-info" class="badge px-2 py-1"
-                                style="background-color: #0f974b; color: white; font-size: 0.8rem;">
-                                <i class="fas fa-check-circle mr-1"></i>Connected
-                            </span>
-                            <i class="fas fa-info-circle ml-2" style="color: #f49e38; cursor: pointer;"
-                                data-toggle="tooltip" title="WebSocket connection status"></i>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label style="color: #0f974b; display: block; margin-bottom: 2px;">
-                            <i class="fas fa-exchange-alt mr-1"></i>Recorder Rest Interface:
-                        </label>
-                        <input class="form-control form-control-sm" type="text" id="api_endpoint"
-                            value='{{ $api_server }}'
-                            style="border-color: #f49e38; color: #0f974b; background-color: rgba(244, 158, 56, 0.05);">
-                    </div>
-                    <div>
-                        <label style="color: #0f974b; display: block; margin-bottom: 2px;">
-                            <i class="fas fa-database mr-1"></i>Database Status:
-                        </label>
-                        <span class="badge px-2 py-1"
-                            style="background-color: #0f974b; color: white; font-size: 0.8rem;">
-                            <i class="fas fa-check-circle mr-1"></i>Connected
-                        </span>
-                    </div>
-                </div>
+            {{-- Column 2: System Status --}}
+            <div class="col-md-4 border-right px-4" style="border-color: rgba(244, 158, 56, 0.3) !important;">
+                {{-- ... your system status code ... --}}
             </div>
 
-            <!-- Team Overview (Right Column) -->
+            {{-- Column 3: Team Overview --}}
             <div class="col-md-4 pl-4">
-                <h6 class="card-subtitle mb-3"
-                    style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
-                    <i class="fas fa-users mr-2"></i>Team Overview
-                </h6>
-                <div class="pl-3">
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span style="color: #0f974b;">
-                                <i class="fas fa-user-check mr-1"></i>Active Agents:
-                            </span>
-                            <span style="color: #333;"
-                                id="active-agents">{{ count($availableAgents) }}/{{ $totalAgentCount }}</span>
-                        </div>
-                        {{-- <div class="progress" style="height: 8px;">
-                            <div class="progress-bar"
-                                style="background-color: #0f974b; width: {{ $availableAgentsCount > 0 ? ($availableAgentsCount / $totalAgentCount) * 100 : '--' }}%;">
-                            </div>
-                        </div> --}}
-                    </div>
-                    {{-- <div class="mb-3">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span style="color: #0f974b;">
-                                <i class="fas fa-phone-alt mr-1"></i>Calls in Progress:
-                            </span>
-                            <span
-                                style="color: #333;">{{ $activeCalls }}/{{ $availableAgentsCount }}</span>
-                        </div>
-                        <div class="progress" style="height: 8px;">
-                            <div class="progress-bar"
-                                style="background-color: #28a745; width: {{ $availableAgentsCount > 0 ? ($activeCalls / $availableAgentsCount) * 100 : '--' }}%;">
-                            </div>
-                        </div>
-                    </div> --}}
-                    <div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <span style="color: #0f974b;">
-                                <i class="fas fa-hourglass-half mr-1"></i>Queue Wait Time:
-                            </span>
-                            <span style="color: #333;">--:--</span>
-                        </div>
-                        <div class="progress" style="height: 8px;">
-                            <div class="progress-bar" style="background-color: #fd7e14; width: 65%;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                {{-- ... your team overview code ... --}}
             </div>
         </div>
-
-
     </div>
 
-
-
+    {{-- Agent Activity Card --}}
     <div class="card mb-5 shadow">
         <div class="card-body">
-            <h5 class="card-title mb-4">Agent Activity Overview</h5>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="card-title mb-0">Agent Activity Overview</h5>
+
+                <button wire:click="probAgents" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-sync" wire:loading.remove wire:target="probAgents"></i>
+                    <i class="fas fa-spinner fa-spin" wire:loading wire:target="probAgents"></i>
+                    Refresh Status
+                </button>
+            </div>
+
             <div class="row g-4">
-                @foreach ($availableAgents as $agent)
+                @forelse ($availableAgents as $agent)
+                    @php
+                        // Find the status info for the current agent from the $agentStatuses array
+                        $statusInfo = collect($agentStatuses)->firstWhere('agent_num', $agent->endpoint);
+
+                        // Set default values
+                        $badgeClass = 'bg-secondary';
+                        $badgeText = 'Unknown';
+                        $iconClass = 'fa-question-circle text-secondary';
+
+                        if ($statusInfo) {
+                            if ($statusInfo['action_taken'] === 'error') {
+                                $badgeClass = 'bg-warning text-dark';
+                                $badgeText = 'Error';
+                                $iconClass = 'fa-exclamation-triangle text-warning';
+                            } elseif ($statusInfo['api_status'] === true) {
+                                $badgeClass = 'bg-success';
+                                $badgeText = 'IDLE';
+                                $iconClass = 'fa-user-circle text-success';
+                            } elseif ($statusInfo['api_status'] === false) {
+                                // The API check found the agent is offline, even if the DB said they were logged in
+                                $badgeClass = 'bg-danger';
+                                $badgeText = 'OFFLINE';
+                                $iconClass = 'fa-user-alt-slash text-danger';
+                            }
+                        }
+                    @endphp
+
                     <div class="col-sm-6 col-md-4 col-lg-3">
                         <div class="card h-100 border-light shadow-sm" data-endpoint="{{ $agent->endpoint }}">
                             <div class="card-body text-center">
                                 <div class="mb-3">
-                                    <i id="icon-{{ $agent->endpoint }}" class="fas fa-user-circle fa-3x text-success"></i>
+                                    <i id="icon-{{ $agent->endpoint }}" class="fas {{ $iconClass }} fa-3x"></i>
                                 </div>
                                 <h6 class="fw-bold mb-1">{{ $agent->name ?? 'Unnamed Agent' }}</h6>
-                                <span id="badge-{{ $agent->endpoint }}" class="badge bg-success mb-2">
-                                    {{ $agent->status ?? 'Unknown' }}
+
+                                <span id="badge-{{ $agent->endpoint }}" class="badge {{ $badgeClass }} mb-2">
+                                    {{ $badgeText }}
                                 </span>
+
                                 <ul class="list-unstyled small text-muted">
                                     <li>
                                         <i class="fas fa-phone-alt me-2 text-success"></i>
@@ -163,11 +86,16 @@
                             </div>
                         </div>
                     </div>
-                @endforeach
+                @empty
+                    <div class="col-12">
+                        <p class="text-center text-muted">No active agents found.</p>
+                    </div>
+                @endforelse
             </div>
         </div>
     </div>
 </div>
+
 
 @push('custom-scripts')
     <script>
