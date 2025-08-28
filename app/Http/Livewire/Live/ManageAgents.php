@@ -21,6 +21,7 @@ class ManageAgents extends Component
 
     public $selected;
     public $search;
+    public $agent_role=true;
 
     // Validation Rules
     protected $rules = [
@@ -665,6 +666,13 @@ class ManageAgents extends Component
                 'user_status' => 'LOGGED_OUT'
             ]
         );
+
+        if($this->agent_role){
+            $user = User::find($this->agent_user_id);
+            $user->assignRole('agent');
+
+
+        }
         $this->resetFields();
         session()->flash('success', 'Agent created successfully.');
         $this->dispatchBrowserEvent('closeModal');

@@ -1,23 +1,262 @@
 <div class="container mt-4">
-    {{-- Supervisor Info and System Status columns remain the same --}}
     <div class="card-body" style="background: linear-gradient(to bottom, #ffffff 0%, #f8f9fa 100%);">
+
         <div class="row">
-            {{-- Column 1: Supervisor Information --}}
-            <div class="col-md-4 border-right pr-4" style="border-color: rgba(244, 158, 56, 0.3) !important;">
-                {{-- ... your supervisor info code ... --}}
-            </div>
 
-            {{-- Column 2: System Status --}}
-            <div class="col-md-4 border-right px-4" style="border-color: rgba(244, 158, 56, 0.3) !important;">
-                {{-- ... your system status code ... --}}
-            </div>
+            <div class="col-md-4 border-right pr-4"
+                style="border-color: rgba(244, 158, 56, 0.3) !important;">
 
-            {{-- Column 3: Team Overview --}}
+                <h6 class="card-subtitle mb-3"
+                    style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
+
+                    <i class="fas fa-user-tie mr-2"></i>Supervisor Information
+
+                    </h6>
+
+                <div class="pl-3">
+
+                    <p class="mb-2">
+
+                        <strong
+                            style="color: #0f974b; min-width: 120px; display: inline-block;">Name:</strong>
+
+                        <span style="color: #333;">{{ $user->name }}</span>
+
+                        </p>
+
+                    <p class="mb-2">
+
+                        <strong
+                            style="color: #0f974b; min-width: 120px; display: inline-block;">Employee
+
+                            No:</strong>
+
+                        <span style="color: #333;">{{ $user->man_no }}</span>
+
+                        </p>
+
+                    <p class="mb-2">
+
+                        <strong
+                            style="color: #0f974b; min-width: 120px; display: inline-block;">Department:</strong>
+
+                        <span style="color: #333;">Customer Support</span>
+
+                        </p>
+
+                    <p class="mb-0">
+
+                        <strong
+                            style="color: #0f974b; min-width: 120px; display: inline-block;">Status:</strong>
+
+                        <span class="badge px-2 py-1"
+                            style="background-color: {{ $user->isOnline() ? '#0f974b' : '#6c757d' }}; color: white; font-size: 0.8rem;">
+
+                            <i
+                                class="fas {{ $user->isOnline() ? 'fa-wifi' : 'fa-clock' }} mr-1"></i>
+
+                            {{ $user->isOnline() ? 'Online' : 'Offline' }}
+
+                            @if ($user->is_banned)
+                                <i class="fas fa-ban ml-1"></i>
+                            @endif
+
+                            </span>
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+
+            <div class="col-md-4 border-right px-4"
+                style="border-color: rgba(244, 158, 56, 0.3) !important;">
+
+                <h6 class="card-subtitle mb-3"
+                    style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
+
+                    <i class="fas fa-server mr-2"></i>System Status
+
+                    </h6>
+
+                <div class="pl-3">
+
+                    <div class="mb-3">
+
+                        <label style="color: #0f974b; display: block; margin-bottom: 2px;">
+
+                            <i class="fas fa-plug mr-1"></i>Recorder Websocket:
+
+                            </label>
+
+                        <div class="d-flex align-items-center">
+
+                            <input type="text" id="ws_endpoint"
+                                value='{{ $ws_server }}' hidden>
+
+                            <span id="ws-info" class="badge px-2 py-1"
+                                style="background-color: #0f974b; color: white; font-size: 0.8rem;">
+
+                                <i class="fas fa-check-circle mr-1"></i>Connected
+
+                                </span>
+
+                            <i class="fas fa-info-circle ml-2"
+                                style="color: #f49e38; cursor: pointer;"
+                                data-toggle="tooltip" title="WebSocket connection status"></i>
+
+                            </div>
+
+                        </div>
+
+                    <div class="mb-3">
+
+                        <label style="color: #0f974b; display: block; margin-bottom: 2px;">
+
+                            <i class="fas fa-exchange-alt mr-1"></i>Recorder Rest Interface:
+
+                            </label>
+
+                        <input class="form-control form-control-sm" type="text"
+                            id="api_endpoint"                             value='{{ $api_server }}'
+
+                            style="border-color: #f49e38; color: #0f974b; background-color: rgba(244, 158, 56, 0.05);">
+
+                        </div>
+
+                    <div>
+
+                        <label style="color: #0f974b; display: block; margin-bottom: 2px;">
+
+                            <i class="fas fa-database mr-1"></i>Database Status:
+
+                            </label>
+
+                        <span class="badge px-2 py-1"
+                            style="background-color: #0f974b; color: white; font-size: 0.8rem;">
+
+                            <i class="fas fa-check-circle mr-1"></i>Connected
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+
+            <!-- Team Overview (Right Column) -->
+
             <div class="col-md-4 pl-4">
-                {{-- ... your team overview code ... --}}
+
+                <h6 class="card-subtitle mb-3"
+                    style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
+
+                    <i class="fas fa-users mr-2"></i>Team Overview
+
+                    </h6>
+
+                <div class="pl-3">
+
+                    <div class="mb-3">
+
+                        <div class="d-flex justify-content-between mb-1">
+
+                            <span style="color: #0f974b;">
+
+                                <i class="fas fa-user-check mr-1"></i>Active Agents:
+
+                                </span>
+
+                            <span style="color: #333;"
+                                id="active-agents">{{ count($availableAgents) }}/{{ $totalAgentCount }}</span>
+
+                            </div>
+
+                        {{-- <div class="progress" style="height: 8px;">
+
+                                    <div class="progress-bar"
+
+                                        style="background-color: #0f974b; width: {{ $availableAgentsCount > 0 ? ($availableAgentsCount / $totalAgentCount) * 100 : '--' }}%;">
+
+                                    </div>
+
+                                </div> --}}
+
+                        </div>
+
+                    {{-- <div class="mb-3">
+
+                                <div class="d-flex justify-content-between mb-1">
+
+                                    <span style="color: #0f974b;">
+
+                                        <i class="fas fa-phone-alt mr-1"></i>Calls in Progress:
+
+                                    </span>
+
+                                    <span
+
+                                        style="color: #333;">{{ $activeCalls }}/{{ $availableAgentsCount }}</span>
+
+                                </div>
+
+                                <div class="progress" style="height: 8px;">
+
+                                    <div class="progress-bar"
+
+                                        style="background-color: #28a745; width: {{ $availableAgentsCount > 0 ? ($activeCalls / $availableAgentsCount) * 100 : '--' }}%;">
+
+                                    </div>
+
+                                </div>
+
+                            </div> --}}
+
+                    <div>
+
+                        <div class="d-flex justify-content-between mb-1">
+
+                            <span style="color: #0f974b;">
+
+                                <i class="fas fa-hourglass-half mr-1"></i>Queue Wait
+                                Time:
+
+                                </span>
+
+                            <span style="color: #333;">--:--</span>
+
+                            </div>
+
+                        <div class="progress" style="height: 8px;">
+
+                            <div class="progress-bar"
+                                style="background-color: #fd7e14; width: 65%;">
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
             </div>
+
+
+
+
+
         </div>
-    </div>
+
+
+
 
     {{-- Agent Activity Card --}}
     <div class="card mb-5 shadow">
@@ -80,7 +319,8 @@
                                     </li>
                                     <li>
                                         <i class="fas fa-clock me-2 text-secondary"></i>
-                                        <span id="duration-{{ $agent->endpoint }}" class="call-duration">00:00:00</span>
+                                        <span id="duration-{{ $agent->endpoint }}"
+                                            class="call-duration">00:00:00</span>
                                     </li>
                                 </ul>
                             </div>
@@ -144,7 +384,8 @@
                 const ws_address_elem = document.getElementById("ws_endpoint");
                 const ws_socket_elem = document.getElementById("ws-info");
 
-                const ws_url = ws_address_elem && ws_address_elem.value ? ws_address_elem.value : "ws://10.44.0.56:8001/ws";
+                const ws_url = ws_address_elem && ws_address_elem.value ? ws_address_elem.value :
+                    "ws://10.44.0.56:8001/ws";
                 console.log("WebSocket attempting connection to:", ws_url);
 
                 const socket = new WebSocket(ws_url);
@@ -163,7 +404,8 @@
                 socket.addEventListener("message", (event) => {
                     try {
                         const data = JSON.parse(event.data);
-                        console.log("Received WebSocket message:", data); // Log all incoming messages for debugging
+                        console.log("Received WebSocket message:",
+                        data); // Log all incoming messages for debugging
 
                         // Helper to get endpoint from various data structures
                         const getEndpointFromChannelName = (channelName) => {
@@ -182,7 +424,8 @@
                             const endpoint = cleanEndpoint(rawEndpoint);
 
                             if (!endpoint) {
-                                console.warn("StasisStart: No clean endpoint found from args[1]. Raw:", rawEndpoint);
+                                console.warn("StasisStart: No clean endpoint found from args[1]. Raw:",
+                                    rawEndpoint);
                                 return;
                             }
 
@@ -206,12 +449,15 @@
                                 durationElem.textContent = "00:00:00";
                             }
 
-                        } else if (data.type === "ChannelStateChange" && data.channel && data.channel.state === "Ringing") {
+                        } else if (data.type === "ChannelStateChange" && data.channel && data.channel
+                            .state === "Ringing") {
                             // Extract endpoint from channel.name for Ringing state
                             const endpoint = getEndpointFromChannelName(data.channel.name);
 
                             if (!endpoint) {
-                                console.warn("ChannelStateChange (Ringing): No endpoint found from channel.name. Raw:", data.channel.name);
+                                console.warn(
+                                    "ChannelStateChange (Ringing): No endpoint found from channel.name. Raw:",
+                                    data.channel.name);
                                 return;
                             }
 
@@ -225,15 +471,18 @@
                             if (badge) {
                                 // Ringing: Orange/Warning badge
                                 badge.classList.remove("bg-success", "bg-danger");
-                                badge.classList.add("bg-warning", "text-dark"); // text-dark for visibility on warning background
+                                badge.classList.add("bg-warning",
+                                "text-dark"); // text-dark for visibility on warning background
                                 badge.textContent = "RINGING";
                             }
                             if (icon) {
                                 // Ringing: Orange/Warning icon, possibly a ringing specific icon
-                                icon.classList.remove("text-success", "text-danger", "fa-phone-alt", "fa-user-circle");
-                                icon.classList.add("text-warning", "fa-bell"); // FontAwesome bell icon for ringing
+                                icon.classList.remove("text-success", "text-danger", "fa-phone-alt",
+                                    "fa-user-circle");
+                                icon.classList.add("text-warning",
+                                "fa-bell"); // FontAwesome bell icon for ringing
                             }
-                             if (durationElem) {
+                            if (durationElem) {
                                 // For ringing, typically the call duration hasn't started, or it's a new "ringing" phase
                                 delete durationElem.dataset.startedAt; // Remove any previous started time
                                 durationElem.textContent = "00:00:00";
@@ -257,20 +506,22 @@
 
                             if (badge) {
                                 // Available (after call): Red badge
-                                badge.classList.remove("bg-success", "bg-warning", "text-dark"); // Ensure text-dark is removed
+                                badge.classList.remove("bg-success", "bg-warning",
+                                "text-dark"); // Ensure text-dark is removed
                                 badge.classList.add("bg-danger");
                                 badge.textContent = "AVAILABLE";
                             }
                             if (icon) {
                                 // Available: Red user icon (or default user icon)
-                                icon.classList.remove("text-success", "text-warning", "fa-phone-alt", "fa-bell");
+                                icon.classList.remove("text-success", "text-warning", "fa-phone-alt",
+                                    "fa-bell");
                                 icon.classList.add("text-danger", "fa-user-circle"); // Back to user icon
                             }
                             if (durationElem) {
                                 delete durationElem.dataset.startedAt;
                                 durationElem.textContent = "00:00:00";
                             }
-                        }else if (data.type === "ChannelDestroyed") {
+                        } else if (data.type === "ChannelDestroyed") {
                             // StasisEnd often indicates the end of a call.
                             // The `app_data` might contain the endpoint, or you might need to rely on `channel.name`
                             // For StasisEnd, `channel.dialplan.app_data` format may vary, so let's stick to channel.name for consistency if possible.
@@ -288,13 +539,15 @@
 
                             if (badge) {
                                 // Available (after call): Red badge
-                                badge.classList.remove("bg-success", "bg-warning", "text-dark"); // Ensure text-dark is removed
+                                badge.classList.remove("bg-success", "bg-warning",
+                                "text-dark"); // Ensure text-dark is removed
                                 badge.classList.add("bg-danger");
                                 badge.textContent = "AVAILABLE";
                             }
                             if (icon) {
                                 // Available: Red user icon (or default user icon)
-                                icon.classList.remove("text-success", "text-warning", "fa-phone-alt", "fa-bell");
+                                icon.classList.remove("text-success", "text-warning", "fa-phone-alt",
+                                    "fa-bell");
                                 icon.classList.add("text-danger", "fa-user-circle"); // Back to user icon
                             }
                             if (durationElem) {
@@ -303,7 +556,8 @@
                             }
                         }
                     } catch (e) {
-                        console.error("Failed to parse WebSocket message data or process event:", e, event.data);
+                        console.error("Failed to parse WebSocket message data or process event:", e, event
+                            .data);
                     }
                 });
 

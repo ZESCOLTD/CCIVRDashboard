@@ -28,6 +28,12 @@
                                 <label class="form-label">Agent number:</label>
                                 <input class="form-control text-muted" wire:model.defer="agent_endpoint">
                             </div>
+                            <div class="mb-3 form-check">
+                                <input type="checkbox" class="form-check-input" id="agentRoleCheck" wire:model.defer="agent_role">
+                                <label class="form-check-label" for="agentRoleCheck">
+                                    Assign Agent role
+                                </label>
+                            </div>
 
                         </div>
                         {{-- <div class="col-md-6">
