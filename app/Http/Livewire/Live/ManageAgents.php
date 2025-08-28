@@ -686,6 +686,7 @@ class ManageAgents extends Component
         $this->agent_set_number = '';
         $this->agent_status = '';
         $this->agent_state = '';
+        $this->agent_role=true;
     }
 
     public function updatedAgentManNo()
