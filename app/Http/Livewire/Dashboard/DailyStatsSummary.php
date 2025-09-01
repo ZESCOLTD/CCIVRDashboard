@@ -7,12 +7,15 @@ use App\Models\UssdSession;
 use App\Models\OtherChannel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Collection;
 use InvalidArgumentException;
 use Livewire\Component;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Collection;
 
 use App\Http\Controllers\AnalyticsController;
 use App\Services\GoogleAnalyticsService;
+
+
 
 class DailyStatsSummary extends Component
 {
@@ -40,15 +43,29 @@ class DailyStatsSummary extends Component
         $this->channels = ['Website', 'Mobile App'];
     }
 
+
+    function getStatsActiveUsersForWebsite(  string $startDate, string $endDate, $metricValue = 'activeUsers')
+    {
+
+$analyticsService = new GoogleAnalyticsService();
+$propertyId = '337673843';
+
+// For last week (replace with actual dates)
+$totalLastWeek = $analyticsService->getTotalUsersByDateRange($propertyId, $startDate, $endDate, $metricValue   );
+
+return response()->json([
+    'metric' => $metricValue,
+    'total' => $totalLastWeek,
+]);
+
+
+    }
+
+
     /**
-     * Get stats for a specific date from the given model class.
-     *
-     * @param string $modelClass
-     * @param string $date
-     * @return Collection
-     * @throws InvalidArgumentException
+     * Get stats for a specific date from a given Eloquent model (USSD sessions).
      */
-    function getStatsForDate(string $modelClass, string $date): Collection
+    private function getStatsForDate(string $modelClass, string $date): Collection
     {
         if (!is_subclass_of($modelClass, Model::class)) {
             throw new InvalidArgumentException("{$modelClass} is not a valid Eloquent model.");
@@ -61,7 +78,10 @@ class DailyStatsSummary extends Component
             ->keyBy('network');
     }
 
-    function getStatsForDateOtherChannel(string $modelClass, string $date): Collection
+    /**
+     * Get stats for OtherChannel networks.
+     */
+    private function getStatsForDateOtherChannel(string $modelClass, string $date): Collection
     {
         if (!is_subclass_of($modelClass, Model::class)) {
             throw new InvalidArgumentException("{$modelClass} is not a valid Eloquent model.");
@@ -71,26 +91,28 @@ class DailyStatsSummary extends Component
             ->whereDate('channel_date', $date)
             ->groupBy('channel_name')
             ->get()
-            ->keyBy('network'); // consistent key as 'network'
+            ->keyBy('network');
     }
 
-
-    function getStatsForWebsite()
+    /**
+     * Get stats for Mobile App or Website from Oracle DB.
+     *
+     * @param string|Carbon $date
+     * @param int $system_id
+     * @return object|null
+     */
+    private function getStatsForMobileAppDate($date, int $system_id)
     {
+        $dateString = Carbon::parse($date)->format('Y-m-d');
 
-$analyticsService = new GoogleAnalyticsService();
-
-
-// For yesterday
-$totalYesterday = $analyticsService->getTotalUsersByDateRange( 'yesterday', 'yesterday');
-
-// // For last week (replace with actual dates)
-// $totalLastWeek = $analyticsService->getTotalUsersByDateRange($propertyId, '2025-07-01', '2025-07-07');
-
-
+        return DB::connection('omni_channel')
+            ->table('M_APPS_COMPLAINTS')
+            ->selectRaw('SYSTEM_ID, COUNT(*) as count')
+            ->whereRaw('TRUNC("F_ACTUAL") = TO_DATE(?, \'YYYY-MM-DD\')', [$dateString])
+            ->where('SYSTEM_ID', '=', $system_id)
+            ->groupBy('SYSTEM_ID')
+            ->first(); // single row, not collection
     }
-
-
 
     public function render()
     {
@@ -99,54 +121,124 @@ $totalYesterday = $analyticsService->getTotalUsersByDateRange( 'yesterday', 'yes
         $dayBeforeYesterday = Carbon::yesterday()->subDay()->toDateString();
 
         // IVR Extensions
-        $dstExtensions = ['cc-3', 'cc-4', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11', 'cc-12', 'cc-13', 'cc-14', 'cc-15', 'cc-16', 'cc-17', 'cc-18', 'cc-20'];
+        $dstExtensions = [
+            'cc-3', 'cc-4', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10',
+            'cc-11', 'cc-12', 'cc-13', 'cc-14', 'cc-15', 'cc-16', 'cc-17',
+            'cc-18', 'cc-20'
+        ];
 
-        // Get data from each source
-        // $ussdToday = self::getStatsForDate(UssdSession::class, $dayBeforeYesterday);
-        // $ussdYesterday =  self::getStatsForDate(UssdSession::class, $yesterday);
+        // Fetch raw stats
+        $ussdToday = $this->getStatsForDate(UssdSession::class, $yesterday);
+        $ussdYesterday = $this->getStatsForDate(UssdSession::class, $dayBeforeYesterday);
 
-        // $otherToday =  self::getStatsForDateOtherChannel(OtherChannel::class, $dayBeforeYesterday);
-        // $otherYesterday =  self::getStatsForDateOtherChannel(OtherChannel::class, $yesterday);
+        $otherToday = $this->getStatsForDateOtherChannel(OtherChannel::class, $yesterday);
+        $otherYesterday = $this->getStatsForDateOtherChannel(OtherChannel::class, $dayBeforeYesterday);
 
-           // Get data from each source
-           $ussdToday = self::getStatsForDate(UssdSession::class, $yesterday);
-           $ussdYesterday =  self::getStatsForDate(UssdSession::class, $dayBeforeYesterday);
+        $mobileAppToday = $this->getStatsForMobileAppDate($yesterday, 100);
+        $mobileAppYesterday = $this->getStatsForMobileAppDate($dayBeforeYesterday, 100);
 
-           $otherToday =  self::getStatsForDateOtherChannel(OtherChannel::class, $yesterday);
-           $otherYesterday =  self::getStatsForDateOtherChannel(OtherChannel::class, $dayBeforeYesterday);
+        $websiteToday = $this->getStatsActiveUsersForWebsite($yesterday, $yesterday, 'activeUsers');
+        $websiteYesterday = $this->getStatsActiveUsersForWebsite($dayBeforeYesterday, $dayBeforeYesterday, 'activeUsers');
 
-        // Merge all networks
-        $allNetworks = $ussdToday->keys()
-            ->merge($ussdYesterday->keys())
-            ->merge($otherToday->keys())
-            ->merge($otherYesterday->keys())
+        // dd([$websiteToday, $websiteYesterday]);
+
+        // Normalize function for all types of data
+        $normalize = function ($data) {
+            if ($data instanceof \Illuminate\Http\JsonResponse) {
+                $decoded = json_decode($data->getContent(), true);
+
+                // Transform the array
+                $transformed = [];
+                if (isset($decoded['metric']) && isset($decoded['total'])) {
+                    // Map the metric to the desired key
+                    $key = 'count'; // Or create a mapping if you have multiple metrics
+                    $transformed[$key] = $decoded['total'];
+                }
+
+                return $transformed;
+            }
+
+            if ($data instanceof \Illuminate\Support\Collection) {
+
+
+               return $data->mapWithKeys(function ($item, $key) {
+                    if (is_array($item)) return [$key => $item['sessions'] ?? 0];
+                    if (is_object($item)) return [$key => $item->sessions ?? 0];
+                    return [$key => 0];
+                })->toArray()
+            ;
+
+            }
+
+            if (is_object($data) && property_exists($data, 'count')) {
+                return ['count' => $data->count];
+            }
+
+            if (is_array($data) && isset($data['count'])) {
+                return $data;
+            }
+
+            return ['count' => 0];
+        };
+
+       // dd($normalize($websiteYesterday)) ;
+
+        // Normalize all stats
+        $stats = [
+            'today' => [
+                'USSD' => $normalize($ussdToday),
+                'Other' => $normalize($otherToday),
+                'Mobile App' => $normalize($mobileAppToday),
+                'Website' => $normalize($websiteToday),
+            ],
+            'yesterday' => [
+                'USSD' => $normalize($ussdYesterday),
+                'Other' => $normalize($otherYesterday),
+                'Mobile App' => $normalize($mobileAppYesterday),
+                'Website' => $normalize($websiteYesterday),
+            ],
+        ];
+
+        // Merge all network keys
+        $allNetworks = collect(array_keys($stats['today']['USSD']))
+            ->merge(array_keys($stats['yesterday']['USSD']))
+            ->merge(array_keys($stats['today']['Other']))
+            ->merge(array_keys($stats['yesterday']['Other']))
+            ->merge(['Mobile App', 'Website'])
             ->unique();
 
-        $merged = $allNetworks->map(function ($network) use ($ussdToday, $ussdYesterday, $otherToday, $otherYesterday) {
-            $todayUssd = $ussdToday[$network]->sessions ?? 0;
-            $yesterdayUssd = $ussdYesterday[$network]->sessions ?? 0;
+        // Map totals and compute changes
+        $merged = $allNetworks->map(function ($network) use ($stats) {
+            $todayTotal = 0;
+            $yesterdayTotal = 0;
+            $manual = 'no';
 
-            $todayOther = $otherToday[$network]->sessions ?? 0;
-            $yesterdayOther = $otherYesterday[$network]->sessions ?? 0;
+            if (in_array($network, ['Mobile App', 'Website'])) {
+                $todayTotal = (int)($stats['today'][$network]['count'] ?? 0);
+                $yesterdayTotal = (int)($stats['yesterday'][$network]['count'] ?? 0);
+            } else {
+                $todayUssd = $stats['today']['USSD'][$network] ?? 0;
+                $yesterdayUssd = $stats['yesterday']['USSD'][$network] ?? 0;
 
-            $todayTotal = $todayUssd + $todayOther;
-            $yesterdayTotal = $yesterdayUssd + $yesterdayOther;
+                $todayOther = $stats['today']['Other'][$network] ?? 0;
+                $yesterdayOther = $stats['yesterday']['Other'][$network] ?? 0;
 
-          
+                $todayTotal = $todayUssd + $todayOther;
+                $yesterdayTotal = $yesterdayUssd + $yesterdayOther;
 
-                $change = $yesterdayTotal > 0
+                $manual = ($todayOther + $yesterdayOther) > 0 ? 'yes' : 'no';
+            }
+
+            $change = $yesterdayTotal > 0
                 ? (($todayTotal - $yesterdayTotal) / $yesterdayTotal) * 100
                 : ($todayTotal > 0 ? 100 : 0);
-
-            // Determine manual_edit flag
-            $isManual = ($todayOther + $yesterdayOther) > 0 ? 'yes' : 'no';
 
             return (object)[
                 'network' => $network,
                 'sessions' => $todayTotal,
                 'previous' => $yesterdayTotal,
                 'change' => round($change, 2),
-                'manual_edit' => $isManual,
+                'manual_edit' => $manual,
             ];
         });
 
@@ -159,24 +251,23 @@ $totalYesterday = $analyticsService->getTotalUsersByDateRange( 'yesterday', 'yes
             ->whereIn('dst', $dstExtensions)
             ->count();
 
-        $ivrChange = $ivrYesterday > 0
+        $ivrChange = $ivrDayBefore > 0
             ? (($ivrDayBefore - $ivrYesterday) / $ivrYesterday) * 100
             : ($ivrDayBefore > 0 ? 100 : 0);
 
-        $ivrStat = (object)[
+        $merged->push((object)[
             'network' => 'IVR',
             'sessions' => $ivrDayBefore,
             'previous' => $ivrYesterday,
             'change' => round($ivrChange, 2),
-            'manual_edit' => 'no', // Explicitly set as 'no'
-        ];
-
-        $merged->push($ivrStat);
+            'manual_edit' => 'no',
+        ]);
 
         return view('livewire.dashboard.daily-stats-summary', [
             'dailyStats' => $merged->values(),
         ]);
     }
+
 
 
     public function save()

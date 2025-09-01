@@ -12,9 +12,12 @@ class GoogleAnalyticsService
     public function __construct()
     {
         $client = new Client();
-        $client->setAuthConfig(storage_path('app/analytics/service-account.json'));
+        $client->setAuthConfig(base_path('app/Analytics/service-account.json'));
         $client->addScope('https://www.googleapis.com/auth/analytics.readonly');
-
+        // Disable SSL verification (temporary)
+$client->setHttpClient(new \GuzzleHttp\Client([
+    'verify' => false,
+]));
         $this->analytics = new AnalyticsData($client);
     }
 
@@ -39,11 +42,13 @@ class GoogleAnalyticsService
     }
 
 
-    public function getTotalUsersByDateRange($propertyId, string $startDate, string $endDate): int
+    public function getTotalUsersByDateRange($propertyId, string $startDate, string $endDate, $metricValue): int
 {
     $request = new \Google\Service\AnalyticsData\RunReportRequest([
         'metrics' => [
-            ['name' => 'totalUsers'],
+            [
+                'name' => $metricValue,
+            ],
         ],
         'dateRanges' => [
             ['startDate' => $startDate, 'endDate' => $endDate],
@@ -65,6 +70,40 @@ class GoogleAnalyticsService
 
     return $totalUsers;
 }
+
+
+ /**
+     * Get GA4 event count
+     *
+     * @param string $propertyId GA4 property ID (numeric, not G-XXXX)
+     * @param string $eventName Event name to fetch
+     * @param string $startDate '7daysAgo', '30daysAgo', or 'YYYY-MM-DD'
+     * @param string $endDate 'today' or 'YYYY-MM-DD'
+     * @return int
+     */
+    public function getEventCount(string $propertyId, string $eventName, string $startDate = '7daysAgo', string $endDate = 'today'): int
+    {
+        $request = new \Google\Service\AnalyticsData\RunReportRequest([
+            'dimensions' => [['name' => 'eventName']],
+            'metrics' => [['name' => 'eventCount']],
+            'dateRanges' => [['startDate' => $startDate, 'endDate' => $endDate]],
+            'dimensionFilter' => [
+                'filter' => [
+                    'fieldName' => 'eventName',
+                    'stringFilter' => [
+                        'value' => $eventName,
+                        'matchType' => 'EXACT'
+                    ]
+                ]
+            ]
+        ]);
+
+        $response = $this->analytics->properties->runReport("properties/$propertyId", $request);
+
+        $rows = $response->getRows();
+
+        return $rows ? (int)$rows[0]->getMetricValues()[0]->getValue() : 0;
+    }
 
 
 }

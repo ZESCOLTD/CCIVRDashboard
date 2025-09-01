@@ -15,7 +15,7 @@
         "diglactic/laravel-breadcrumbs": "^8.0",
         "doctrine/dbal": "^3.5",
         "fruitcake/laravel-cors": "^2.0",
-        "google/apiclient": "*",
+        "google/apiclient": "^2.16",
         "guzzlehttp/guzzle": "^7.9",
         "laravel/framework": "^8.75",
         "laravel/sanctum": "^2.11",

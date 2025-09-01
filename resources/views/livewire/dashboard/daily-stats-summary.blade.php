@@ -27,7 +27,7 @@
     </div>
 
     <div class="card-body table-responsive p-0">
-        <table class="table table-striped table-valign-start">
+        <table class="table table-striped table-valign-start"  id="dailyStatsTable" >
             <thead>
                 <tr>
                     <th style="font-size: 1.1rem;">Network/Channel</th>
@@ -49,8 +49,6 @@
                                 {{ ucfirst($item->network) }}
                             </span>
                         </td>
-                        {{-- <td class="text-right" style="font-size: 1.5rem;">{{ $item->previous }}</td>
-                        <td class="text-right" style="color: {{ $color }}; font-size: 1.5rem;">{{ $item->sessions }}</td> --}}
 
                         <td class="text-right" style=" font-size: 1.5rem;">{{ $item->previous }}</td>
                         <td class="text-right" style=" color: {{ $color }}; font-size: 1.5rem;">{{ $item->sessions }}</td>
@@ -67,9 +65,9 @@
                     <td class="text-bold text-right" style="font-size: 1.5rem;">{{ $dailyStats->sum('sessions') }}</td>
                     <td class="text-bold text-right"   style="font-size: 0.8rem;">
                         @php
-                          
 
-                                $totalPrevious = $dailyStats->sum('previous');
+
+                            $totalPrevious = $dailyStats->sum('previous');
                             $totalCurrent = $dailyStats->sum('sessions');
                             $totalChange = $totalPrevious > 0
                                 ? (($totalCurrent - $totalPrevious) / $totalPrevious) * 100
@@ -110,9 +108,14 @@
         </div>
     </div>
 
+
+
+
     <div>
 
         <div class = "mt-2  p-3">
+
+
             <!-- Trigger Button -->
             <button class="btn  btn-sm btn-outline-secondary" data-toggle="modal" data-target="#channelModal">
                 Add Channel Stat
