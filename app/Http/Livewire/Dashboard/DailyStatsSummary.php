@@ -132,9 +132,11 @@ $totalYesterday = $analyticsService->getTotalUsersByDateRange( 'yesterday', 'yes
             $todayTotal = $todayUssd + $todayOther;
             $yesterdayTotal = $yesterdayUssd + $yesterdayOther;
 
-            $change = $todayTotal > 0
-                ? (($yesterdayTotal - $todayTotal) / $todayTotal) * 100
-                : ($yesterdayTotal > 0 ? 100 : 0);
+          
+
+                $change = $yesterdayTotal > 0
+                ? (($todayTotal - $yesterdayTotal) / $yesterdayTotal) * 100
+                : ($todayTotal > 0 ? 100 : 0);
 
             // Determine manual_edit flag
             $isManual = ($todayOther + $yesterdayOther) > 0 ? 'yes' : 'no';

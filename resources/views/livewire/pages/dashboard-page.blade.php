@@ -1,21 +1,16 @@
 <div class="container-fluid p-2">
 
     <div class="row g-2">
-
         <!-- Left Column -->
         <div class="col-lg-4 col-sm-12">
             <div class="card card-body ">
             <h2 class="mb-1 text-uppercase">Usage in the Last 24hrs</h6>
-
             <!-- Daily Stats Summary -->
             <div class="mb-2 text-bold">
                 <livewire:dashboard.daily-stats-summary />
             </div>
-
-              <div class="mb-2 text-bold">
-
-              </div>
-
+            <div class="mb-2 text-bold">
+            </div>
         </div>
     </div>
 
@@ -27,7 +22,6 @@
                         <livewire:dashboard.network-pie-chart />
                     </div>
                 </div>
-
                 <div class="col-md-8">
                     <div class="small">
                         <livewire:dashboard.minute-network-chart />
@@ -45,15 +39,9 @@
     </div>
         </div>
     </div>
-
-
 </div>
 
-
-
 @push('custom-scripts')
-
-
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         Highcharts.chart('sales-highchart', {
@@ -120,4 +108,5 @@
         });
     });
 </script>
+
 @endpush

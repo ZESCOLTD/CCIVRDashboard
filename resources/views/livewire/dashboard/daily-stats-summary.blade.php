@@ -33,7 +33,7 @@
                     <th style="font-size: 1.1rem;">Network/Channel</th>
                     <th class="text-right" style="font-size: 1.0rem;">{{ $dayPrevious }}</th>
                     <th class="text-right" style="font-size: 1.0rem;">{{ $dayCurrent }} </th>
-                    <th class="text-right" style="font-size: 1.0rem;">Change</th>
+                    <th class="text-right" style="font-size: 1.0rem;">Diff</th>
                 </tr>
             </thead>
             <tbody>
@@ -49,11 +49,11 @@
                                 {{ ucfirst($item->network) }}
                             </span>
                         </td>
-                        <td class="text-right" style="font-size: 1.5rem;">{{ $item->previous }}</td>
-                        <td class="text-right" style="color: {{ $color }}; font-size: 1.5rem;">{{ $item->sessions }}</td>
+                        {{-- <td class="text-right" style="font-size: 1.5rem;">{{ $item->previous }}</td>
+                        <td class="text-right" style="color: {{ $color }}; font-size: 1.5rem;">{{ $item->sessions }}</td> --}}
 
-                        {{-- <td class="text-right" style="font-size: 1.5rem;">{{ $item->sessions }}</td>
-                        <td class="text-right" style="color: {{ $color }}; font-size: 1.5rem;">{{ $item->previous }}</td> --}}
+                        <td class="text-right" style=" font-size: 1.5rem;">{{ $item->previous }}</td>
+                        <td class="text-right" style=" color: {{ $color }}; font-size: 1.5rem;">{{ $item->sessions }}</td>
 
                         <td class="text-right" style="color: {{ $changeColor }}    ; font-size: 0.8rem;">
                             {{ $arrow }} {{ number_format(abs($item->change), 1) }}%
@@ -63,15 +63,20 @@
 
                 <tr class="text-bold">
                     <td style="font-size: 1.5rem;">Total</td>
-                    <td class="text-bold text-right" style="font-size: 1.5rem;">{{ $dailyStats->sum('sessions') }}</td>
                     <td class="text-bold text-right" style="font-size: 1.5rem;">{{ $dailyStats->sum('previous') }}</td>
+                    <td class="text-bold text-right" style="font-size: 1.5rem;">{{ $dailyStats->sum('sessions') }}</td>
                     <td class="text-bold text-right"   style="font-size: 0.8rem;">
                         @php
+                          
+
+                                $totalPrevious = $dailyStats->sum('previous');
                             $totalCurrent = $dailyStats->sum('sessions');
-                            $totalPrevious = $dailyStats->sum('previous');
-                            $totalChange = $totalCurrent > 0
-                                ? (($totalPrevious - $totalCurrent) / $totalCurrent) * 100
-                                : ($totalPrevious > 0 ? 100 : 0);
+                            $totalChange = $totalPrevious > 0
+                                ? (($totalCurrent - $totalPrevious) / $totalPrevious) * 100
+                                : ($totalCurrent > 0 ? 100 : 0);
+
+
+
                             $totalColor = $totalChange >= 0 ? 'green' : 'red';
                             $totalArrow = $totalChange >= 0 ? '↑' : '↓';
                         @endphp
@@ -86,7 +91,7 @@
         @php
             $top = $dailyStats->sortByDesc('previous')->first();
             $least = $dailyStats->sortBy('previous')->first();
-            $total = $dailyStats->sum('previous');
+            $total = $dailyStats->sum('sessions');
 
             $topColor = getNetworkBadgeColor($top->network);
             $leastColor = getNetworkBadgeColor($least->network);
