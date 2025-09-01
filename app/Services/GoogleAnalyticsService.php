@@ -15,9 +15,10 @@ class GoogleAnalyticsService
         $client->setAuthConfig(base_path('app/analytics/service-account.json'));
         $client->addScope('https://www.googleapis.com/auth/analytics.readonly');
         // Disable SSL verification (temporary)
-$client->setHttpClient(new \GuzzleHttp\Client([
-    'verify' => false,
-]));
+
+        $client->setHttpClient(new \GuzzleHttp\Client([
+            'verify' => false,
+        ]));
         $this->analytics = new AnalyticsData($client);
     }
 
@@ -43,36 +44,36 @@ $client->setHttpClient(new \GuzzleHttp\Client([
 
 
     public function getTotalUsersByDateRange($propertyId, string $startDate, string $endDate, $metricValue): int
-{
-    $request = new \Google\Service\AnalyticsData\RunReportRequest([
-        'metrics' => [
-            [
-                'name' => $metricValue,
+    {
+        $request = new \Google\Service\AnalyticsData\RunReportRequest([
+            'metrics' => [
+                [
+                    'name' => $metricValue,
+                ],
             ],
-        ],
-        'dateRanges' => [
-            ['startDate' => $startDate, 'endDate' => $endDate],
-        ],
-    ]);
+            'dateRanges' => [
+                ['startDate' => $startDate, 'endDate' => $endDate],
+            ],
+        ]);
 
-    $response = $this->analytics->properties->runReport("properties/{$propertyId}", $request);
+        $response = $this->analytics->properties->runReport("properties/{$propertyId}", $request);
 
-    $totalUsers = 0;
+        $totalUsers = 0;
 
-    if (!empty($response->getRows())) {
-        $row = $response->getRows()[0];
-        $metricValues = $row->getMetricValues();
+        if (!empty($response->getRows())) {
+            $row = $response->getRows()[0];
+            $metricValues = $row->getMetricValues();
 
-        if (!empty($metricValues)) {
-            $totalUsers = (int) $metricValues[0]->getValue();
+            if (!empty($metricValues)) {
+                $totalUsers = (int) $metricValues[0]->getValue();
+            }
         }
+
+        return $totalUsers;
     }
 
-    return $totalUsers;
-}
 
-
- /**
+    /**
      * Get GA4 event count
      *
      * @param string $propertyId GA4 property ID (numeric, not G-XXXX)
@@ -104,6 +105,4 @@ $client->setHttpClient(new \GuzzleHttp\Client([
 
         return $rows ? (int)$rows[0]->getMetricValues()[0]->getValue() : 0;
     }
-
-
 }
