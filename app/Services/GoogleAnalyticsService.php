@@ -12,10 +12,9 @@ class GoogleAnalyticsService
     public function __construct()
     {
         $client = new Client();
-        $client->setAuthConfig(base_path('app/analytics/service-account.json'));
+        $client->setAuthConfig(base_path('app/analytics/ivr-webstats-9e2a472951cd.json'));
         $client->addScope('https://www.googleapis.com/auth/analytics.readonly');
         // Disable SSL verification (temporary)
-
         $client->setHttpClient(new \GuzzleHttp\Client([
             'verify' => false,
         ]));
