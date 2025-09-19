@@ -340,7 +340,8 @@
                                 <span class="badge badge-success"><i class="fas fa-server"></i> API Connected</span>
                             </div>
                             <div class="col-md-4 text-right">
-                                <button class="btn btn-sm btn-outline-primary mr-2"><i class="fas fa-sync-alt"></i>
+                                <button class="btn btn-sm btn-outline-primary mr-2" wire:target="refreshComponent"><i
+                                        class="fas fa-sync-alt"></i>
                                     Refresh</button>
                                 <button class="btn btn-sm btn-outline-secondary"><i class="fas fa-cog"></i>
                                     Settings</button>
@@ -366,7 +367,8 @@
                                     <span class="info-box-icon"><i class="fas fa-phone-alt"></i></span>
                                     <div class="info-box-content">
                                         <span class="info-box-text">Active Calls</span>
-                                        <span wire:ignore class="info-box-number" id="activeCalls">{{ $activeCalls }}</span>
+                                        <span wire:ignore class="info-box-number"
+                                            id="activeCalls">{{ $activeCalls }}</span>
                                         <div class="progress">
                                             <div class="progress-bar" style="width: 70%"></div>
                                         </div>
@@ -598,8 +600,8 @@
                         {{-- <div style="height: 300px;">
                             <canvas id="agentStatusChart"></canvas>
                         </div> --}}
-                         {{-- A container for the new Agent Status chart --}}
-    <div wire:ignore id="agent-status-chart" style="width:100%; height:340px;"></div>
+                        {{-- A container for the new Agent Status chart --}}
+                        <div wire:ignore id="agent-status-chart" style="width:100%; height:340px;"></div>
 
                         {{-- <div class="mt-3 text-center">
                             <span class="mr-3"><i class="fas fa-circle text-success"></i> Available
@@ -775,9 +777,11 @@
                                         <h3><i class="fas fa-phone-alt"></i> Live Calls</h3>
                                         <h1 wire:ignore class="display-4" id="liveCalls">--</h1>
                                         <div class="mt-3">
-                                            <span wire:ignore id="liveCallsBarge" class="badge badge-success mr-2">-- In
+                                            <span wire:ignore id="liveCallsBarge" class="badge badge-success mr-2">--
+                                                In
                                                 Progress</span>
-                                            <span wire:ignore class="badge badge-warning" id="inQueue">0 In Queue</span>
+                                            <span wire:ignore class="badge badge-warning" id="inQueue">0 In
+                                                Queue</span>
                                             <span class="badge badge-danger">-- Waiting</span>
                                         </div>
                                     </div>
@@ -790,7 +794,8 @@
                                         {{-- <div style="height: 200px;">
                                             <canvas id="heatmapChart"></canvas>
                                         </div> --}}
-                                        <div wire:ignore id="call-outcome-chart" style="width:100%; height:400px;"></div>
+                                        <div wire:ignore id="call-outcome-chart" style="width:100%; height:400px;">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -830,7 +835,8 @@
                                         <div style="height: 250px;">
                                             <canvas id="dailyStatsChart"></canvas>
                                         </div> --}}
-                                        <div wire:ignore id="daily-call-distribution-chart" style="width:100%; height:250px;"></div>
+                                        <div wire:ignore id="daily-call-distribution-chart"
+                                            style="width:100%; height:250px;"></div>
 
                                     </div>
                                 </div>
@@ -841,7 +847,8 @@
                                         {{-- <div style="height: 250px;">
                                             <canvas id="weeklyStatsChart"></canvas>
                                         </div> --}}
-                                        <div wire:ignore id="weekly-call-distribution-chart" style="width:100%; height:250px;"></div>
+                                        <div wire:ignore id="weekly-call-distribution-chart"
+                                            style="width:100%; height:250px;"></div>
 
                                     </div>
                                 </div>
@@ -1132,13 +1139,15 @@
 
                             // Filter bridges of type 'mixing'
                             const mixingBridges = data.filter(bridge => bridge.bridge_type === 'mixing' && bridge
-                                .channels.length > 0);
+                                .channels.length > 1);
+
+
 
                             liveCalls = mixingBridges.length;
                             // Update DOM with the count (you can change this element ID)
-                            document.getElementById("activeCalls").textContent = `${mixingBridges.length}`;
+                            document.getElementById("activeCalls").textContent = `${liveCalls}`;
 
-                            document.getElementById("liveCallsBarge").textContent = `${mixingBridges.length} In Progress`;
+                            document.getElementById("liveCallsBarge").textContent = `${liveCalls} In Progress`;
                         })
                         .catch(error => {
                             console.error("Fetch error:", error);
@@ -1160,14 +1169,20 @@
                             const holdingBridges = data.filter(bridge => bridge.bridge_type === 'holding' && bridge
                                 .channels.length > 0);
 
+                            var callsInQueue = 0;
+                            for (let i = 0; i < holdingBridges.length; i++) {
+                                callsInQueue += holdingBridges[i].channels.length;
+                            }
+
+
                             // Update DOM with the count (you can change this element ID)
                             document.getElementById("inQueue").textContent =
-                                `Queue Bridges: ${holdingBridges.length}`;
-                            document.getElementById("queue-calls").textContent = `${holdingBridges.length}`;
+                                `Callers in Queue: ${callsInQueue}`;
+                            document.getElementById("queue-calls").textContent = `${callsInQueue}`;
 
 
 
-                            liveCalls += holdingBridges.length;
+                            liveCalls += callsInQueue;
                             liveCallsElement.textContent = `${liveCalls}`;
                         })
                         .catch(error => {
@@ -1208,9 +1223,10 @@
 
                             console.log("Message from server:", event.data);
                             prob();
-                            Livewire.emit('refreshComponent');
+                            // Livewire.emit('refreshComponent');
                         }
                     }
+                    Livewire.emit('refreshComponent');
                 });
 
                 socket.addEventListener("error", (event) => {
@@ -1463,7 +1479,7 @@
             });
         </script>
         <script>
-            document.addEventListener('livewire:load', function () {
+            document.addEventListener('livewire:load', function() {
                 // Get the data from the Livewire component
                 var callOutcomeChartData = JSON.parse(@json($callOutcomeData));
 
@@ -1473,7 +1489,7 @@
                         type: 'pie'
                     },
                     title: {
-                        text: 'Today\'s Call Outcomes '+{{$totalCalls}}+' Calls'
+                        text: 'Today\'s Call Outcomes ' + {{ $totalCalls }} + ' Calls'
                     },
                     tooltip: {
                         pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
@@ -1503,7 +1519,7 @@
             });
         </script>
         <script>
-            document.addEventListener('livewire:load', function () {
+            document.addEventListener('livewire:load', function() {
                 // Get the data and categories from the Livewire component
                 var weeklyCallDistributionData = JSON.parse(@json($weeklyCallDistributionData));
                 var daysOfWeek = JSON.parse(@json($daysOfWeek));
@@ -1552,8 +1568,8 @@
                 });
             });
         </script>
-         <script>
-            document.addEventListener('livewire:load', function () {
+        <script>
+            document.addEventListener('livewire:load', function() {
                 // Get the data and categories from the Livewire component
                 var dailyCallDistributionData = JSON.parse(@json($dailyCallDistributionData));
                 var hoursOfDay = JSON.parse(@json($hoursOfDay));

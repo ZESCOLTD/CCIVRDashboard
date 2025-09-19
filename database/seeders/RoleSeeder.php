@@ -19,7 +19,7 @@ class RoleSeeder extends Seeder
         $adminRole = Role::where('name', 'admin')->firstOrFail();
 
         // Find existing user or fail
-        $adminUser = User::where('man_no', '76285')->firstOrFail();
+        $adminUser = User::where('man_no', '77336')->firstOrFail();
 
         // Assign the role to the user
         $adminUser->assignRole($adminRole);

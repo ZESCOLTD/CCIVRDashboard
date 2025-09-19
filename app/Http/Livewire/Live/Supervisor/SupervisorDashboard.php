@@ -79,8 +79,8 @@ class SupervisorDashboard extends Component
 
 
         $availableAgentsCount = CCAgent::where(function ($query) {
-            $query->where('state', 'AgentState.LOGGEDIN')
-                ->orWhere('state', 'LOGGED_IN');
+            $query->whereIn('state', ['AgentState.LOGGEDIN', 'LOGGED_IN']);
+                // ->orWhere('state', 'LOGGED_IN');
         })->count();
 
         $activeCalls = CCAgent::where('status', 'AgentState.ONCONVERSATION')
@@ -88,7 +88,7 @@ class SupervisorDashboard extends Component
 
         $totalAgentCount = CCAgent::count();
 
-        $onBreak = CCAgent::where('status', 'AgentState.ONWITHDRAW')
+        $onBreak = CCAgent::where('status', 'ON_BREAK')
             ->count();
 
         $answeredCalls = LiveRecordings::whereDate('created_at', Carbon::today())->count();
@@ -342,7 +342,7 @@ class SupervisorDashboard extends Component
             'ws_server' => $ws_server,
             'sessions' => $sessions,
             'user' => Auth::user(), // Add authenticated user data
-            'availableAgentsCount' => $availableAgentsCount,
+            'availableAgentsCount' => $availableAgentsCount-$onBreak,
             'loggedInAgentsCount' => $loggedInAgentsCount,
             'activeCalls' => $activeCalls,
             'answeredCalls' => $answeredCalls,

@@ -243,7 +243,7 @@
                                     @endif
                                 </div>
 
-                                <div x-data x-init="setInterval(() => Livewire.emit('refreshComponent'), 60000)"></div>
+                                <div x-data x-init="setInterval(() => Livewire.emit('refreshComponent'), 60000)"  wire:target="refreshComponent"></div>
                             </div>
                         </div>
 
