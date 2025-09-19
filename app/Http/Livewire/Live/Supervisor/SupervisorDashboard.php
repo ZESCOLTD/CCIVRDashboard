@@ -115,8 +115,8 @@ class SupervisorDashboard extends Component
         $loggedInAgentsCount = CCAgent::where(function ($query) {
             $query->whereIn('state', ['AgentState.LOGGEDIN', 'LOGGED_IN']);
             // ->orWhere('state', 'LOGGED_IN');
-        })->where(function ($query) {
-            $query->whereIn('status', ['IDLE', 'AgentState.IDLE']);
+        // })->where(function ($query) {
+            // $query->whereIn('status', ['IDLE', 'AgentState.IDLE']);
             // ->orWhere('status', 'AgentState.IDLE');
         })->count();
 
