@@ -240,7 +240,7 @@
                                                                     <th>Missed</th>
                                                                 {{-- @endif --}}
                                                                 <th>Abandoned</th>
-                                                                <th>Complete Calls</th>
+                                                                <th>Avg Answer Time</th>
                                                                 <th>Avg Duration</th>
                                                                 @if ($reportType === 'agent')
                                                                     <th>Satisfaction</th>
@@ -315,7 +315,7 @@
                                                                         <td>{{ $item['missed'] ?? 0 }}</td>
                                                                     {{-- @endif --}}
                                                                     <td>{{ $item['abandoned'] ?? 0 }}</td>
-                                                                    <td>{{ $item['complete_calls'] ?? 0 }}</td>
+                                                                    <td>{{ $item['avg_answer_time'] ?? 0 }}</td>
                                                                     <td>{{ $item['avg_duration'] ?? 'N/A' }}</td>
                                                                     @if ($reportType === 'agent' || $reportType === 'queue')
                                                                         @php

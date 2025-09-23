@@ -505,6 +505,22 @@ class GeneralReport extends Component
                 $overallRating = 'Fair';
             }
 
+             // --- NEW CALCULATION FOR AVERAGE ANSWER TIME ---
+             $averageAnswerTimeInSeconds = DB::table('stasis_start_events as original')
+             ->whereBetween('original.timestamp', [$startDate, $endDate])
+             ->join('stasis_start_events as related', function ($join) {
+                 $join->on(
+                     DB::raw('JSON_UNQUOTE(JSON_EXTRACT(original.args, "$[2]"))'),
+                     '=',
+                     'related.channel_id'
+                 );
+             })
+             // Use ABS() to get the absolute (non-negative) difference
+             ->avg(DB::raw('ABS(TIMESTAMPDIFF(SECOND, original.timestamp, related.timestamp))'));
+    // --- END OF NEW CALCULATION ---
+
+
+
             // Only add the overall queue report if there are total calls
             if ($overallTotalCalls > 0) {
                 $reportResults[] = [
@@ -516,6 +532,7 @@ class GeneralReport extends Component
                     'avg_duration' => gmdate('H:i:s', $overallAvgDurationSeconds),
                     'satisfaction' => $overallSatisfaction . '%',
                     'rating' => $overallRating,
+                    'avg_answer_time' => gmdate('H:i:s', (int)$averageAnswerTimeInSeconds),
                 ];
             }
 
