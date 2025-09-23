@@ -482,13 +482,19 @@ class GeneralReport extends Component
             $recordingsForEndpoints = Recordings::whereBetween('created_at', [$startDate, $endDate])
                 ->get();
 
+
+
+                $abandonedCalls = Recordings::whereBetween('created_at', [$startDate, $endDate])
+                ->whereRaw('TIMESTAMPDIFF(SECOND, answerdate, hangupdate) < ?', [4])
+                ->count();
+
             $totalDurationAllQueues = $recordingsForEndpoints->sum('duration_in_seconds');
             $totalRecordCountAllQueues = $recordingsForEndpoints->count();
 
             $overallTotalCalls = $totalAnswered + $totalMissed;
 
             $overallAvgDurationSeconds = $totalRecordCountAllQueues > 0 ? (int) ($totalDurationAllQueues / $totalRecordCountAllQueues) : 0;
-            $overallSatisfaction = $overallTotalCalls > 0 ? round(($totalAnswered / $overallTotalCalls) * 100, 2) : 0;
+            $overallSatisfaction = $overallTotalCalls > 0 ? round((($totalAnswered - $abandonedCalls) / $overallTotalCalls) * 100, 2) : 0;
 
             $overallRating = 'Poor';
             if ($overallSatisfaction >= 90) {
@@ -504,8 +510,9 @@ class GeneralReport extends Component
                 $reportResults[] = [
                     'label' => 'Overall Queue Performance', // A single label for the aggregated report
                     'total_calls' => $overallTotalCalls,
-                    'answered' => $totalAnswered,
+                    'answered' => $totalAnswered-$abandonedCalls,
                     'missed' => $totalMissed,
+                    'abandoned' => $abandonedCalls,
                     'avg_duration' => gmdate('H:i:s', $overallAvgDurationSeconds),
                     'satisfaction' => $overallSatisfaction . '%',
                     'rating' => $overallRating,

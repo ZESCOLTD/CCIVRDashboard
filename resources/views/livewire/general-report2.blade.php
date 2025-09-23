@@ -236,10 +236,11 @@
                                                             @case('queue')
                                                                 <th>Total Calls</th>
                                                                 <th>Answered</th>
-                                                                @if ($reportType !== 'queue')
+                                                                {{-- @if ($reportType !== 'queue') --}}
                                                                     <th>Missed</th>
-                                                                @endif
+                                                                {{-- @endif --}}
                                                                 <th>Abandoned</th>
+                                                                <th>Complete Calls</th>
                                                                 <th>Avg Duration</th>
                                                                 @if ($reportType === 'agent')
                                                                     <th>Satisfaction</th>
@@ -310,10 +311,11 @@
                                                                 @case('queue')
                                                                     <td>{{ $item['total_calls'] ?? 0 }}</td>
                                                                     <td>{{ $item['answered'] ?? 0 }}</td>
-                                                                    @if ($reportType !== 'queue')
+                                                                    {{-- @if ($reportType !== 'queue') --}}
                                                                         <td>{{ $item['missed'] ?? 0 }}</td>
-                                                                    @endif
+                                                                    {{-- @endif --}}
                                                                     <td>{{ $item['abandoned'] ?? 0 }}</td>
+                                                                    <td>{{ $item['complete_calls'] ?? 0 }}</td>
                                                                     <td>{{ $item['avg_duration'] ?? 'N/A' }}</td>
                                                                     @if ($reportType === 'agent' || $reportType === 'queue')
                                                                         @php
