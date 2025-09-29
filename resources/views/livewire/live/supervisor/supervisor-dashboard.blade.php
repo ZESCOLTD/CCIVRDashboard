@@ -1205,6 +1205,7 @@
                 // WebSocket connection and event listeners as in the original code
                 var ws_address = document.getElementById("ws_endpoint");
                 var ws_socket = document.getElementById("ws-info");
+                console.log("WebSocket Address: ", ws_address.value);
                 const socket = new WebSocket(ws_address.value);
 
                 socket.addEventListener("open", (event) => {

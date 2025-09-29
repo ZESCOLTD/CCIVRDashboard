@@ -242,6 +242,8 @@
                                                                 <th>Abandoned</th>
                                                                 <th>Avg Answer Time</th>
                                                                 <th>Avg Duration</th>
+                                                                <th>Longest Waiting</th>
+                                                                <th>Longest Abandoned</th>
                                                                 @if ($reportType === 'agent')
                                                                     <th>Satisfaction</th>
                                                                 @endif
@@ -317,6 +319,8 @@
                                                                     <td>{{ $item['abandoned'] ?? 0 }}</td>
                                                                     <td>{{ $item['avg_answer_time'] ?? 0 }}</td>
                                                                     <td>{{ $item['avg_duration'] ?? 'N/A' }}</td>
+                                                                    <td>{{ $item['longest_waiting_time'] ?? 0 }}</td>
+                                                                    <td>{{ $item['longest_abandon_time'] ?? 'N/A' }}</td>
                                                                     @if ($reportType === 'agent' || $reportType === 'queue')
                                                                         @php
                                                                             $satisfaction = floatval(
