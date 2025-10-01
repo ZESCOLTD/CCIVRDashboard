@@ -29,7 +29,7 @@ class CreateNewUser extends Component
 
     protected $rules = [
         'StaffNumber' => 'required',
-        'StaffEmail' => 'required|email',
+        // 'StaffEmail' => 'required|email',
         'password' => 'required|min:6',
     ];
 
