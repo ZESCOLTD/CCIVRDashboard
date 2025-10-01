@@ -319,8 +319,8 @@
                                                                     <td>{{ $item['abandoned'] ?? 0 }}</td>
                                                                     <td>{{ $item['avg_answer_time'] ?? 0 }}</td>
                                                                     <td>{{ $item['avg_duration'] ?? 'N/A' }}</td>
-                                                                    <td>{{ $item['longest_waiting_time'] ?? 0 }}</td>
-                                                                    <td>{{ $item['longest_abandon_time'] ?? 'N/A' }}</td>
+                                                                    <td>{{ $item['longest_waiting'] ?? 0 }}</td>
+                                                                    <td>{{ $item['longest_abandoned'] ?? 'N/A' }}</td>
                                                                     @if ($reportType === 'agent' || $reportType === 'queue')
                                                                         @php
                                                                             $satisfaction = floatval(
