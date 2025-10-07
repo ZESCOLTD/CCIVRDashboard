@@ -1076,7 +1076,8 @@
                     })
                     .catch(error => {
                         console.error("Fetch error:", error);
-                    });
+                    })
+
             }
 
             fetchHoldingBridgeData();
@@ -1202,63 +1203,45 @@
         });
     </script>
 
-    <script>
-        // Reference to local storage, renamed to avoid potential collisions
-        const sipAgentLocalStorage = window.localStorage;
-        const sessionReloadFlag = window.sessionStorage; // Use sessionStorage for a temporary flag
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const sipLS = window.localStorage;
+        const sipSS = window.sessionStorage;
 
-        // Define the maximum number of reloads allowed for provisioning
-        const MAX_PROVISION_RELOADS = 2;
+        const manNo = "{{ $agent->endpoint ?? '' }}";
+        const MAX_RELOADS = 2;
 
-        // This script will run when the Blade view is rendered on the client-side.
-        document.addEventListener('DOMContentLoaded', function() {
-            // Get the manager number from the Blade variable
-            // Ensure $agent->endpoint is available and correctly passed from your Laravel controller
-            const manNo = "{{ $agent->endpoint ?? '' }}"; // Use Blade syntax to inject the value
+        console.log("Provision script starting — manNo:", manNo);
 
-            console.log("DOMContentLoaded fired.");
-            console.log("manNo from Blade:", manNo);
+        if (!manNo) {
+            console.warn("No endpoint (manNo) available — skipping provisioning.");
+            sipSS.removeItem('provisionReloadCount');
+            return;
+        }
 
-            if (manNo) {
-                let oldUserName = sipAgentLocalStorage.getItem("SipUsername");
-                console.log("oldUserName from localStorage:", oldUserName);
+        const oldUser = sipLS.getItem("SipUsername");
+        const reloadCount = parseInt(sipSS.getItem("provisionReloadCount") || "0", 10);
 
-                // Get the current reload count from sessionStorage
-                let reloadCount = parseInt(sessionReloadFlag.getItem('provisionReloadCount') || '0', 10);
+        if (oldUser === manNo) {
+            console.log("SIP username matches:", manNo, "— no reload needed.");
+            sipSS.removeItem('provisionReloadCount'); // reset
+            return;
+        }
 
-                if (oldUserName !== manNo) {
-                    // Provision the details to local storage
-                    sipAgentLocalStorage.setItem("SipUsername", manNo);
-                    sipAgentLocalStorage.setItem("SipPassword", manNo);
-                    sipAgentLocalStorage.setItem("profileName", manNo);
+        // Only reload if we haven't already tried too many times
+        if (reloadCount < MAX_RELOADS) {
+            console.warn(`Provisioning SIP details for ${manNo} (attempt ${reloadCount + 1}/${MAX_RELOADS})`);
+            sipLS.setItem("SipUsername", manNo);
+            sipLS.setItem("SipPassword", manNo);
+            sipLS.setItem("profileName", manNo);
+            sipSS.setItem("provisionReloadCount", (reloadCount + 1).toString());
 
-                    // Only reload if the reload count is less than the maximum allowed
-                    if (reloadCount < MAX_PROVISION_RELOADS) {
-                        console.warn("SIP Username changed from '" + oldUserName + "' to '" + manNo +
-                            "'. Triggering page reload (attempt " + (reloadCount + 1) + " of " +
-                            MAX_PROVISION_RELOADS + ").");
-                        sessionReloadFlag.setItem('provisionReloadCount', (reloadCount + 1)
-                    .toString()); // Increment count
-                        window.location.reload(true); // This causes the reload
-                    } else {
-                        // This branch means oldUserName was different, but we've exceeded reload attempts.
-                        console.error("Continuous reload detected: manNo is still different after " +
-                            MAX_PROVISION_RELOADS +
-                            " reloads. Check server-side manNo or localStorage persistence.");
-                        sessionReloadFlag.removeItem(
-                        'provisionReloadCount'); // Clear flag to stop further reloads for this session
-                    }
-                } else {
-                    // Username matches, no reload needed. Reset the reload count.
-                    console.log("SIP Username is already provisioned and matches: " + manNo +
-                    ". No reload needed.");
-                    sessionReloadFlag.removeItem('provisionReloadCount'); // Clear flag as provisioning is stable
-                }
-            } else {
-                console.warn(
-                    "Agent endpoint (man_no) not available from Blade view. Local storage not provisioned.");
-                sessionReloadFlag.removeItem('provisionReloadCount'); // Clear flag if no manNo to provision
-            }
-        });
+            // Add small delay to ensure storage persists before reload
+            setTimeout(() => window.location.reload(), 500);
+        } else {
+            console.error(`Provision failed — exceeded ${MAX_RELOADS} reloads. Stopping reload loop.`);
+            sipSS.removeItem('provisionReloadCount');
+        }
+    });
     </script>
 @endpush
