@@ -23,19 +23,13 @@ class ConfigDestinationsModel extends Model
         'myContext'
     ];
 
-    protected function optionName(): Attribute
+    public function getOptionNameAttribute()
     {
-        return new Attribute(
-            // The accessor function
-            get: fn($value, $attributes) => $attributes['option'],
-        );
+        return $this->option;
     }
     protected function description(): Attribute
     {
-        return new Attribute(
-            // The accessor function
-            get: fn($value, $attributes) => $attributes['description'],
-        );
+        return $this->description;
     }
 
     public function myContext()
