@@ -488,6 +488,8 @@ class DashboardController extends Component
         if (!$this->agent) return;
 
         $this->agent->status = config('constants.agent_status.ON_BREAK');
+        $this->agent->user_status = config('constants.agent_status.ON_BREAK');
+
         $this->agent->save();
 
         // Start new break
@@ -504,6 +506,7 @@ class DashboardController extends Component
         if (!$this->agent) return;
 
         $this->agent->status = config('constants.agent_status.IDLE');
+        $this->agent->user_status = config('constants.agent_status.IDLE'); // Set user status to ONLINE
         $this->agent->save();
 
         // End the latest break
