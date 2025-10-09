@@ -210,7 +210,7 @@
                 <div id="call-dst-distribution" class="chart-container" style="height: 350px;"
                     data-chart-type="pie"
                     data-chart-title="Today's Calls by Destination"
-                    data-chart-series='@json($todayDstDist->map(fn($row) => ['name' => $row->myDestination->description??$row->dst, 'y' => $row->total]))'>
+                    data-chart-series='@json($todayDstDist->map(fn($row) => ['name' => $row->dst, 'y' => $row->total]))'>
                     <div class="chart-placeholder">Loading Daily Destination Distribution Chart...</div>
                 </div>
 
