@@ -1081,7 +1081,7 @@
             }
 
             fetchHoldingBridgeData();
-            setInterval(fetchHoldingBridgeData, 10000); // Fetch every 5 seconds
+            // setInterval(fetchHoldingBridgeData, 10000); // Fetch every 5 seconds
 
 
             // WebSocket connection and event listeners as in the original code
@@ -1107,7 +1107,7 @@
                 });
                 socket.addEventListener("message", (event) => {
                     var data = JSON.parse(event.data);
-                    fetchHoldingBridgeData();
+
 
 
 
@@ -1115,11 +1115,15 @@
                         data.dialstring == {{ $agent->endpoint }}
                     ) {
                         // alert( incomingCall);
-
+                        fetchHoldingBridgeData();
                         document.getElementById("incoming-call").innerHTML = data.peer.caller.number;
 
                     }
+                    if (data.type === "StasisStart") {
+                        fetchHoldingBridgeData();
+                    }
                     if (data.type === "StasisEnd") {
+                        fetchHoldingBridgeData();
                         //     // alert( incomingCall);
                         console.log("Incoming Call Data:", data.channel.dialplan.app_data);
 

@@ -1199,49 +1199,60 @@
 
                 // Repeat every 5 seconds (5000 ms)
                 // setInterval(prob, 000);
+                function reConnect() {
 
+                    console.log("Livewire loaded");
+                    // WebSocket connection and event listeners as in the original code
+                    var ws_address = document.getElementById("ws_endpoint");
+                    var ws_socket = document.getElementById("ws-info");
+                    const socket = new WebSocket(ws_address.value);
 
-                console.log("Livewire loaded");
-                // WebSocket connection and event listeners as in the original code
-                var ws_address = document.getElementById("ws_endpoint");
-                var ws_socket = document.getElementById("ws-info");
-                const socket = new WebSocket(ws_address.value);
+                    socket.addEventListener("open", (event) => {
+                        console.log("WebSocket connection opened: ", ws_address);
+                        ws_socket.classList.remove("badge-danger");
+                        ws_socket.classList.add("badge-success");
+                        ws_socket.textContent = "Connected ..";
+                        socket.send("Hello Server!");
+                    });
 
-                socket.addEventListener("open", (event) => {
-                    console.log("WebSocket connection opened: ", ws_address);
-                    ws_socket.classList.remove("badge-danger");
-                    ws_socket.classList.add("badge-success");
-                    ws_socket.textContent = "Connected ..";
-                    socket.send("Hello Server!");
-                });
+                    socket.addEventListener("message", (event) => {
+                        var data = JSON.parse(event.data);
 
-                socket.addEventListener("message", (event) => {
-                    var data = JSON.parse(event.data);
+                        if (data.type != undefined) {
+                            if (data.type == "StasisStart" || data.type == "StasisEnd") {
 
-                    if (data.type != undefined) {
-                        if (data.type == "StasisStart" || data.type == "StasisEnd") {
-
-                            console.log("Message from server:", event.data);
-                            prob();
-                            // Livewire.emit('refreshComponent');
+                                console.log("Message from server:", event.data);
+                                prob();
+                                // Livewire.emit('refreshComponent');
+                            }
                         }
-                    }
-                    Livewire.emit('refreshComponent');
-                });
+                        Livewire.emit('refreshComponent');
+                    });
 
-                socket.addEventListener("error", (event) => {
-                    console.error("WebSocket error:", event);
-                    ws_socket.classList.remove("badge-success");
-                    ws_socket.classList.add("badge-danger");
-                    ws_socket.textContent = "Web socket error";
-                });
+                    socket.addEventListener("error", (event) => {
+                        console.error("WebSocket error:", event);
+                        ws_socket.classList.remove("badge-success");
+                        ws_socket.classList.add("badge-danger");
+                        ws_socket.textContent = "Web socket error";
+                        setTimeout(() => {
+                        reConnect();
+                    }, 5000); // Reconnect after 5 seconds
+                    });
 
-                socket.addEventListener("close", (event) => {
-                    ws_socket.classList.remove("badge-success");
-                    ws_socket.classList.add("badge-danger");
-                    ws_socket.textContent = "Web socket error";
-                    console.log("WebSocket connection closed:", event);
-                });
+                    socket.addEventListener("close", (event) => {
+                        ws_socket.classList.remove("badge-success");
+                        ws_socket.classList.add("badge-danger");
+                        ws_socket.textContent = "Web socket error";
+                        console.log("WebSocket connection closed:", event);
+
+                        setTimeout(() => {
+                        reConnect();
+                    }, 5000); // Reconnect after 5 seconds
+                    });
+
+                }
+
+                reConnect();
 
             });
 
