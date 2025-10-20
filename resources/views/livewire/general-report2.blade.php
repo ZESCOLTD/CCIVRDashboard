@@ -59,6 +59,11 @@
                                         </div>
                                     @endif
 
+
+
+
+
+
                                     <div class="form-group">
                                         <label for="startDate">Date Range</label>
                                         <div class="input-group">
@@ -237,7 +242,7 @@
                                                                 <th>Total Calls</th>
                                                                 <th>Answered</th>
                                                                 {{-- @if ($reportType !== 'queue') --}}
-                                                                    <th>Missed</th>
+                                                                <th>Missed</th>
                                                                 {{-- @endif --}}
                                                                 <th>Abandoned</th>
                                                                 <th>Avg Answer Time</th>
@@ -312,7 +317,7 @@
                                                                     <td>{{ $item['total_calls'] ?? 0 }}</td>
                                                                     <td>{{ $item['answered'] ?? 0 }}</td>
                                                                     {{-- @if ($reportType !== 'queue') --}}
-                                                                        <td>{{ $item['missed'] ?? 0 }}</td>
+                                                                    <td>{{ $item['missed'] ?? 0 }}</td>
                                                                     {{-- @endif --}}
                                                                     <td>{{ $item['abandoned'] ?? 0 }}</td>
                                                                     <td>{{ $item['avg_answer_time'] ?? 0 }}</td>
@@ -513,6 +518,9 @@
         <div class="modal-content">
             <div class="modal-header bg-primary text-white">
                 <h5 class="modal-title" id="queueModalLabel">Queue Performance Report</h5>
+
+
+
                 <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>

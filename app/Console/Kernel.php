@@ -7,6 +7,11 @@ use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
 {
+
+    protected $commands = [
+        // This array must include your custom command for Artisan to recognize it
+        \App\Console\Commands\ProcessCdrData::class,
+    ];
     /**
      * Define the application's command schedule.
      *

@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 
 use App\Models\Live\DialEventLog;
+use App\Models\Live\StasisCDR;
+use App\Models\Live\StasisEndEvent;
 use App\Models\Live\StasisStartEvent;
 
 class GeneralReport extends Component
@@ -550,122 +552,181 @@ class GeneralReport extends Component
     // }
 
 
+    // protected function generateQueuePerformanceReport($startDate, $endDate)
+    // {
+    //     try {
+    //         $reportResults = [];
+
+
+    // // --- Configuration ---
+    // $inbound_trunk_prefix = 'PJSIP/alice%';
+    // $time_start = '2025-10-17 10:00:00Z'; // Adjusted for new time range
+    // $time_end = '2025-10-17 14:04:00Z'; // Adjusted for new time range
+    // $abandonment_threshold_seconds = 15; // Standard 15-second abandonment threshold
+
+    // // --- 1. ANSWERED CALLS ANALYSIS (Using robust channel_id linking) ---
+    // // This join uses the explicit channel_id link found in the callee's 'args' field,
+    // // providing the most accurate pairing of the two call legs.
+    // $answered_calls = StasisStartEvent::from('stasis_start_events AS callers')
+    //     ->join('stasis_start_events AS callees', function ($join) use ($inbound_trunk_prefix) {
+    //         // Link the inbound leg (callers.channel_id) to the callee's 'args' (position 2 in StasisStart args)
+    //         $join->on(DB::raw('JSON_UNQUOTE(JSON_EXTRACT(callees.args, "$[2]"))'), '=', 'callers.channel_id')
+    //             // Callee must be an agent channel, not the trunk
+    //             ->where('callees.channel_name', 'not like', $inbound_trunk_prefix)
+    //             ->where('callees.channel_state', '=', 'Up')
+    //             // Exclude non-SIP media channels (e.g., UnicastRTP)
+    //             ->where('callees.channel_name', 'like', 'PJSIP/%');
+    //     })
+    //     ->where('callers.channel_name', 'like', $inbound_trunk_prefix)
+    //     ->where('callers.channel_state', '=', 'Ring')
+    //     ->whereBetween('callers.timestamp', [$time_start, $time_end])
+    //     ->select([
+    //         'callers.caller_number',
+    //         'callers.timestamp AS ring_time',
+    //         'callees.timestamp AS answer_time',
+    //         'callees.caller_name AS agent_name',
+    //         DB::raw("SUBSTRING_INDEX(callees.channel_name, '-', 1) AS agent_extension"),
+    //         DB::raw("TIMESTAMPDIFF(SECOND, callers.timestamp, callees.timestamp) AS time_to_answer_seconds"),
+    //     ])
+    //     // The channel_id link ensures one accurate result per answered call.
+    //     ->orderBy('ring_time')
+    //     ->get();
+
+    // // --- 2. MISSED CALLS ANALYSIS (Includes Abandoned and Still Ringing) ---
+    // // Find Ring events that DO NOT have a subsequent 'Up' event linked via channel_id.
+    // $missed_calls = StasisStartEvent::from('stasis_start_events AS callers')
+    //     ->where('callers.channel_name', 'like', $inbound_trunk_prefix)
+    //     ->where('callers.channel_state', 'Ring')
+    //     ->whereBetween('callers.timestamp', [$time_start, $time_end])
+    //     ->whereNotExists(function ($query) use ($inbound_trunk_prefix) {
+    //         $query->select(DB::raw(1))
+    //               ->from('stasis_start_events AS callees')
+    //               // Look for a matching answer event (linked by the channel_id in args)
+    //               ->whereRaw('JSON_UNQUOTE(JSON_EXTRACT(callees.args, "$[2]")) = callers.channel_id')
+    //               ->where('callees.channel_name', 'not like', $inbound_trunk_prefix)
+    //               ->where('callees.channel_state', '=', 'Up');
+    //     })
+    //     ->select([
+    //         'callers.caller_number',
+    //         'callers.timestamp AS ring_time',
+    //         DB::raw("TIMESTAMPDIFF(SECOND, callers.timestamp, NOW()) AS current_ring_duration_seconds"),
+    //     ])
+    //     ->get();
+
+    // // --- 3. ABANDONED CALLS ANALYSIS ---
+    // // Filter the missed calls to only include those that lasted longer than the threshold.
+    // $abandoned_calls = $missed_calls->filter(function ($call) use ($abandonment_threshold_seconds) {
+    //     // We use the current time (NOW()) as a proxy for the end of the call,
+    //     // assuming the call ended sometime before NOW() without being answered/hung up.
+    //     return $call->current_ring_duration_seconds > $abandonment_threshold_seconds;
+    // });
+
+    // // --- Preparing Final Analysis for dd() ---
+
+    // $total_answered = $answered_calls->count();
+    // $total_missed = $missed_calls->count();
+    // $total_abandoned = $abandoned_calls->count();
+    // $total_calls = $total_answered + $total_missed; // Total attempts in range
+
+    // $total_answer_time = $answered_calls->sum('time_to_answer_seconds');
+    // $asa = $total_answered > 0 ? $total_answer_time / $total_answered : 0;
+
+    // // $analysis_summary = [
+    // //     'Configuration' => [
+    // //         'Time Range Start' => $time_start,
+    // //         'Time Range End' => $time_end,
+    // //         'Inbound Trunk Prefix' => $inbound_trunk_prefix,
+    // //         'Abandonment Threshold (s)' => $abandonment_threshold_seconds,
+    // //     ],
+    // //     'Key Metrics' => [
+    // //         'Total Call Attempts' => $total_calls,
+    // //         'Total Answered Calls' => $total_answered,
+    // //         'Total Missed/Still Ringing Calls' => $total_missed,
+    // //         'Total Abandoned Calls' => $total_abandoned,
+    // //         'Average Speed to Answer (ASA)' => number_format($asa, 2) . ' seconds',
+    // //     ],
+    // //     // Include the collections for deep inspection
+    // //     'Detailed Collections' => [
+    // //         'Answered Calls' => $answered_calls,
+    // //         'Missed Calls (Total)' => $missed_calls,
+    // //         'Abandoned Calls (> ' . $abandonment_threshold_seconds . 's)' => $abandoned_calls,
+    // //     ],
+    // // ];
+
+
+    //         // Only add the overall queue report if there are total calls
+    //         // if ($overallTotalCalls > 0) {
+    //             $reportResults[] = [
+    //                 'label' => 'Overall Queue Performance', // A single label for the aggregated report
+    //                 'total_calls' => $total_calls,
+    //                 'answered' => $total_answered,
+    //                 'missed' => $total_missed,
+    //                 'abandoned' => $total_abandoned,
+    //                 // 'avg_duration' => gmdate('H:i:s', $overallAvgDurationSeconds),
+    //                 // 'satisfaction' => $overallSatisfaction . '%',
+    //                 // 'rating' => $overallRating,
+    //                 'avg_answer_time' => number_format($asa, 2) . ' seconds',
+    //             ];
+    //         // }
+
+    //         $this->reportData = $reportResults;
+    //     } catch (\Exception $e) {
+    //         $this->reportData = [];
+    //         Log::error('Queue Performance Report generation failed: ' . $e->getMessage(), [
+    //             'exception' => $e,
+    //             'startDate' => $startDate,
+    //             'endDate' => $endDate,
+    //             'queueIds' => $this->queueIds, // Keep this for logging purposes
+    //         ]);
+    //     }
+    // }
+
+
     protected function generateQueuePerformanceReport($startDate, $endDate)
     {
         try {
             $reportResults = [];
 
 
-    // --- Configuration ---
-    $inbound_trunk_prefix = 'PJSIP/alice%';
-    $time_start = '2025-10-17 10:00:00Z'; // Adjusted for new time range
-    $time_end = '2025-10-17 14:04:00Z'; // Adjusted for new time range
-    $abandonment_threshold_seconds = 15; // Standard 15-second abandonment threshold
+            $metricsResult = StasisCDR::query()
+            ->whereBetween('end_time', [$startDate, $endDate])
+            ->select(
+                DB::raw('SUM(is_answered) as answered_calls'),
+                DB::raw('SUM(is_abandoned) as abandoned_calls'),
+                DB::raw('SUM(is_short_miss) as short_missed_calls'),
+                DB::raw('COUNT(*) as total_attempts'),
+                // Include the total time to answer for ASA calculation
+                DB::raw('SUM(time_to_answer_seconds) as total_answer_time')
+            )
+            ->first();
 
-    // --- 1. ANSWERED CALLS ANALYSIS (Using robust channel_id linking) ---
-    // This join uses the explicit channel_id link found in the callee's 'args' field,
-    // providing the most accurate pairing of the two call legs.
-    $answered_calls = StasisStartEvent::from('stasis_start_events AS callers')
-        ->join('stasis_start_events AS callees', function ($join) use ($inbound_trunk_prefix) {
-            // Link the inbound leg (callers.channel_id) to the callee's 'args' (position 2 in StasisStart args)
-            $join->on(DB::raw('JSON_UNQUOTE(JSON_EXTRACT(callees.args, "$[2]"))'), '=', 'callers.channel_id')
-                // Callee must be an agent channel, not the trunk
-                ->where('callees.channel_name', 'not like', $inbound_trunk_prefix)
-                ->where('callees.channel_state', '=', 'Up')
-                // Exclude non-SIP media channels (e.g., UnicastRTP)
-                ->where('callees.channel_name', 'like', 'PJSIP/%');
-        })
-        ->where('callers.channel_name', 'like', $inbound_trunk_prefix)
-        ->where('callers.channel_state', '=', 'Ring')
-        ->whereBetween('callers.timestamp', [$time_start, $time_end])
-        ->select([
-            'callers.caller_number',
-            'callers.timestamp AS ring_time',
-            'callees.timestamp AS answer_time',
-            'callees.caller_name AS agent_name',
-            DB::raw("SUBSTRING_INDEX(callees.channel_name, '-', 1) AS agent_extension"),
-            DB::raw("TIMESTAMPDIFF(SECOND, callers.timestamp, callees.timestamp) AS time_to_answer_seconds"),
-        ])
-        // The channel_id link ensures one accurate result per answered call.
-        ->orderBy('ring_time')
-        ->get();
+        // --- Calculate ASA ---
+        $totalAnswered = $metricsResult->answered_calls ?? 0;
+        $totalAnswerTime = $metricsResult->total_answer_time ?? 0;
 
-    // --- 2. MISSED CALLS ANALYSIS (Includes Abandoned and Still Ringing) ---
-    // Find Ring events that DO NOT have a subsequent 'Up' event linked via channel_id.
-    $missed_calls = StasisStartEvent::from('stasis_start_events AS callers')
-        ->where('callers.channel_name', 'like', $inbound_trunk_prefix)
-        ->where('callers.channel_state', 'Ring')
-        ->whereBetween('callers.timestamp', [$time_start, $time_end])
-        ->whereNotExists(function ($query) use ($inbound_trunk_prefix) {
-            $query->select(DB::raw(1))
-                  ->from('stasis_start_events AS callees')
-                  // Look for a matching answer event (linked by the channel_id in args)
-                  ->whereRaw('JSON_UNQUOTE(JSON_EXTRACT(callees.args, "$[2]")) = callers.channel_id')
-                  ->where('callees.channel_name', 'not like', $inbound_trunk_prefix)
-                  ->where('callees.channel_state', '=', 'Up');
-        })
-        ->select([
-            'callers.caller_number',
-            'callers.timestamp AS ring_time',
-            DB::raw("TIMESTAMPDIFF(SECOND, callers.timestamp, NOW()) AS current_ring_duration_seconds"),
-        ])
-        ->get();
+        // ASA = Total Answer Time / Total Answered Calls
+        $asa = $totalAnswered > 0 ? $totalAnswerTime / $totalAnswered : 0;
 
-    // --- 3. ABANDONED CALLS ANALYSIS ---
-    // Filter the missed calls to only include those that lasted longer than the threshold.
-    $abandoned_calls = $missed_calls->filter(function ($call) use ($abandonment_threshold_seconds) {
-        // We use the current time (NOW()) as a proxy for the end of the call,
-        // assuming the call ended sometime before NOW() without being answered/hung up.
-        return $call->current_ring_duration_seconds > $abandonment_threshold_seconds;
-    });
+        // Structure the metrics for the view
+        // $this->metrics = [
+        //     'answered' => $totalAnswered,
+        //     'abandoned' => $metricsResult->abandoned_calls ?? 0,
+        //     'missed' => $metricsResult->short_missed_calls ?? 0,
+        //     'total' => $metricsResult->total_attempts ?? 0,
+        //     'asa' => number_format($asa, 2) . ' seconds', // Average Speed to Answer
+        // ];
 
-    // --- Preparing Final Analysis for dd() ---
-
-    $total_answered = $answered_calls->count();
-    $total_missed = $missed_calls->count();
-    $total_abandoned = $abandoned_calls->count();
-    $total_calls = $total_answered + $total_missed; // Total attempts in range
-
-    $total_answer_time = $answered_calls->sum('time_to_answer_seconds');
-    $asa = $total_answered > 0 ? $total_answer_time / $total_answered : 0;
-
-    // $analysis_summary = [
-    //     'Configuration' => [
-    //         'Time Range Start' => $time_start,
-    //         'Time Range End' => $time_end,
-    //         'Inbound Trunk Prefix' => $inbound_trunk_prefix,
-    //         'Abandonment Threshold (s)' => $abandonment_threshold_seconds,
-    //     ],
-    //     'Key Metrics' => [
-    //         'Total Call Attempts' => $total_calls,
-    //         'Total Answered Calls' => $total_answered,
-    //         'Total Missed/Still Ringing Calls' => $total_missed,
-    //         'Total Abandoned Calls' => $total_abandoned,
-    //         'Average Speed to Answer (ASA)' => number_format($asa, 2) . ' seconds',
-    //     ],
-    //     // Include the collections for deep inspection
-    //     'Detailed Collections' => [
-    //         'Answered Calls' => $answered_calls,
-    //         'Missed Calls (Total)' => $missed_calls,
-    //         'Abandoned Calls (> ' . $abandonment_threshold_seconds . 's)' => $abandoned_calls,
-    //     ],
-    // ];
-
-
-            // Only add the overall queue report if there are total calls
-            // if ($overallTotalCalls > 0) {
-                $reportResults[] = [
+                        $reportResults[] = [
                     'label' => 'Overall Queue Performance', // A single label for the aggregated report
-                    'total_calls' => $total_calls,
-                    'answered' => $total_answered,
-                    'missed' => $total_missed,
-                    'abandoned' => $total_abandoned,
+                    'total_calls' =>  $metricsResult->total_attempts ?? 0,
+                    'answered' => $totalAnswered,
+                    'missed' =>  $metricsResult->short_missed_calls ?? 0,
+                    'abandoned' => $metricsResult->abandoned_calls ?? 0,
                     // 'avg_duration' => gmdate('H:i:s', $overallAvgDurationSeconds),
                     // 'satisfaction' => $overallSatisfaction . '%',
                     // 'rating' => $overallRating,
                     'avg_answer_time' => number_format($asa, 2) . ' seconds',
                 ];
-            // }
 
             $this->reportData = $reportResults;
         } catch (\Exception $e) {
@@ -678,6 +739,145 @@ class GeneralReport extends Component
             ]);
         }
     }
+
+    public function generateQueueData()
+    {
+        // --- Configuration (Matches the Livewire Component) ---
+        $inbound_trunk_prefix = 'PJSIP/alice%';
+        $abandonment_threshold_seconds = 15;
+        // Use a fixed time window for seeding efficiency, adjust as needed
+        $time_start = $this->startDate;
+        $time_end = $this->endDate;
+        // dd($time_start, $time_end);
+
+        // Ensure the CDR table is clean before seeding new data
+        // NOTE: In a production job, you would typically only process new events,
+        // but for a seeder, truncation is safe.
+        // StasisCDR::truncate();
+
+        // 1. Fetch all unique inbound calls (StasisStart events in Ring state on the trunk)
+        $callerStartEvents = StasisStartEvent::where('channel_name', 'like', $inbound_trunk_prefix)
+            ->where('channel_state', 'Ring')
+            ->whereBetween('timestamp', [$time_start, $time_end])
+            ->get();
+
+        $totalAttempts = $callerStartEvents->count();
+        // $this->command->info("Processing {$totalAttempts} inbound call attempts...");
+
+        // --- PROGRESS BAR INITIALIZATION ---
+        // $progressBar = $this->command->getOutput()->createProgressBar($totalAttempts);
+        // $progressBar->start();
+
+        // 2. Process each call attempt to determine its fate and metrics
+        foreach ($callerStartEvents as $callerStart) {
+
+            // Look for a corresponding ANSWER (StasisStart with 'Up') event
+            // Linked via the caller's channel_id stored in the callee's args[2]
+            $calleeAnswer = StasisStartEvent::where(DB::raw('JSON_UNQUOTE(JSON_EXTRACT(args, "$[2]"))'), $callerStart->channel_id)
+                ->where('channel_state', 'Up')
+                ->where('channel_name', 'not like', $inbound_trunk_prefix)
+                ->first();
+
+            // Look for a corresponding HANGUP (StasisEnd) event on the caller's channel
+            $callerEnd = StasisEndEvent::where('channel_id', $callerStart->channel_id)->first();
+
+            // --- Determine Timestamps and Classification ---
+
+            $isAnswered = (bool)$calleeAnswer;
+            $answerTime = $calleeAnswer ? $calleeAnswer->timestamp : null;
+            $endTime = $callerEnd ? $callerEnd->timestamp : null;
+            $startTime = $callerStart->timestamp;
+
+            $timeToAnswerSeconds = $isAnswered ? $answerTime->diffInSeconds($startTime) : null;
+            $talkTimeSeconds = ($isAnswered && $endTime) ? $endTime->diffInSeconds($answerTime) : null;
+            $ringDurationSeconds = $endTime ? $endTime->diffInSeconds($startTime) : null;
+
+            // --- Classification Logic ---
+            $isAbandoned = false;
+            $isShortMiss = false;
+
+            if (!$isAnswered) {
+                if ($ringDurationSeconds !== null && $ringDurationSeconds >= $abandonment_threshold_seconds) {
+                    $isAbandoned = true;
+                } else {
+                    // This covers two cases:
+                    // 1. Caller hung up quickly (ringDurationSeconds < threshold)
+                    // 2. Call is still ringing (endTime is null)
+                    $isShortMiss = true;
+                }
+            }
+
+            // --- Check for existence (by caller_channel_id) and ONLY INSERT if new ---
+            StasisCDR::firstOrCreate(
+                ['caller_channel_id' => $callerStart->channel_id], // Lookup criteria
+                [
+                    // CLOSURE KEYS
+                    'stasis_start_event_id' => $callerStart->id,
+                    'stasis_end_event_id' => $callerEnd ? $callerEnd->id : null,
+
+                    // CORE IDENTIFIERS (Including the lookup key for creation)
+                    'caller_channel_id' => $callerStart->channel_id,
+                    'callee_channel_id' => $calleeAnswer ? $calleeAnswer->channel_id : null,
+                    'caller_number' => $callerStart->caller_number,
+
+                    // TIMESTAMPS
+                    'start_time' => $startTime,
+                    'answer_time' => $answerTime,
+                    'end_time' => $endTime,
+
+                    // AGENT INFO
+                    'agent_name' => $calleeAnswer ? $calleeAnswer->caller_name : null,
+                    'agent_extension' => $calleeAnswer ? explode('-', $calleeAnswer->channel_name)[0] : null,
+
+                    // CLASSIFICATION FLAGS
+                    'is_answered' => $isAnswered,
+                    'is_abandoned' => $isAbandoned,
+                    'is_short_miss' => $isShortMiss,
+
+                    // CALCULATED DURATIONS
+                    'ring_duration_seconds' => $ringDurationSeconds,
+                    'time_to_answer_seconds' => $timeToAnswerSeconds,
+                    'talk_time_seconds' => $talkTimeSeconds,
+                ]
+            );
+
+            // --- Advance Progress Bar ---
+            // $progressBar->advance();
+        }
+
+        // // --- Finish Progress Bar ---
+        // $progressBar->finish();
+        // $this->command->newLine(); // Add a newline after the bar
+
+        // $this->command->info("CDR table population complete. Total records processed: {$totalAttempts}");
+
+        // // --- Step 3: Report Final Metrics from the newly populated CDR table (The FAST query) ---
+        // $this->command->newLine();
+        // $this->command->info('--- Final Metrics Verification (from StasisCDR table) ---');
+        // $this->command->comment('This query is representative of how your Livewire component now runs.');
+
+        // $finalMetrics = StasisCDR::query()
+        //     ->select(
+        //         DB::raw('SUM(is_answered) as answered_calls'),
+        //         DB::raw('SUM(is_abandoned) as abandoned_calls'),
+        //         DB::raw('SUM(is_short_miss) as short_missed_calls')
+        //     )
+        //     ->first();
+
+        // $this->command->table(
+        //     ['Metric', 'Count'],
+        //     [
+        //         ['Total Answered Calls', $finalMetrics->answered_calls ?? 0],
+        //         ['Total Abandoned Calls', $finalMetrics->abandoned_calls ?? 0],
+        //         ['Total Short Missed/Ringing Calls', $finalMetrics->short_missed_calls ?? 0],
+        //         ['Total Call Attempts (Inferred from loop)', $totalAttempts],
+        //     ]
+        // );
+        // $this->command->info('----------------------------------------------------------');
+
+    }
+
+
 
     protected function generateSMSReport($startDate, $endDate)
     {
