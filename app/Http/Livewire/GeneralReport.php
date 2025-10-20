@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Log;
 use GuzzleHttp\Client;
 
 use App\Models\Live\DialEventLog;
+use App\Models\Live\StasisStartEvent;
 
 class GeneralReport extends Component
 {
@@ -403,138 +404,268 @@ class GeneralReport extends Component
     //         ->toArray();
     // }
 
+    // protected function generateQueuePerformanceReport($startDate, $endDate)
+    // {
+    //     try {
+    //         $reportResults = [];
+
+    //         // Get all unique endpoints that are associated with agents (CCAgent::endpoint)
+    //         // as these are the "queues" that agents are part of.
+    //         $allAgentEndpoints = CCAgent::distinct('endpoint')->pluck('endpoint')->filter()->values()->toArray();
+
+    //         // Filter these endpoints based on selected queueIds if provided.
+    //         // If no specific queueIds are selected, consider all agent endpoints as part of the overall queue.
+    //         $targetEndpointsForQueue =  $allAgentEndpoints;
+
+    //         // Initialize aggregated totals for the "Overall Queue Performance"
+    //         $totalAnswered = 0;
+    //         $totalMissed = 0;
+    //         $totalDurationAllQueues = 0;
+    //         $totalRecordCountAllQueues = 0;
+
+
+    //         // Iterate through each relevant endpoint to sum up their statistics
+    //         foreach ($targetEndpointsForQueue as $endpoint) {
+    //             // Aggregate call events for this specific endpoint (queue)
+    //             // $callEvents = DialEventLog::where('dialstring', $endpoint)
+    //             //     ->whereBetween('event_timestamp', [$startDate, $endDate])
+    //             //     ->get()
+    //             //     ->groupBy(function ($event) {
+    //             //         return $event->dialstring . '_' . $event->peer_id . '_' . $event->caller_number;
+    //             //     });
+
+
+    //             $callEvents = DialEventLog::orderBy('event_timestamp')
+    //                 ->whereBetween('created_at', [$startDate, $endDate])
+    //                 ->get()
+    //                 ->groupBy(function ($event) {
+    //                     return $event->dialstring . '_' . $event->peer_id;
+    //                 });
+
+    //             $callResults = $callEvents->map(function ($events, $key) {
+    //                 $sorted = $events->sortBy('event_timestamp');
+
+    //                 $lastWithStatus = $sorted->reverse()->first(fn($e) => !empty($e->dialstatus));
+
+    //                 if (!$lastWithStatus) return null;
+
+    //                 return [
+    //                     'dialstring' => $lastWithStatus->dialstring,
+    //                     'caller_number' => $lastWithStatus->caller_number,
+    //                     'status' => $lastWithStatus->dialstatus,
+    //                     'timestamp' => $lastWithStatus->event_timestamp,
+    //                 ];
+    //             })->filter(); // remove nulls
+
+
+    //             $answeredForEndpoint = count($callResults->where('status', 'ANSWER')
+    //                 ->where('dialstring', $endpoint));
+    //             $missedForEndpoint = count($callResults->where('status', 'NOANSWER')
+    //                 ->where('dialstring', $endpoint));
+
+    //             $totalAnswered += $answeredForEndpoint;
+    //             $totalMissed += $missedForEndpoint;
+
+    //             // Aggregate recordings for this specific endpoint (queue)
+
+
+
+
+    //             // $totalDurationForEndpoint = $recordingsForEndpoint->sum('duration_in_seconds');
+
+
+    //             // $recordCountForEndpoint = $recordingsForEndpoint->count();
+
+    //             // $totalDurationAllQueues += $totalDurationForEndpoint;
+    //             // $totalRecordCountAllQueues += $recordCountForEndpoint;
+    //         }
+
+    //         $recordingsForEndpoints = Recordings::whereBetween('created_at', [$startDate, $endDate])
+    //             ->get();
+
+
+
+    //             $abandonedCalls = Recordings::whereBetween('created_at', [$startDate, $endDate])
+    //             ->whereRaw('TIMESTAMPDIFF(SECOND, answerdate, hangupdate) < ?', [4])
+    //             ->count();
+
+    //         $totalDurationAllQueues = $recordingsForEndpoints->sum('duration_in_seconds');
+    //         $totalRecordCountAllQueues = $recordingsForEndpoints->count();
+
+    //         $overallTotalCalls = $totalAnswered + $totalMissed;
+
+    //         $overallAvgDurationSeconds = $totalRecordCountAllQueues > 0 ? (int) ($totalDurationAllQueues / $totalRecordCountAllQueues) : 0;
+    //         $overallSatisfaction = $overallTotalCalls > 0 ? round((($totalAnswered - $abandonedCalls) / $overallTotalCalls) * 100, 2) : 0;
+
+    //         $overallRating = 'Poor';
+    //         if ($overallSatisfaction >= 90) {
+    //             $overallRating = 'Excellent';
+    //         } elseif ($overallSatisfaction >= 75) {
+    //             $overallRating = 'Good';
+    //         } elseif ($overallSatisfaction >= 50) {
+    //             $overallRating = 'Fair';
+    //         }
+
+    //          // --- NEW CALCULATION FOR AVERAGE ANSWER TIME ---
+    //          $averageAnswerTimeInSeconds = DB::table('stasis_start_events as original')
+    //          ->whereBetween('original.timestamp', [$startDate, $endDate])
+    //          ->join('stasis_start_events as related', function ($join) {
+    //              $join->on(
+    //                  DB::raw('JSON_UNQUOTE(JSON_EXTRACT(original.args, "$[2]"))'),
+    //                  '=',
+    //                  'related.channel_id'
+    //              );
+    //          })
+    //          // Use ABS() to get the absolute (non-negative) difference
+    //          ->avg(DB::raw('ABS(TIMESTAMPDIFF(SECOND, original.timestamp, related.timestamp))'));
+    // // --- END OF NEW CALCULATION ---
+
+
+
+    //         // Only add the overall queue report if there are total calls
+    //         if ($overallTotalCalls > 0) {
+    //             $reportResults[] = [
+    //                 'label' => 'Overall Queue Performance', // A single label for the aggregated report
+    //                 'total_calls' => $overallTotalCalls,
+    //                 'answered' => $totalAnswered-$abandonedCalls,
+    //                 'missed' => $totalMissed,
+    //                 'abandoned' => $abandonedCalls,
+    //                 'avg_duration' => gmdate('H:i:s', $overallAvgDurationSeconds),
+    //                 'satisfaction' => $overallSatisfaction . '%',
+    //                 'rating' => $overallRating,
+    //                 'avg_answer_time' => gmdate('H:i:s', (int)$averageAnswerTimeInSeconds),
+    //             ];
+    //         }
+
+    //         $this->reportData = $reportResults;
+    //     } catch (\Exception $e) {
+    //         $this->reportData = [];
+    //         Log::error('Queue Performance Report generation failed: ' . $e->getMessage(), [
+    //             'exception' => $e,
+    //             'startDate' => $startDate,
+    //             'endDate' => $endDate,
+    //             'queueIds' => $this->queueIds, // Keep this for logging purposes
+    //         ]);
+    //     }
+    // }
+
+
     protected function generateQueuePerformanceReport($startDate, $endDate)
     {
         try {
             $reportResults = [];
 
-            // Get all unique endpoints that are associated with agents (CCAgent::endpoint)
-            // as these are the "queues" that agents are part of.
-            $allAgentEndpoints = CCAgent::distinct('endpoint')->pluck('endpoint')->filter()->values()->toArray();
 
-            // Filter these endpoints based on selected queueIds if provided.
-            // If no specific queueIds are selected, consider all agent endpoints as part of the overall queue.
-            $targetEndpointsForQueue =  $allAgentEndpoints;
+    // --- Configuration ---
+    $inbound_trunk_prefix = 'PJSIP/alice%';
+    $time_start = '2025-10-17 10:00:00Z'; // Adjusted for new time range
+    $time_end = '2025-10-17 14:04:00Z'; // Adjusted for new time range
+    $abandonment_threshold_seconds = 15; // Standard 15-second abandonment threshold
 
-            // Initialize aggregated totals for the "Overall Queue Performance"
-            $totalAnswered = 0;
-            $totalMissed = 0;
-            $totalDurationAllQueues = 0;
-            $totalRecordCountAllQueues = 0;
+    // --- 1. ANSWERED CALLS ANALYSIS (Using robust channel_id linking) ---
+    // This join uses the explicit channel_id link found in the callee's 'args' field,
+    // providing the most accurate pairing of the two call legs.
+    $answered_calls = StasisStartEvent::from('stasis_start_events AS callers')
+        ->join('stasis_start_events AS callees', function ($join) use ($inbound_trunk_prefix) {
+            // Link the inbound leg (callers.channel_id) to the callee's 'args' (position 2 in StasisStart args)
+            $join->on(DB::raw('JSON_UNQUOTE(JSON_EXTRACT(callees.args, "$[2]"))'), '=', 'callers.channel_id')
+                // Callee must be an agent channel, not the trunk
+                ->where('callees.channel_name', 'not like', $inbound_trunk_prefix)
+                ->where('callees.channel_state', '=', 'Up')
+                // Exclude non-SIP media channels (e.g., UnicastRTP)
+                ->where('callees.channel_name', 'like', 'PJSIP/%');
+        })
+        ->where('callers.channel_name', 'like', $inbound_trunk_prefix)
+        ->where('callers.channel_state', '=', 'Ring')
+        ->whereBetween('callers.timestamp', [$time_start, $time_end])
+        ->select([
+            'callers.caller_number',
+            'callers.timestamp AS ring_time',
+            'callees.timestamp AS answer_time',
+            'callees.caller_name AS agent_name',
+            DB::raw("SUBSTRING_INDEX(callees.channel_name, '-', 1) AS agent_extension"),
+            DB::raw("TIMESTAMPDIFF(SECOND, callers.timestamp, callees.timestamp) AS time_to_answer_seconds"),
+        ])
+        // The channel_id link ensures one accurate result per answered call.
+        ->orderBy('ring_time')
+        ->get();
 
+    // --- 2. MISSED CALLS ANALYSIS (Includes Abandoned and Still Ringing) ---
+    // Find Ring events that DO NOT have a subsequent 'Up' event linked via channel_id.
+    $missed_calls = StasisStartEvent::from('stasis_start_events AS callers')
+        ->where('callers.channel_name', 'like', $inbound_trunk_prefix)
+        ->where('callers.channel_state', 'Ring')
+        ->whereBetween('callers.timestamp', [$time_start, $time_end])
+        ->whereNotExists(function ($query) use ($inbound_trunk_prefix) {
+            $query->select(DB::raw(1))
+                  ->from('stasis_start_events AS callees')
+                  // Look for a matching answer event (linked by the channel_id in args)
+                  ->whereRaw('JSON_UNQUOTE(JSON_EXTRACT(callees.args, "$[2]")) = callers.channel_id')
+                  ->where('callees.channel_name', 'not like', $inbound_trunk_prefix)
+                  ->where('callees.channel_state', '=', 'Up');
+        })
+        ->select([
+            'callers.caller_number',
+            'callers.timestamp AS ring_time',
+            DB::raw("TIMESTAMPDIFF(SECOND, callers.timestamp, NOW()) AS current_ring_duration_seconds"),
+        ])
+        ->get();
 
-            // Iterate through each relevant endpoint to sum up their statistics
-            foreach ($targetEndpointsForQueue as $endpoint) {
-                // Aggregate call events for this specific endpoint (queue)
-                // $callEvents = DialEventLog::where('dialstring', $endpoint)
-                //     ->whereBetween('event_timestamp', [$startDate, $endDate])
-                //     ->get()
-                //     ->groupBy(function ($event) {
-                //         return $event->dialstring . '_' . $event->peer_id . '_' . $event->caller_number;
-                //     });
+    // --- 3. ABANDONED CALLS ANALYSIS ---
+    // Filter the missed calls to only include those that lasted longer than the threshold.
+    $abandoned_calls = $missed_calls->filter(function ($call) use ($abandonment_threshold_seconds) {
+        // We use the current time (NOW()) as a proxy for the end of the call,
+        // assuming the call ended sometime before NOW() without being answered/hung up.
+        return $call->current_ring_duration_seconds > $abandonment_threshold_seconds;
+    });
 
+    // --- Preparing Final Analysis for dd() ---
 
-                $callEvents = DialEventLog::orderBy('event_timestamp')
-                    ->whereBetween('created_at', [$startDate, $endDate])
-                    ->get()
-                    ->groupBy(function ($event) {
-                        return $event->dialstring . '_' . $event->peer_id;
-                    });
+    $total_answered = $answered_calls->count();
+    $total_missed = $missed_calls->count();
+    $total_abandoned = $abandoned_calls->count();
+    $total_calls = $total_answered + $total_missed; // Total attempts in range
 
-                $callResults = $callEvents->map(function ($events, $key) {
-                    $sorted = $events->sortBy('event_timestamp');
+    $total_answer_time = $answered_calls->sum('time_to_answer_seconds');
+    $asa = $total_answered > 0 ? $total_answer_time / $total_answered : 0;
 
-                    $lastWithStatus = $sorted->reverse()->first(fn($e) => !empty($e->dialstatus));
-
-                    if (!$lastWithStatus) return null;
-
-                    return [
-                        'dialstring' => $lastWithStatus->dialstring,
-                        'caller_number' => $lastWithStatus->caller_number,
-                        'status' => $lastWithStatus->dialstatus,
-                        'timestamp' => $lastWithStatus->event_timestamp,
-                    ];
-                })->filter(); // remove nulls
-
-
-                $answeredForEndpoint = count($callResults->where('status', 'ANSWER')
-                    ->where('dialstring', $endpoint));
-                $missedForEndpoint = count($callResults->where('status', 'NOANSWER')
-                    ->where('dialstring', $endpoint));
-
-                $totalAnswered += $answeredForEndpoint;
-                $totalMissed += $missedForEndpoint;
-
-                // Aggregate recordings for this specific endpoint (queue)
-
-
-
-
-                // $totalDurationForEndpoint = $recordingsForEndpoint->sum('duration_in_seconds');
-
-
-                // $recordCountForEndpoint = $recordingsForEndpoint->count();
-
-                // $totalDurationAllQueues += $totalDurationForEndpoint;
-                // $totalRecordCountAllQueues += $recordCountForEndpoint;
-            }
-
-            $recordingsForEndpoints = Recordings::whereBetween('created_at', [$startDate, $endDate])
-                ->get();
-
-
-
-                $abandonedCalls = Recordings::whereBetween('created_at', [$startDate, $endDate])
-                ->whereRaw('TIMESTAMPDIFF(SECOND, answerdate, hangupdate) < ?', [4])
-                ->count();
-
-            $totalDurationAllQueues = $recordingsForEndpoints->sum('duration_in_seconds');
-            $totalRecordCountAllQueues = $recordingsForEndpoints->count();
-
-            $overallTotalCalls = $totalAnswered + $totalMissed;
-
-            $overallAvgDurationSeconds = $totalRecordCountAllQueues > 0 ? (int) ($totalDurationAllQueues / $totalRecordCountAllQueues) : 0;
-            $overallSatisfaction = $overallTotalCalls > 0 ? round((($totalAnswered - $abandonedCalls) / $overallTotalCalls) * 100, 2) : 0;
-
-            $overallRating = 'Poor';
-            if ($overallSatisfaction >= 90) {
-                $overallRating = 'Excellent';
-            } elseif ($overallSatisfaction >= 75) {
-                $overallRating = 'Good';
-            } elseif ($overallSatisfaction >= 50) {
-                $overallRating = 'Fair';
-            }
-
-             // --- NEW CALCULATION FOR AVERAGE ANSWER TIME ---
-             $averageAnswerTimeInSeconds = DB::table('stasis_start_events as original')
-             ->whereBetween('original.timestamp', [$startDate, $endDate])
-             ->join('stasis_start_events as related', function ($join) {
-                 $join->on(
-                     DB::raw('JSON_UNQUOTE(JSON_EXTRACT(original.args, "$[2]"))'),
-                     '=',
-                     'related.channel_id'
-                 );
-             })
-             // Use ABS() to get the absolute (non-negative) difference
-             ->avg(DB::raw('ABS(TIMESTAMPDIFF(SECOND, original.timestamp, related.timestamp))'));
-    // --- END OF NEW CALCULATION ---
-
+    // $analysis_summary = [
+    //     'Configuration' => [
+    //         'Time Range Start' => $time_start,
+    //         'Time Range End' => $time_end,
+    //         'Inbound Trunk Prefix' => $inbound_trunk_prefix,
+    //         'Abandonment Threshold (s)' => $abandonment_threshold_seconds,
+    //     ],
+    //     'Key Metrics' => [
+    //         'Total Call Attempts' => $total_calls,
+    //         'Total Answered Calls' => $total_answered,
+    //         'Total Missed/Still Ringing Calls' => $total_missed,
+    //         'Total Abandoned Calls' => $total_abandoned,
+    //         'Average Speed to Answer (ASA)' => number_format($asa, 2) . ' seconds',
+    //     ],
+    //     // Include the collections for deep inspection
+    //     'Detailed Collections' => [
+    //         'Answered Calls' => $answered_calls,
+    //         'Missed Calls (Total)' => $missed_calls,
+    //         'Abandoned Calls (> ' . $abandonment_threshold_seconds . 's)' => $abandoned_calls,
+    //     ],
+    // ];
 
 
             // Only add the overall queue report if there are total calls
-            if ($overallTotalCalls > 0) {
+            // if ($overallTotalCalls > 0) {
                 $reportResults[] = [
                     'label' => 'Overall Queue Performance', // A single label for the aggregated report
-                    'total_calls' => $overallTotalCalls,
-                    'answered' => $totalAnswered-$abandonedCalls,
-                    'missed' => $totalMissed,
-                    'abandoned' => $abandonedCalls,
-                    'avg_duration' => gmdate('H:i:s', $overallAvgDurationSeconds),
-                    'satisfaction' => $overallSatisfaction . '%',
-                    'rating' => $overallRating,
-                    'avg_answer_time' => gmdate('H:i:s', (int)$averageAnswerTimeInSeconds),
+                    'total_calls' => $total_calls,
+                    'answered' => $total_answered,
+                    'missed' => $total_missed,
+                    'abandoned' => $total_abandoned,
+                    // 'avg_duration' => gmdate('H:i:s', $overallAvgDurationSeconds),
+                    // 'satisfaction' => $overallSatisfaction . '%',
+                    // 'rating' => $overallRating,
+                    'avg_answer_time' => number_format($asa, 2) . ' seconds',
                 ];
-            }
+            // }
 
             $this->reportData = $reportResults;
         } catch (\Exception $e) {
@@ -547,7 +678,6 @@ class GeneralReport extends Component
             ]);
         }
     }
-
 
     protected function generateSMSReport($startDate, $endDate)
     {

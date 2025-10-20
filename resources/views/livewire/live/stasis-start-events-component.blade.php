@@ -90,6 +90,6 @@
         </tbody>
     </table>
     <div class="mt-4">
-        {{ $stasisEndEventLog->links() }}
+        {{-- {{ $stasisEndEventLog->links() }} --}}
     </div>
 </div>
