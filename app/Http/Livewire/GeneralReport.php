@@ -687,7 +687,6 @@ class GeneralReport extends Component
         try {
             $reportResults = [];
 
-
             $metricsResult = StasisCDR::query()
             ->whereBetween('end_time', [$startDate, $endDate])
             ->select(
