@@ -30,6 +30,10 @@ class DailyStatsSummary extends Component
     public int $editSessions = 0;
 
 
+    // 🌟 NEW PROPERTY FOR USER INPUT
+    public string $selectedDate;
+
+
     protected $rules = [
         'channel_name' => 'required|string|max:255',
         'channel_date' => 'required|date',
@@ -39,26 +43,32 @@ class DailyStatsSummary extends Component
     public function mount()
     {
         // Load your channels from DB or config
-        // $this->channels = ['Website', 'Mobile App', 'Social Media', 'Email', 'SMS', 'IVR', 'USSD', 'Other'];
         $this->channels = ['Website', 'Mobile App'];
+
+        // 🌟 INITIALIZE WITH YESTERDAY'S DATE AS DEFAULT
+        $this->selectedDate = Carbon::yesterday()->toDateString();
+    }
+    public function refreshStats()
+    {
+        // Livewire automatically calls render() after this method completes.
+        // The process of this method running will trigger the wire:loading state.
+        // You can add a sleep(1) here if you want to simulate a longer loading time for testing.
     }
 
 
-    function getStatsActiveUsersForWebsite(  string $startDate, string $endDate, $metricValue = 'activeUsers')
+    function getStatsActiveUsersForWebsite(string $startDate, string $endDate, $metricValue = 'activeUsers')
     {
 
-$analyticsService = new GoogleAnalyticsService();
-$propertyId = '337673843';
+        $analyticsService = new GoogleAnalyticsService();
+        $propertyId = '337673843';
 
-// For last week (replace with actual dates)
-$totalLastWeek = $analyticsService->getTotalUsersByDateRange($propertyId, $startDate, $endDate, $metricValue   );
+        // For last week (replace with actual dates)
+        $totalLastWeek = $analyticsService->getTotalUsersByDateRange($propertyId, $startDate, $endDate, $metricValue);
 
-return response()->json([
-    'metric' => $metricValue,
-    'total' => $totalLastWeek,
-]);
-
-
+        return response()->json([
+            'metric' => $metricValue,
+            'total' => $totalLastWeek,
+        ]);
     }
 
 
@@ -117,14 +127,32 @@ return response()->json([
     public function render()
     {
         // Dates
-        $yesterday = Carbon::yesterday()->toDateString();
-        $dayBeforeYesterday = Carbon::yesterday()->subDay()->toDateString();
+        // $yesterday = Carbon::yesterday()->toDateString();
+        // $dayBeforeYesterday = Carbon::yesterday()->subDay()->toDateString();
+
+        // Dates are now derived from the user's selected date
+        $selectedDateCarbon = Carbon::parse($this->selectedDate);
+        $yesterday = $selectedDateCarbon->toDateString(); // This is the main "Today" in the stats
+        $dayBeforeYesterday = $selectedDateCarbon->subDay()->toDateString(); // This is the "Previous" day in the stats
 
         // IVR Extensions
         $dstExtensions = [
-            'cc-3', 'cc-4', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10',
-            'cc-11', 'cc-12', 'cc-13', 'cc-14', 'cc-15', 'cc-16', 'cc-17',
-            'cc-18', 'cc-20'
+            'cc-3',
+            'cc-4',
+            'cc-6',
+            'cc-7',
+            'cc-8',
+            'cc-9',
+            'cc-10',
+            'cc-11',
+            'cc-12',
+            'cc-13',
+            'cc-14',
+            'cc-15',
+            'cc-16',
+            'cc-17',
+            'cc-18',
+            'cc-20'
         ];
 
         // Fetch raw stats
@@ -161,13 +189,12 @@ return response()->json([
             if ($data instanceof \Illuminate\Support\Collection) {
 
 
-               return $data->mapWithKeys(function ($item, $key) {
+                return $data->mapWithKeys(function ($item, $key) {
                     if (is_array($item)) return [$key => $item['sessions'] ?? 0];
                     if (is_object($item)) return [$key => $item->sessions ?? 0];
                     return [$key => 0];
                 })->toArray()
-            ;
-
+                ;
             }
 
             if (is_object($data) && property_exists($data, 'count')) {
@@ -181,7 +208,7 @@ return response()->json([
             return ['count' => 0];
         };
 
-       // dd($normalize($websiteYesterday)) ;
+        // dd($normalize($websiteYesterday)) ;
 
         // Normalize all stats
         $stats = [

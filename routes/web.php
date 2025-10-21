@@ -294,6 +294,7 @@ Route::middleware(['auth'])->group(function () {
     // Route::get('/live/dashboard', DashboardController::class)->name('live.dashboard');
 
     Route::get('/omnidashboard', \App\Http\Livewire\Pages\DashboardPage::class)->name('omnidashboard');
+    Route::get('/omnidashboard-editable', \App\Http\Livewire\Pages\DashboardPage::class)->name('omnidashboard-editable');
 
     Route::get('/live/agent/dashboard/{id}', AgentDashboardController::class)->name('live.agent.dashboard');
 

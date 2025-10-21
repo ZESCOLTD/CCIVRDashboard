@@ -69,6 +69,12 @@
                                         <p>Omni-channel</p>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('omnidashboard-editable') }}" class="nav-link">
+                                        <i class="fas fa-project-diagram nav-icon text-orange"></i>
+                                        <p>Omni-channel-editable</p>
+                                    </a>
+                                </li>
 
                             </ul>
                         </li>
