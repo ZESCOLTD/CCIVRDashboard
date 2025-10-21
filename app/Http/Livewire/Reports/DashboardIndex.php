@@ -31,7 +31,7 @@ class DashboardIndex extends Component
 
         $user = Auth::user();
 
-        if ($user->hasRole('agent') && $user->getRoleNames()->count()==1) {
+        if ($user->hasRole('agent') && $user->getRoleNames()->count() == 1) {
             return redirect()->route('live.agent.dashboard', ['id' => $user->id]);
         }
     }
@@ -96,11 +96,11 @@ class DashboardIndex extends Component
         });
 
         // 6. Total Calls This Year (Cached)
-        $total_calls_year = $this->cachedCount('calls_this_year', function () use ($startOfYear, $now, $dstExtensions) {
-            return CallDetailsRecordModel::whereBetween('calldate', [$startOfYear, $now])
-                ->whereIn('dst', $dstExtensions)
-                ->count();
-        });
+        // $total_calls_year = $this->cachedCount('calls_this_year', function () use ($startOfYear, $now, $dstExtensions) {
+        //     return CallDetailsRecordModel::whereBetween('calldate', [$startOfYear, $now])
+        //         ->whereIn('dst', $dstExtensions)
+        //         ->count();
+        // });
 
         // 7. Total Customers Today (Keep direct for real-time freshness)
         $total_customers = CallDetailsRecordModel::whereDate('calldate', $today)
@@ -121,66 +121,66 @@ class DashboardIndex extends Component
         // These blocks already used Caching, but I've updated them to use the $this->cacheDuration property for consistency
         $cacheDuration = $this->cacheDuration;
 
-        $dailyCalls = Cache::remember('dailyCalls', $cacheDuration, function () use ($dstExtensions) {
-            return CallDetailsRecordModel::selectRaw('DATE(calldate) as date, COUNT(*) as total')
-                ->whereIn('dst', $dstExtensions)
-                ->where('calldate', '>=', now()->subDays(30))
-                ->groupBy('date')
-                ->orderBy('date')
-                ->get();
-        });
+        // $dailyCalls = Cache::remember('dailyCalls', $cacheDuration, function () use ($dstExtensions) {
+        //     return CallDetailsRecordModel::selectRaw('DATE(calldate) as date, COUNT(*) as total')
+        //         ->whereIn('dst', $dstExtensions)
+        //         ->where('calldate', '>=', now()->subDays(30))
+        //         ->groupBy('date')
+        //         ->orderBy('date')
+        //         ->get();
+        // });
 
-        $monthlyCalls = Cache::remember('monthlyCalls', $cacheDuration, function () use ($dstExtensions) {
-            return CallDetailsRecordModel::selectRaw("DATE_FORMAT(calldate, '%Y-%m') as month, COUNT(*) as total")
-                ->whereIn('dst', $dstExtensions)
-                ->where('calldate', '>=', now()->subMonths(12))
-                ->groupBy('month')
-                ->orderBy('month')
-                ->get();
-        });
+        // $monthlyCalls = Cache::remember('monthlyCalls', $cacheDuration, function () use ($dstExtensions) {
+        //     return CallDetailsRecordModel::selectRaw("DATE_FORMAT(calldate, '%Y-%m') as month, COUNT(*) as total")
+        //         ->whereIn('dst', $dstExtensions)
+        //         ->where('calldate', '>=', now()->subMonths(12))
+        //         ->groupBy('month')
+        //         ->orderBy('month')
+        //         ->get();
+        // });
 
 
-        $dailyCustomers = Cache::remember('dailyCustomers', $cacheDuration, function () use ($dstExtensions) {
-            return CallDetailsRecordModel::selectRaw('DATE(calldate) as date, COUNT(DISTINCT src) as total')
-                ->whereIn('dst', $dstExtensions)
-                ->where('calldate', '>=', now()->subDays(30))
-                ->groupBy('date')
-                ->orderBy('date')
-                ->get();
-        });
+        // $dailyCustomers = Cache::remember('dailyCustomers', $cacheDuration, function () use ($dstExtensions) {
+        //     return CallDetailsRecordModel::selectRaw('DATE(calldate) as date, COUNT(DISTINCT src) as total')
+        //         ->whereIn('dst', $dstExtensions)
+        //         ->where('calldate', '>=', now()->subDays(30))
+        //         ->groupBy('date')
+        //         ->orderBy('date')
+        //         ->get();
+        // });
 
-        $todayDstDist = Cache::remember('todayDstDist', $cacheDuration, function () use ($dstExtensions) {
-            return CallDetailsRecordModel::select('dst', \DB::raw('COUNT(*) as total'))
-                ->whereDate('calldate', Carbon::today())
-                ->whereIn('dst', $dstExtensions)
-                ->groupBy('dst')
-                ->get();
-        });
+        // $todayDstDist = Cache::remember('todayDstDist', $cacheDuration, function () use ($dstExtensions) {
+        //     return CallDetailsRecordModel::select('dst', \DB::raw('COUNT(*) as total'))
+        //         ->whereDate('calldate', Carbon::today())
+        //         ->whereIn('dst', $dstExtensions)
+        //         ->groupBy('dst')
+        //         ->get();
+        // });
 
-        $hourlyCalls = Cache::remember('hourlyCalls', $cacheDuration, function () use ($dstExtensions) {
-            return CallDetailsRecordModel::selectRaw('HOUR(calldate) as hour, COUNT(*) as total')
-                ->whereDate('calldate', Carbon::today())
-                ->whereIn('dst', $dstExtensions)
-                ->groupBy('hour')
-                ->orderBy('hour')
-                ->get();
-        });
+        // $hourlyCalls = Cache::remember('hourlyCalls', $cacheDuration, function () use ($dstExtensions) {
+        //     return CallDetailsRecordModel::selectRaw('HOUR(calldate) as hour, COUNT(*) as total')
+        //         ->whereDate('calldate', Carbon::today())
+        //         ->whereIn('dst', $dstExtensions)
+        //         ->groupBy('hour')
+        //         ->orderBy('hour')
+        //         ->get();
+        // });
 
-        return view('livewire.reports.dashboard-index', compact(
-            'total_calls_today_count',
-            'total_calls_yesterday',
-            'total_calls_day_before_yesterday',
-            'total_calls_month',
-            'total_calls_last_month',
-            'total_calls_year',
-            'total_customers',
-            'total_customers_last_month',
-
-            'dailyCalls',
-            'monthlyCalls',
-            'dailyCustomers',
-            'todayDstDist',
-            'hourlyCalls'
-        ));
+        return view('livewire.reports.dashboard-index', [
+            'total_calls_today_count' => $total_calls_today_count,
+            'total_calls_yesterday' => $total_calls_yesterday,
+            'total_calls_day_before_yesterday' => $total_calls_day_before_yesterday,
+            'total_calls_month' => $total_calls_month,
+            'total_calls_last_month'    => $total_calls_last_month,
+            //             $total_calls_year=>'total_calls_year',
+            'total_customers' => $total_customers,
+            'total_customers_last_month'  => $total_customers_last_month,
+            // $
+            //             $dailyCalls=>'dailyCalls',
+            //             $monthlyCalls=>'monthlyCalls',
+            //             $dailyCustomers=>'dailyCustomers',
+            //             $todayDstDist=>'todayDstDist',
+            //             $hourlyCalls=>'hourlyCalls'
+        ]);
     }
 }
