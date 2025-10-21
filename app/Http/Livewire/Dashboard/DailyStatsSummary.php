@@ -47,6 +47,7 @@ class DailyStatsSummary extends Component
 
         // 🌟 INITIALIZE WITH YESTERDAY'S DATE AS DEFAULT
         $this->selectedDate = Carbon::yesterday()->toDateString();
+        // $this->selectedDate = Carbon::today()->subDays(2)->toDateString();
     }
     public function refreshStats()
     {

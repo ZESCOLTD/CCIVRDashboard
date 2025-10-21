@@ -289,7 +289,7 @@
                                 $iconClass = 'fa-exclamation-triangle text-warning';
                             } elseif ($statusInfo['api_status'] === true) {
                                 $badgeClass = 'bg-success';
-                                $badgeText = 'IDLE';
+                                $badgeText = $agent->status?? 'IDLE';
                                 $iconClass = 'fa-user-circle text-success';
                             } elseif ($statusInfo['api_status'] === false) {
                                 // The API check found the agent is offline, even if the DB said they were logged in
