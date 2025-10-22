@@ -340,7 +340,7 @@
 @push('custom-scripts')
     <script>
         window.addEventListener('livewire:load', () => {
-            const apiUrl = "https://ivr.zesco.co.zm:8089/ari/bridges?api_key=asterisk:asterisk";
+            // const apiUrl = "https://ivr.zesco.co.zm:8089/ari/bridges?api_key=asterisk:asterisk";
 
             let reconnectTimeout;
 
