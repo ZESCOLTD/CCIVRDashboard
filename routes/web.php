@@ -186,7 +186,7 @@
 //
 //
 
-
+use App\Http\Controllers\CdrController;
 use App\Models\Live\CallSession;
 use Illuminate\Support\Facades\Route;
 use App\Http\Livewire\Agent\AgentShow;
@@ -233,7 +233,11 @@ use App\Http\Livewire\Live\Supervisor\AgentActvity;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Livewire\Live\Supervisor\KnowledgeBase\KnowledgeBaseManager;
-
+// ✅ CORRECT use statement (based on the files provided earlier)
+use App\Http\Livewire\Live\CallReport;
+use App\Http\Livewire\Live\StasisCdrDetail;
+use App\Http\Livewire\Live\StasisEndDetail;
+use App\Http\Livewire\Live\StasisStartDetail;
 
 /*
 |--------------------------------------------------------------------------
@@ -365,6 +369,18 @@ Route::middleware(['auth', 'role:super-admin|admin'])->group(function () {
 
     Route::get('/users', UserComponent::class)->name('users.index');
     Route::get('/users/{userId}/edit', UserEditComponent::class)->name('users.edit');
+
+
+    // 1. Route for the Livewire Dashboard (Report View)
+Route::get('/stasis-cdr/report', CallReport::class)->name('stasis-cdr.report');
+
+// 2. Route for the Detailed Stasis CDR Entry View (Now Livewire component)
+// Note: The variable name in the route {id} must match the mount method parameter ($id).
+Route::get('/stasis-cdr/{id}', StasisCdrDetail::class)->name('stasis-cdr.show');
+
+// RAW EVENT AUDIT ROUTES (Now Livewire Components)
+Route::get('/stasis-start/{id}', StasisStartDetail::class)->name('stasis-start.show');
+Route::get('/stasis-end/{id}', StasisEndDetail::class)->name('stasis-end.show');
 });
 
 // API Routes
