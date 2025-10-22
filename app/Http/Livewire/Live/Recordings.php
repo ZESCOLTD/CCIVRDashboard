@@ -4,11 +4,18 @@ namespace App\Http\Livewire\Live;
 
 use Carbon\Carbon;
 use Livewire\Component;
+use Livewire\WithPagination; // Import the trait
 use Illuminate\Http\Request;
 use App\Models\Live\Recordings as LiveRecordings;
 
 class Recordings extends Component
 {
+    use WithPagination; // Use the trait here
+
+    // Livewire will use 'paginationTheme' => 'tailwind' by default,
+    // but you can customize it if needed:
+    protected $paginationTheme = 'bootstrap';
+
     public $recording;
     public $from;
     public $to;
@@ -87,17 +94,4 @@ class Recordings extends Component
 
         return response()->file($filePath);
     }
-
-    // public function updatedSearch()
-    // {
-    //     $search = strtolower($this->search);
-
-    //     $this->recordings = LiveRecordings::whereRaw('LOWER(phone_number) like ?', ['%' . $search . '%'])
-    //         ->orWhereRaw('LOWER(clid) like ?', ['%' . $search . '%'])
-    //         ->orWhereRaw('LOWER(dst) like ?', ['%' . $search . '%'])
-    //         ->orWhereHas('agent', function ($query) use ($search) {
-    //             $query->whereRaw('LOWER(name) like ?', ['%' . $search . '%']);
-    //         })
-    //         ->paginate(10);
-    // }
 }
