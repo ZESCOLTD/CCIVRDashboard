@@ -98,6 +98,13 @@
                                         </a>
                                     </li>
                                     <li class="nav-item">
+                                        <a href="{{ route('stasis-cdr.report') }}" class="nav-link">
+                                            <i class="fas fa-file-alt nav-icon text-orange"></i>
+                                            <p>Call Statistics Report</p>
+                                        </a>
+                                    </li>
+
+                                    <li class="nav-item">
                                         <a href="{{ route('reports.call.detail.records') }}" class="nav-link">
                                             <i class="fas fa-phone-alt nav-icon text-orange"></i>
                                             <p>Call Details Report</p>
