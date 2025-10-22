@@ -249,8 +249,8 @@ class CDRSeeder extends Seeder
         $inbound_trunk_prefix = 'PJSIP/alice%';
         $abandonment_threshold_seconds = 15;
         // Use a fixed time window for seeding efficiency, adjust as needed
-        $time_start = Carbon::create(2025, 10, 17, 10, 0, 0);
-        $time_end = Carbon::create(2025, 10, 17, 14, 0, 0);
+        $time_start = Carbon::create(2025, 10, 21, 14, 0, 0);
+        $time_end = Carbon::create(2025, 10, 21, 22, 0, 0);
 
         // Ensure the CDR table is clean before seeding new data
         // NOTE: In a production job, you would typically only process new events,
