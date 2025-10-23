@@ -5,45 +5,44 @@ namespace App\Http\Livewire\Live;
 use App\Models\Live\StasisCDR;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
-use Livewire\WithPagination; // 1. Import the trait
+use Livewire\WithPagination;
 
 class CallReport extends Component
 {
-    use WithPagination; // 2. Use the trait
+    use WithPagination;
 
-    // Define public properties for binding to the view filters
+    // Existing Properties
     public $startDate;
     public $endDate;
     public $metrics;
 
-    // NOTE: $callRecords property is removed, as paginated data is fetched in render()
+    // NEW DYNAMIC FILTER PROPERTIES
+    public $filterCallerNumber = '';
+    public $filterAgentExtension = '';
+    public $filterStatus = '';
 
-    // 3. Optional: Set default pagination theme (Bootstrap 4)
+    // NEW DURATION FILTER PROPERTIES
+    public $filterMinRingDuration = null; // Minimum Ring Duration (seconds)
+    public $filterMaxRingDuration = null; // Maximum Ring Duration (seconds)
+    public $filterMinTalkTime = null;    // Minimum Talk Time (seconds)
+    public $filterMaxTalkTime = null;    // Maximum Talk Time (seconds)
+
     protected $paginationTheme = 'bootstrap';
 
-    /**
-     * Set initial state and load data.
-     */
     public function mount()
     {
-        // Set default filter to the last 24 hours
         $this->endDate = now()->endOfDay()->format('Y-m-d H:i');
         $this->startDate = now()->subDays(1)->startOfDay()->format('Y-m-d H:i');
-
-        // Calculate metrics initially
         $this->calculateMetrics();
     }
 
     /**
-     * Calculates the aggregate metrics and stores them in $this->metrics.
+     * Calculates the aggregate metrics based on ALL active filters.
      */
     public function calculateMetrics()
     {
-        // 1. Base Query with Time Filter
-        $query = StasisCDR::query()
-            ->whereBetween('start_time', [$this->startDate, $this->endDate]);
+        $query = $this->buildBaseQuery();
 
-        // 2. Aggregated Metrics Query
         $this->metrics = (clone $query)->select(
             DB::raw('COUNT(*) as total_attempts'),
             DB::raw('SUM(is_answered) as answered_calls'),
@@ -55,17 +54,64 @@ class CallReport extends Component
     }
 
     /**
-     * Called when filters change to refresh metrics and reset pagination.
+     * Helper to build the base query, applying all dynamic filters.
      */
+    protected function buildBaseQuery()
+    {
+        $query = StasisCDR::query()
+            ->whereBetween('start_time', [$this->startDate, $this->endDate]);
+
+        // Apply Text Filters
+        if ($this->filterCallerNumber) {
+            $query->where('caller_number', 'like', '%' . $this->filterCallerNumber . '%');
+        }
+        if ($this->filterAgentExtension) {
+            $query->where('agent_extension', 'like', '%' . $this->filterAgentExtension . '%');
+        }
+
+        // Apply Status filter
+        if ($this->filterStatus) {
+            switch ($this->filterStatus) {
+                case 'answered':
+                    $query->where('is_answered', true);
+                    break;
+                case 'abandoned':
+                    $query->where('is_abandoned', true);
+                    break;
+                case 'short_miss':
+                    $query->where('is_short_miss', true);
+                    break;
+            }
+        }
+
+        // APPLY RING DURATION FILTERS
+        if (is_numeric($this->filterMinRingDuration)) {
+            $query->where('ring_duration_seconds', '>=', $this->filterMinRingDuration);
+        }
+        if (is_numeric($this->filterMaxRingDuration)) {
+            $query->where('ring_duration_seconds', '<=', $this->filterMaxRingDuration);
+        }
+
+        // APPLY TALK TIME FILTERS
+        if (is_numeric($this->filterMinTalkTime)) {
+            // Note: Talk time only applies to answered calls (is_answered = 1)
+            $query->where('talk_time_seconds', '>=', $this->filterMinTalkTime);
+        }
+        if (is_numeric($this->filterMaxTalkTime)) {
+            $query->where('talk_time_seconds', '<=', $this->filterMaxTalkTime);
+        }
+
+
+        return $query;
+    }
+
     public function applyFilter()
     {
-        $this->resetPage(); // Reset pagination when filters change
+        $this->resetPage();
         $this->calculateMetrics();
     }
 
-    /**
-     * Accessor to calculate the Service Level Percentage.
-     */
+    // Accessor for Service Level remains the same
     public function getServiceLevelProperty()
     {
         $answered = $this->metrics->answered_calls ?? 0;
@@ -77,17 +123,12 @@ class CallReport extends Component
             : 'N/A';
     }
 
-    /**
-     * Render the Livewire component view and fetch paginated data.
-     */
     public function render()
     {
-        // 4. Query the call records for the current page
-        $callRecords = StasisCDR::query()
-            ->whereBetween('start_time', [$this->startDate, $this->endDate])
+        $callRecords = $this->buildBaseQuery()
             ->with(['stasisStart', 'stasisEnd'])
             ->latest('start_time')
-            ->paginate(20); // Paginate the results (e.g., 20 per page)
+            ->paginate(20);
 
         return view('live.call-report', [
             'callRecords' => $callRecords,
