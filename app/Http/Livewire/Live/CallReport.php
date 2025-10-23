@@ -128,7 +128,7 @@ class CallReport extends Component
         $callRecords = $this->buildBaseQuery()
             ->with(['stasisStart', 'stasisEnd'])
             ->latest('start_time')
-            ->paginate(20);
+            ->paginate(10);
 
         return view('live.call-report', [
             'callRecords' => $callRecords,
