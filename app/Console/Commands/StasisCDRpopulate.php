@@ -10,7 +10,7 @@ use App\Models\Live\StasisEndEvent;
 // use App\Models\StasisCDR;
 use Carbon\Carbon;
 
-class StasisCDRpopulateCommand extends Command
+class StasisCDRpopulate extends Command
 {
     /**
      * The name and signature of the console command.

@@ -136,7 +136,7 @@ class BotPressAnalyticsService extends Command
                 OtherChannel::updateOrCreate(
                     // 1. Search Criteria (Key that makes the record unique)
                     [
-                        'channel_name' => 'botpress',
+                        'channel_name' => 'chatbot',
                         'channel_date' => $date,
                     ],
                     // 2. Values to Update/Create
