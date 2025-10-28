@@ -10,7 +10,7 @@ class Kernel extends ConsoleKernel
 
     protected $commands = [
         // This array must include your custom command for Artisan to recognize it
-        \App\Console\Commands\ProcessCdrData::class,
+        \App\Console\Commands\StasisCDRpopulateCommand::class,
     ];
     /**
      * Define the application's command schedule.
