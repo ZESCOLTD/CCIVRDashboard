@@ -7,7 +7,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Models\Live\StasisStartEvent;
 use App\Models\Live\StasisEndEvent;
-use App\Models\StasisCDR;
+// use App\Models\StasisCDR;
 use Carbon\Carbon;
 
 class ProcessCdrData extends Command
