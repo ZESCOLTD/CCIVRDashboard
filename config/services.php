@@ -30,4 +30,17 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | BotPress Cloud API Credentials
+    |--------------------------------------------------------------------------
+    */
+
+    'botpress' => [
+        'base_url'     => env('BOTPRESS_BASE_URL', 'https://api.botpress.cloud/v1/admin/bots'),
+        'bot_id'       => env('BOTPRESS_BOT_ID'),
+        'workspace_id' => env('BOTPRESS_WORKSPACE_ID'),
+        'token'        => env('BOTPRESS_TOKEN'),
+    ],
+
 ];

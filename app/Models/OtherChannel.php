@@ -12,5 +12,11 @@ class OtherChannel extends Model
     protected $table = 'other_channels';
 
     protected $connection = 'asterisk_mysql';
-    protected $fillable = ['channel_name', 'channel_date', 'total'];
+    protected $fillable = ['channel_name', 'channel_date', 'total', 'details'];
+
+
+
+    protected $casts = [
+        'details' => 'array',
+    ];
 }
