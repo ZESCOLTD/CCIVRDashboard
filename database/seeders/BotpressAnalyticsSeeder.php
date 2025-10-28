@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Http;
 use Carbon\Carbon;
 use App\Models\BotpressAnalytic;
+use App\Models\OtherChannel;
 use Illuminate\Support\Collection;
 
 class BotpressAnalyticsSeeder extends Seeder
@@ -17,101 +18,125 @@ class BotpressAnalyticsSeeder extends Seeder
      */
     public function run()
     {
-        // Define the local, temporary service class INSTANCE directly inside run()
-        $analyticsService = new class
-        {
-            protected string $baseUrl = 'https://api.botpress.cloud/v1/admin/bots';
-            // **SECURITY WARNING: These values should be loaded from .env/config, not hardcoded.**
-            protected string $botId = '66405f85-1e69-4153-a8df-ab758f7c8ccb';
-            protected string $workspaceId = 'wkspace_01HQ01E629RXXCNSPC8H0A8WJ0';
-            protected string $token = 'bp_pat_Vu3M7SVKhPNeXUChlaBm2mwSwzGIsTbWQpIX';
+        $baseUrl = config('services.botpress.base_url', 'https://api.botpress.cloud/v1/admin/bots');
+        $botId = config('services.botpress.bot_id', '66405f85-1e69-4153-a8df-ab758f7c8ccb'); // Placeholder
+        $workspaceId = config('services.botpress.workspace_id', 'wkspace_01HQ01E629RXXCNSPC8H0A8WJ0'); // Placeholder
+         $token = config('services.botpress.token', 'bp_pat_Tf3JubvbnDYuge9zSQzBGP6RtKedgLnxJ0po'); // Placeholder
 
-            /**
-             * Fetch and summarize Botpress analytics between two dates.
-             *
-             * @param  string  $startDate  Format: YYYY-MM-DD
-             * @param  string  $endDate    Format: YYYY-MM-DD
-             * @return array
-             */
-            public function getAnalyticsSummary(string $startDate, string $endDate): array
-            {
-                $url = "{$this->baseUrl}/{$this->botId}/analytics";
+       if (!$token || !$botId || !$workspaceId) {
+           $this->command->error('BotPress API credentials are missing.');
+           return 1;
+       }
+
+       // Dates for yesterday and the day before yesterday
+    //    $yesterday = Carbon::yesterday()->subDay(1)->format('Y-m-d');
+    //    $yesterday1 = Carbon::yesterday()->subDay(2)->format('Y-m-d');
+
+    //    $dayBefore = Carbon::yesterday()->subDay(2)->format('Y-m-d');
+    //    $dayBefore1 = Carbon::yesterday()->subDay(3)->format('Y-m-d');
+
+       // Dates for yesterday and the day before yesterday
+       $yesterday = Carbon::yesterday()->subDay(2)->format('Y-m-d');
+       $yesterday1 = Carbon::yesterday()->subDay(3)->format('Y-m-d');
+
+       $dayBefore = Carbon::yesterday()->subDay(3)->format('Y-m-d');
+       $dayBefore1 = Carbon::yesterday()->subDay(4)->format('Y-m-d');
 
 
-                // 1. Setup the request headers
-                $request = Http::withHeaders([
-                    'Authorization'   => "Bearer {$this->token}",
-                    'x-workspace-id'  => $this->workspaceId,
-                    'Content-Type'    => 'application/json',
-                ]);
+       // dd($yesterday, $yesterday1, $dayBefore, $dayBefore1);
 
-                // 2. Add the 'verify' => false option to disable SSL verification
-                $response = $request->withOptions([
-                    'verify' => false, // ⬅️ THIS LINE DISABLES SSL VERIFICATION
-                ])->get($url, [
-                    'startDate' => $startDate,
-                    'endDate'   => $endDate,
-                ]);
 
-                if ($response->failed()) {
-                    return [
-                        'error' => true,
-                        'message' => 'Failed to fetch analytics',
-                        'status' => $response->status(),
-                    ];
-                }
+       $datesToFetch = [
+           'yesterday' => $yesterday,
+           'day_before' => $dayBefore,
+       ];
 
-                $records = collect($response->json('records', []));
+       foreach ($datesToFetch as $label => $date) {
+           $this->command->newLine();
+           $this->command->info("Fetching totals for {$label} ({$date})...");
 
-                // Compute totals
-                return [
-                    'startDate'           => $startDate,
-                    'endDate'             => $endDate,
-                    'totalNewUsers'       => $records->sum('newUsers'),
-                    'totalReturningUsers' => $records->sum('returningUsers'),
-                    'totalSessions'       => $records->sum('sessions'),
-                    'totalUserMessages'   => $records->sum('userMessages'),
-                    'totalBotMessages'    => $records->sum('botMessages'),
-                    'totalEvents'         => $records->sum('events'),
-                    'totalLLMCalls'       => $records->sum('llm.calls'),
-                    'totalLLMCost'        => round($records->sum('llm.cost.sum'), 6),
-                ];
-            }
-        };
+           if( $label == 'yesterday'){
+               $startDate = $yesterday1;
+           }
+           if( $label == 'day_before'){
+               $startDate = $dayBefore1;
+           }
 
-        // ... (rest of the run method remains the same)
-        $endDate = Carbon::now()->subDay()->toDateString();
-        $startDate = Carbon::now()->subDays(7)->toDateString();
+           // Botpress analytics endpoint
+           $url = "{$baseUrl}/{$botId}/analytics";
 
-        $this->command->info('Fetching Botpress analytics from ' . $startDate . ' to ' . $endDate . '...');
+           try {
+               $response = Http::withHeaders([
+                   'Authorization'  => "Bearer {$token}",
+                   'x-workspace-id' => $workspaceId,
+                   'Content-Type'   => 'application/json',
+               ])->withOptions(['verify' => false])
+                 ->get($url, [
+                     'startDate' => $startDate,
+                     'endDate'   => $date,
+                 ]);
 
-        $summary = $analyticsService->getAnalyticsSummary($startDate, $endDate);
+               if ($response->failed()) {
+                   $this->command->error("API call failed for {$date} (Status: {$response->status()})");
+                   $this->command->line('Response Body: ' . $response->body());
+                   continue;
+               }
 
-        if (isset($summary['error']) && $summary['error'] === true) {
-            $this->command->error("Failed to fetch analytics: HTTP Status " . ($summary['status'] ?? 'Unknown'));
-            return;
-        }
+               $data = $response->json();
 
-        $this->command->info('Analytics data fetched successfully. Inserting into database...');
+               $records = collect($data['records'] ?? []);
 
-        $dataToInsert = [
-            'start_date'            => $summary['startDate'],
-            'end_date'              => $summary['endDate'],
-            'total_new_users'       => $summary['totalNewUsers'],
-            'total_returning_users' => $summary['totalReturningUsers'],
-            'total_sessions'        => $summary['totalSessions'],
-            'total_user_messages'   => $summary['totalUserMessages'],
-            'total_bot_messages'    => $summary['totalBotMessages'],
-            'total_events'          => $summary['totalEvents'],
-            'total_llm_calls'       => $summary['totalLLMCalls'],
-            'total_llm_cost'        => $summary['totalLLMCost'],
-            'seeded_at'             => Carbon::now(),
-        ];
+               // dd([
+               //     'startDate'           => $startDate,
+               //     'endDate'             => $date,
+               //     'totalNewUsers'       => $records->sum('newUsers'),
+               //     'totalReturningUsers' => $records->sum('returningUsers'),
+               //     'totalSessions'       => $records->sum('sessions'),
+               //     'totalUserMessages'   => $records->sum('userMessages'),
+               //     'totalBotMessages'    => $records->sum('botMessages'),
+               //     'totalEvents'         => $records->sum('events'),
+               //     'totalLLMCalls'       => $records->sum('llm.calls'),
+               //     'totalLLMCost'        => round($records->sum('llm.cost.sum'), 6),
+               // ] );
 
-        // BotpressAnalytic::updateOrCreate(
-        //     ['start_date' => $dataToInsert['start_date'], 'end_date' => $dataToInsert['end_date']],
-        //     $dataToInsert
-        // );
+
+               if ($records->isEmpty()) {
+                   $this->command->comment("No analytics found for {$date}");
+                   continue;
+               }
+
+                 // Deduce and define variables needed for DB insertion and output
+                 $totalBotMessages = $records->sum('botMessages');
+                 $totalSessions = $records->sum('sessions');
+                 $totalUserMessages = $records->sum('userMessages');
+
+
+               // --- START UPDATE OR CREATE LOGIC ---
+            //    OtherChannel::updateOrCreate(
+            //        // 1. Search Criteria (Key that makes the record unique)
+            //        [
+            //            'channel_name' => 'chatbot',
+            //            'channel_date' => $date,
+            //        ],
+            //        // 2. Values to Update/Create
+            //        [
+            //            'total'   => $totalBotMessages,
+            //            'details' => $data, // Model cast handles JSON encoding/decoding
+            //        ]
+            //    );
+               // --- END UPDATE OR CREATE LOGIC ---
+
+
+               $this->command->info("Inserted totals for {$date}: Sessions {$totalSessions}, Users {$totalUserMessages}, Bots {$totalBotMessages}");
+
+           } catch (\Throwable $e) {
+               $this->command->error("Error fetching {$date}: " . $e->getMessage());
+               continue;
+           }
+       }
+
+       $this->command->newLine();
+       $this->command->info('✅ Daily totals successfully updated for yesterday and the day before yesterday.');
 
         $this->command->info('Botpress analytics data seeded successfully! 📊');
     }
