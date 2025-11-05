@@ -1119,7 +1119,7 @@
                         document.getElementById("incoming-call").innerHTML = data.peer.caller.number;
 
                     }
-                    if (data.type === "StasisStart") {
+                    if (data.type === "StasisStart" || data.type === "ChannelDestroyed" || data.type === "ChannelStateChange") {
                         fetchHoldingBridgeData();
                     }
                     if (data.type === "StasisEnd") {

@@ -1219,7 +1219,7 @@
                         var data = JSON.parse(event.data);
 
                         if (data.type != undefined) {
-                            if (data.type == "StasisStart" || data.type == "StasisEnd") {
+                            if (data.type == "StasisStart" || data.type == "StasisEnd"  || data.type === "ChannelDestroyed" || data.type === "ChannelStateChange") {
 
                                 console.log("Message from server:", event.data);
                                 prob();
