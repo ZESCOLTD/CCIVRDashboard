@@ -90,4 +90,16 @@ class Recordings extends Model
     {
         return $this->hasMany(RecordingComment::class, 'recordings_id', 'id');
     }
+
+    /**
+     * Get the StasisCDR (Call Data Record) associated with this recording.
+     * We link using the file_name as the unique identifier.
+     * * NOTE: This assumes the 'stasis_cdr' table has a 'recording_file_name' column
+     * populated by your event processing logic.
+     */
+    public function stasisCdr()
+    {
+        // Link StasisCDR's recording_file_name (FK) to this model's file_name (Local Key)
+        return $this->hasOne(StasisCDR::class, 'recording_file_name', 'file_name');
+    }
 }

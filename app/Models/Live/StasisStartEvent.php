@@ -65,5 +65,17 @@ class StasisStartEvent extends Model
             // ->where('type', 'StasisEnd');
     }
 
+    /**
+     * Accessor to retrieve the recording file name from the 'args' array.
+     * Based on the configuration, the file name is the fifth element (index 4).
+     *
+     * @return string|null
+     */
+    public function getRecordingFileNameAttribute(): ?string
+    {
+        // The fifth item in a zero-indexed array is at index 4.
+        return $this->args[4] ?? null;
+    }
+
 
 }

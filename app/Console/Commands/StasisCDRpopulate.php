@@ -7,7 +7,6 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use App\Models\Live\StasisStartEvent;
 use App\Models\Live\StasisEndEvent;
-// use App\Models\StasisCDR;
 use Carbon\Carbon;
 
 class StasisCDRpopulate extends Command
@@ -110,6 +109,10 @@ class StasisCDRpopulate extends Command
             $talkTimeSeconds = ($isAnswered && $endTime) ? $endTime->diffInSeconds($answerTime) : null;
             $ringDurationSeconds = $endTime ? $endTime->diffInSeconds($startTime) : null;
 
+            // --- Extract Recording File Name ---
+            // This relies on the `recording_file_name` accessor in the StasisStartEvent model
+            $recordingFileName = $callerStart->recording_file_name;
+
             // --- Classification Logic ---
             $isAbandoned = false;
             $isShortMiss = false;
@@ -130,6 +133,7 @@ class StasisCDRpopulate extends Command
                     'stasis_end_event_id' => $callerEnd ? $callerEnd->id : null,
                     'callee_channel_id' => $calleeAnswer ? $calleeAnswer->channel_id : null,
                     'caller_number' => $callerStart->caller_number,
+                    'file_name' => $recordingFileName, // <-- New field insertion
                     'start_time' => $startTime,
                     'answer_time' => $answerTime,
                     'end_time' => $endTime,
