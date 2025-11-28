@@ -97,9 +97,16 @@ class Recordings extends Model
      * * NOTE: This assumes the 'stasis_cdr' table has a 'recording_file_name' column
      * populated by your event processing logic.
      */
+    // public function stasisCdr()
+    // {
+    //     // Link StasisCDR's recording_file_name (FK) to this model's file_name (Local Key)
+    //     return $this->hasOne(StasisCDR::class, 'recording_file_name', 'file_name');
+    // }
+
     public function stasisCdr()
     {
-        // Link StasisCDR's recording_file_name (FK) to this model's file_name (Local Key)
-        return $this->hasOne(StasisCDR::class, 'recording_file_name', 'file_name');
+        // FIX: Explicitly setting 'file_name' as both the foreign key (on the recordings table)
+        // and the owner key (on the stasis_cdr table) prevents the "Unknown column" error.
+        return $this->belongsTo(StasisCDR::class, 'file_name', 'file_name');
     }
 }

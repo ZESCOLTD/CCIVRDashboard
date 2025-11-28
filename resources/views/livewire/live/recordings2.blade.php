@@ -107,7 +107,7 @@
                                             <th>Name </th>
                                             <th>Duration </th>
                                             <th>Date</th>
-                                            {{-- <th>Duration (sec) </th> --}}
+                                            <th>CDR Details </th>
                                             <th>Actions</th>
                                             {{-- <th>Actions</th> --}}
                                         </tr>
@@ -136,7 +136,17 @@
                                                     {{ $recording->call_duration ?? '-' }}
                                                 </td>
                                                 <td>{{ $recording->created_at ?? '--' }}</td>
-                                                {{-- <td>{{ $recording->duration }}</td> --}}
+                                                {{-- CDR DETAILS LINK: Use the stasisCdr relationship to get the ID --}}
+                                                <td>
+                                                    @if ($recording->stasisCdr)
+                                                        <a href="{{ route('stasis-cdr.show', ['id' => $recording->stasisCdr->id]) }}"
+                                                            class="btn btn-sm btn-outline-info">
+                                                            View CDR
+                                                        </a>
+                                                    @else
+                                                        <span class="text-danger">CDR Not Found</span>
+                                                    @endif
+                                                </td>
                                                 <td>
 
                                                     <div class="d-inline">

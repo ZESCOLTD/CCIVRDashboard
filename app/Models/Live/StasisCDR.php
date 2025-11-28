@@ -35,6 +35,10 @@ class StasisCDR extends Model
     // Since this table is populated by a controlled background job/seeder, we can unguard all fields.
     protected $guarded = [];
 
+    protected $fillable = [
+        'file_name',
+    ];
+
     protected $casts = [
         // Timestamps
         'start_time' => 'datetime',

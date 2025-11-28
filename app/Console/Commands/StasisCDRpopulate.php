@@ -111,7 +111,7 @@ class StasisCDRpopulate extends Command
 
             // --- Extract Recording File Name ---
             // This relies on the `recording_file_name` accessor in the StasisStartEvent model
-            $recordingFileName = $callerStart->recording_file_name;
+            $recordingFileName = $calleeAnswer->recording_file_name;
 
             // --- Classification Logic ---
             $isAbandoned = false;
