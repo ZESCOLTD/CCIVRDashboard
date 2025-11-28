@@ -1,4 +1,3 @@
-
 <div class="container mt-4">
     <div class="card shadow">
         <div class="card-body">
@@ -44,11 +43,11 @@
                     <p class="lead font-weight-bold">{{ $cdr->caller_number }}</p>
                 </div>
                 <div class="col-md-5 mb-3">
-                    <p class="text-muted mb-0">Caller Channel ID</p>
+                    <p class="text-muted mb-0">Caller Channel ID (A-Leg)</p>
                     <p class="text-monospace small">{{ $cdr->caller_channel_id }}</p>
                 </div>
                 <div class="col-md-4 mb-3">
-                    <p class="text-muted mb-0">Callee Channel ID (Answer Leg)</p>
+                    <p class="text-muted mb-0">Callee Channel ID (B-Leg)</p>
                     <p class="text-monospace small">{{ $cdr->callee_channel_id ?? 'N/A' }}</p>
                 </div>
             </div>
@@ -91,27 +90,79 @@
                 </div>
             </div>
 
-            <h5 class="mt-4 mb-3 border-bottom pb-1 text-primary">Raw Event Auditing</h5>
+            {{-- START: Updated Raw Event Auditing Section --}}
+            <h5 class="mt-4 mb-3 border-bottom pb-1 text-primary">Raw Event Auditing (A-Leg and B-Leg)</h5>
             <div class="row">
-                <div class="col-md-6 mb-3">
-                    <p class="text-muted mb-0">Stasis Start Event ID</p>
-                    <a href="/stasis-start/{{ $cdr->stasis_start_event_id }}" class="text-info font-weight-bold">
-                        {{ $cdr->stasis_start_event_id }}
-                    </a>
-                    <small class="d-block text-muted">Original call initiation event.</small>
+                {{-- CALLER LEG (A-LEG) --}}
+                <div class="col-md-6 mb-4">
+                    <div class="p-3 bg-light border rounded h-100">
+                        <h6 class="text-dark font-weight-bold mb-3">1. Caller Leg (A-Leg) Events</h6>
+
+                        <p class="text-muted mb-0">Stasis Start Event ID</p>
+                        @if($cdr->stasisStart)
+                            <a href="/stasis-start/{{ $cdr->stasisStart->id }}" class="text-info font-weight-bold">
+                                {{ $cdr->stasisStart->id }}
+                            </a>
+                            <small class="d-block text-muted">Original call initiation event.</small>
+                        @else
+                            <span class="text-danger">Not Found</span>
+                        @endif
+
+                        <p class="text-muted mb-0 mt-3">Stasis End Event ID</p>
+                        @if($cdr->stasisEnd)
+                            <a href="/stasis-end/{{ $cdr->stasisEnd->id }}" class="text-info font-weight-bold">
+                                {{ $cdr->stasisEnd->id }}
+                            </a>
+                            <small class="d-block text-muted">A-Leg termination event.</small>
+                        @else
+                            <span class="text-secondary font-weight-bold">Active / Not Found</span>
+                        @endif
+                    </div>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <p class="text-muted mb-0">Stasis End Event ID</p>
-                    @if($cdr->stasis_end_event_id)
-                        <a href="/stasis-end/{{ $cdr->stasis_end_event_id }}" class="text-info font-weight-bold">
-                            {{ $cdr->stasis_end_event_id }}
-                        </a>
-                        <small class="d-block text-muted">Call termination event.</small>
-                    @else
-                        <span class="text-secondary font-weight-bold">Call Still Active</span>
-                    @endif
+
+                {{-- AGENT LEG (B-LEG) --}}
+                <div class="col-md-6 mb-4">
+                    <div class="p-3 bg-light border rounded h-100">
+                        <h6 class="text-dark font-weight-bold mb-3">2. Agent Leg (B-Leg) Events</h6>
+                        @if ($cdr->callee_channel_id)
+
+                            <p class="text-muted mb-0">Stasis Start Event ID (Agent Ring)</p>
+                            @if($cdr->calleeStasisStart)
+                                <a href="/stasis-start/{{ $cdr->calleeStasisStart->id }}" class="text-info font-weight-bold">
+                                    {{ $cdr->calleeStasisStart->id }}
+                                </a>
+                                <small class="d-block text-muted">Agent channel initiation event.</small>
+                            @else
+                                <span class="text-secondary">Start Event Not Found</span>
+                            @endif
+
+                            <p class="text-muted mb-0 mt-3">Stasis End Event ID (Agent Hangup)</p>
+                            @if($cdr->calleeStasisEnd)
+                                <a href="/stasis-end/{{ $cdr->calleeStasisEnd->id }}" class="text-info font-weight-bold">
+                                    {{ $cdr->calleeStasisEnd->id }}
+                                </a>
+                                <small class="d-block text-muted">B-Leg termination event.</small>
+                            @else
+                                <span class="text-secondary">End Event Not Found / Active</span>
+                            @endif
+                        @else
+                            <div class="alert alert-light border m-0">No Callee Channel ID recorded (Call not attempted to agent).</div>
+                        @endif
+                    </div>
                 </div>
             </div>
+            {{-- END: Updated Raw Event Auditing Section --}}
+
+            {{-- RECORDING LINK (Optional but helpful) --}}
+            @if ($cdr->recording)
+                <h5 class="mt-4 mb-3 border-bottom pb-1 text-primary">Call Recording</h5>
+                <audio controls class="w-100 mb-4"
+                    title='Recording: {{ $cdr->file_name }}'
+                    src="{{ $cdr->recording->file_url ?? url("audio", ['file'=>$cdr->file_name,'extension'=>'wav']) }}"
+                    type="audio/wave">
+                    Your browser does not support the audio element.
+                </audio>
+            @endif
 
         </div>
     </div>

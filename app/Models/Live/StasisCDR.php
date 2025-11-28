@@ -7,6 +7,7 @@ use App\Models\Live\StasisStartEvent;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne; // <-- Added HasOne for B-Leg events
 
 /**
  * @property int $stasis_start_event_id
@@ -25,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * @property int|null $ring_duration_seconds
  * @property int|null $time_to_answer_seconds
  * @property int|null $talk_time_seconds
+ * @property string|null $file_name
  */
 class StasisCDR extends Model
 {
@@ -56,6 +58,12 @@ class StasisCDR extends Model
         'talk_time_seconds' => 'integer',
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | A-LEG (CALLER) EVENT RELATIONSHIPS (Linked by Event ID)
+    |--------------------------------------------------------------------------
+    */
+
     /**
      * Get the original StasisStartEvent that initiated this call (inbound leg).
      */
@@ -65,11 +73,52 @@ class StasisCDR extends Model
     }
 
     /**
-     * Get the final StasisEndEvent that terminated the call.
+     * Get the final StasisEndEvent that terminated the A-leg.
      */
     public function stasisEnd(): BelongsTo
     {
         // This relationship is nullable since a call might still be active (end_time is null)
         return $this->belongsTo(StasisEndEvent::class, 'stasis_end_event_id');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | B-LEG (CALLEE/AGENT) EVENT RELATIONSHIPS (Linked by Channel ID)
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Get the StasisStartEvent for the Callee (Agent) leg.
+     * This uses the callee_channel_id to find the start event record.
+     */
+    public function calleeStasisStart(): HasOne
+    {
+        // Links stasis_cdr.callee_channel_id to stasis_start_event.channel_id
+        return $this->hasOne(StasisStartEvent::class, 'channel_id', 'callee_channel_id');
+    }
+
+    /**
+     * Get the StasisEndEvent for the Callee (Agent) leg.
+     * This uses the callee_channel_id to find the end event record.
+     */
+    public function calleeStasisEnd(): HasOne
+    {
+        // Links stasis_cdr.callee_channel_id to stasis_end_event.channel_id
+        return $this->hasOne(StasisEndEvent::class, 'channel_id', 'callee_channel_id');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | RECORDING RELATIONSHIP (Linked by File Name)
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Get the associated Recording metadata.
+     */
+    public function recording(): HasOne
+    {
+        // Links stasis_cdr.file_name to recordings.file_name
+        return $this->hasOne(Recordings::class, 'file_name', 'file_name');
     }
 }
