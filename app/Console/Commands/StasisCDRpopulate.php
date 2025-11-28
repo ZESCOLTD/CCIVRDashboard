@@ -89,15 +89,20 @@ class StasisCDRpopulate extends Command
         // 3. Process each call attempt to determine its fate and metrics
         foreach ($callerStartEvents as $callerStart) {
 
-            // Look for a corresponding ANSWER (StasisStart with 'Up') event
-            // Linked via the caller's channel_id stored in the callee's args[2]
+            // Look for a corresponding ANSWER (StasisStart with 'Up') event on the callee leg.
+            // We constrain this search to events that occurred AFTER the callerStart event
+            // to prevent issues with channel ID reuse or out-of-order event ingestion.
             $calleeAnswer = StasisStartEvent::where(DB::raw('JSON_UNQUOTE(JSON_EXTRACT(args, "$[2]"))'), $callerStart->channel_id)
                 ->where('channel_state', 'Up')
                 ->where('channel_name', 'not like', $inbound_trunk_prefix)
+                ->where('timestamp', '>', $callerStart->timestamp) // <-- Added time constraint
                 ->first();
 
-            // Look for a corresponding HANGUP (StasisEnd) event on the caller's channel
-            $callerEnd = StasisEndEvent::where('channel_id', $callerStart->channel_id)->first();
+            // Look for a corresponding HANGUP (StasisEnd) event on the caller's channel.
+            // Constrain this search to events that occurred AFTER the callerStart event.
+            $callerEnd = StasisEndEvent::where('channel_id', $callerStart->channel_id)
+                ->where('timestamp', '>', $callerStart->timestamp) // <-- Added time constraint
+                ->first();
 
             // --- Determine Timestamps and Classification ---
             $isAnswered = (bool)$calleeAnswer;
@@ -105,13 +110,13 @@ class StasisCDRpopulate extends Command
             $endTime = $callerEnd ? Carbon::parse($callerEnd->timestamp) : null;
             $startTime = Carbon::parse($callerStart->timestamp);
 
+            // Ensure durations are calculated, even if they result in null
             $timeToAnswerSeconds = $isAnswered ? $answerTime->diffInSeconds($startTime) : null;
             $talkTimeSeconds = ($isAnswered && $endTime) ? $endTime->diffInSeconds($answerTime) : null;
             $ringDurationSeconds = $endTime ? $endTime->diffInSeconds($startTime) : null;
 
             // --- Extract Recording File Name ---
-            // This relies on the `recording_file_name` accessor in the StasisStartEvent model
-            $recordingFileName = $calleeAnswer->recording_file_name;
+            $recordingFileName = $calleeAnswer->recording_file_name ?? null;
 
             // --- Classification Logic ---
             $isAbandoned = false;
@@ -125,28 +130,36 @@ class StasisCDRpopulate extends Command
                 }
             }
 
-            // --- Insert or Update the Call Detail Record (CDR) ---
-            LiveStasisCDR::updateOrCreate(
-                ['caller_channel_id' => $callerStart->channel_id],
-                [
-                    'stasis_start_event_id' => $callerStart->id,
-                    'stasis_end_event_id' => $callerEnd ? $callerEnd->id : null,
-                    'callee_channel_id' => $calleeAnswer ? $calleeAnswer->channel_id : null,
-                    'caller_number' => $callerStart->caller_number,
-                    'file_name' => $recordingFileName, // <-- New field insertion
-                    'start_time' => $startTime,
-                    'answer_time' => $answerTime,
-                    'end_time' => $endTime,
-                    'agent_name' => $calleeAnswer ? $calleeAnswer->caller_name : null,
-                    'agent_extension' => $calleeAnswer ? explode('-', $calleeAnswer->channel_name)[0] : null,
-                    'is_answered' => $isAnswered,
-                    'is_abandoned' => $isAbandoned,
-                    'is_short_miss' => $isShortMiss,
-                    'ring_duration_seconds' => $ringDurationSeconds,
-                    'time_to_answer_seconds' => $timeToAnswerSeconds,
-                    'talk_time_seconds' => $talkTimeSeconds,
-                ]
-            );
+            // --- Define the data payload to save/update ---
+            $cdrData = [
+                // REQUIRED NON-NULLABLE FIELDS (must be set)
+                'stasis_start_event_id' => $callerStart->id,
+                'caller_number' => $callerStart->caller_number,
+                'start_time' => $startTime,
+                'is_answered' => $isAnswered,
+                'is_abandoned' => $isAbandoned,
+                'is_short_miss' => $isShortMiss,
+
+                // OPTIONAL/NULLABLE FIELDS (can be set to null)
+                'stasis_end_event_id' => $callerEnd ? $callerEnd->id : null,
+                'callee_channel_id' => $calleeAnswer ? $calleeAnswer->channel_id : null,
+                'file_name' => $recordingFileName,
+                'answer_time' => $answerTime,
+                'end_time' => $endTime,
+                'agent_name' => $calleeAnswer ? $calleeAnswer->caller_name : null,
+                'agent_extension' => $calleeAnswer ? explode('-', $calleeAnswer->channel_name)[0] : null,
+                'ring_duration_seconds' => $ringDurationSeconds,
+                'time_to_answer_seconds' => $timeToAnswerSeconds,
+                'talk_time_seconds' => $talkTimeSeconds,
+            ];
+
+            // --- Use firstOrNew and save for better control over inserts ---
+            $cdr = LiveStasisCDR::firstOrNew(['caller_channel_id' => $callerStart->channel_id]);
+
+            // Fill the model with the prepared data payload and save
+            $cdr->fill($cdrData);
+            $cdr->save();
+
             $processedCount++;
             $progressBar->advance();
         }

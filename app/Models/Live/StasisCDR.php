@@ -34,12 +34,30 @@ class StasisCDR extends Model
 
     protected $table = 'stasis_cdr';
 
-    // Since this table is populated by a controlled background job/seeder, we can unguard all fields.
-    protected $guarded = [];
-
+    // The preferred method for mass assignment is to list all fillable columns.
     protected $fillable = [
-        'file_name',
+        'stasis_start_event_id',
+        'stasis_end_event_id',
+        'caller_channel_id',
+        'callee_channel_id',
+        'caller_number',
+        'file_name', // Existing field
+        'start_time',
+        'answer_time',
+        'end_time',
+        'agent_name',
+        'agent_extension',
+        'is_answered',
+        'is_abandoned',
+        'is_short_miss',
+        'ring_duration_seconds',
+        'time_to_answer_seconds',
+        'talk_time_seconds',
     ];
+
+    // Since we explicitly defined $fillable, we don't need to specify $guarded = []
+    // But keeping it as you had it ensures maximum compatibility.
+    protected $guarded = [];
 
     protected $casts = [
         // Timestamps
