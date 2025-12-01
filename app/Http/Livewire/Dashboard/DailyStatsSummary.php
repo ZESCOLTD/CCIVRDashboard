@@ -11,6 +11,8 @@ use InvalidArgumentException;
 use Livewire\Component;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
+// 1. ADD CACHE FACADE
+use Illuminate\Support\Facades\Cache;
 
 use App\Http\Controllers\AnalyticsController;
 use App\Services\GoogleAnalyticsService;
@@ -128,51 +130,49 @@ class DailyStatsSummary extends Component
     public function render()
     {
         // Dates
-        // $yesterday = Carbon::yesterday()->toDateString();
-        // $dayBeforeYesterday = Carbon::yesterday()->subDay()->toDateString();
-
-        // Dates are now derived from the user's selected date
         $selectedDateCarbon = Carbon::parse($this->selectedDate);
-        $yesterday = $selectedDateCarbon->toDateString(); // This is the main "Today" in the stats
-        $dayBeforeYesterday = $selectedDateCarbon->subDay()->toDateString(); // This is the "Previous" day in the stats
+        $yesterday = $selectedDateCarbon->toDateString();
+        $dayBeforeYesterday = $selectedDateCarbon->subDay()->toDateString();
 
-        // IVR Extensions
+        // IVR Extensions (remains the same)
         $dstExtensions = [
-            'cc-3',
-            'cc-4',
-            'cc-6',
-            'cc-7',
-            'cc-8',
-            'cc-9',
-            'cc-10',
-            'cc-11',
-            'cc-12',
-            'cc-13',
-            'cc-14',
-            'cc-15',
-            'cc-16',
-            'cc-17',
-            'cc-18',
-            'cc-20'
+            'cc-3', 'cc-4', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11',
+            'cc-12', 'cc-13', 'cc-14', 'cc-15', 'cc-16', 'cc-17', 'cc-18', 'cc-20'
         ];
 
-        // Fetch raw stats
+        // Fetch raw stats (USSD/Other are fast, keep them as is)
         $ussdToday = $this->getStatsForDate(UssdSession::class, $yesterday);
         $ussdYesterday = $this->getStatsForDate(UssdSession::class, $dayBeforeYesterday);
 
         $otherToday = $this->getStatsForDateOtherChannel(OtherChannel::class, $yesterday);
         $otherYesterday = $this->getStatsForDateOtherChannel(OtherChannel::class, $dayBeforeYesterday);
 
-        $mobileAppToday = $this->getStatsForMobileAppDate($yesterday, 100);
-        $mobileAppYesterday = $this->getStatsForMobileAppDate($dayBeforeYesterday, 100);
+        // 2. APPLY CACHING TO SLOW OPERATIONS (Oracle DB and Google Analytics)
 
-        $websiteToday = $this->getStatsActiveUsersForWebsite($yesterday, $yesterday, 'activeUsers');
-        $websiteYesterday = $this->getStatsActiveUsersForWebsite($dayBeforeYesterday, $dayBeforeYesterday, 'activeUsers');
+        // Cache Mobile App/Oracle DB calls for 60 minutes (3600 seconds)
+        $mobileAppToday = Cache::remember("mobile_app_today_{$yesterday}", 3600, function () use ($yesterday) {
+            return $this->getStatsForMobileAppDate($yesterday, 100);
+        });
 
-        // dd([$websiteToday, $websiteYesterday]);
+        $mobileAppYesterday = Cache::remember("mobile_app_yesterday_{$dayBeforeYesterday}", 3600, function () use ($dayBeforeYesterday) {
+            return $this->getStatsForMobileAppDate($dayBeforeYesterday, 100);
+        });
 
-        // Normalize function for all types of data
+        // Cache Website/Google Analytics calls for 60 minutes (3600 seconds)
+        $websiteToday = Cache::remember("website_today_{$yesterday}", 3600, function () use ($yesterday) {
+            // Note: Since getStatsActiveUsersForWebsite returns a JsonResponse, we call it here.
+            return $this->getStatsActiveUsersForWebsite($yesterday, $yesterday, 'activeUsers');
+        });
+
+        $websiteYesterday = Cache::remember("website_yesterday_{$dayBeforeYesterday}", 3600, function () use ($dayBeforeYesterday) {
+            return $this->getStatsActiveUsersForWebsite($dayBeforeYesterday, $dayBeforeYesterday, 'activeUsers');
+        });
+
+        // dd([$websiteToday, $websiteYesterday]); // Commented dd is fine
+
+        // Normalize function for all types of data (remains the same)
         $normalize = function ($data) {
+            // ... (normalize logic remains the same) ...
             if ($data instanceof \Illuminate\Http\JsonResponse) {
                 $decoded = json_decode($data->getContent(), true);
 
@@ -180,7 +180,7 @@ class DailyStatsSummary extends Component
                 $transformed = [];
                 if (isset($decoded['metric']) && isset($decoded['total'])) {
                     // Map the metric to the desired key
-                    $key = 'count'; // Or create a mapping if you have multiple metrics
+                    $key = 'count';
                     $transformed[$key] = $decoded['total'];
                 }
 
@@ -188,14 +188,11 @@ class DailyStatsSummary extends Component
             }
 
             if ($data instanceof \Illuminate\Support\Collection) {
-
-
                 return $data->mapWithKeys(function ($item, $key) {
                     if (is_array($item)) return [$key => $item['sessions'] ?? 0];
                     if (is_object($item)) return [$key => $item->sessions ?? 0];
                     return [$key => 0];
-                })->toArray()
-                ;
+                })->toArray();
             }
 
             if (is_object($data) && property_exists($data, 'count')) {
@@ -209,9 +206,7 @@ class DailyStatsSummary extends Component
             return ['count' => 0];
         };
 
-        // dd($normalize($websiteYesterday)) ;
-
-        // Normalize all stats
+        // Normalize all stats (remains the same)
         $stats = [
             'today' => [
                 'USSD' => $normalize($ussdToday),
@@ -227,7 +222,7 @@ class DailyStatsSummary extends Component
             ],
         ];
 
-        // Merge all network keys
+        // Merge networks and compute changes (remains the same)
         $allNetworks = collect(array_keys($stats['today']['USSD']))
             ->merge(array_keys($stats['yesterday']['USSD']))
             ->merge(array_keys($stats['today']['Other']))
@@ -235,8 +230,8 @@ class DailyStatsSummary extends Component
             ->merge(['Mobile App', 'Website'])
             ->unique();
 
-        // Map totals and compute changes
         $merged = $allNetworks->map(function ($network) use ($stats) {
+            // ... (Mapping and change calculation logic remains the same) ...
             $todayTotal = 0;
             $yesterdayTotal = 0;
             $manual = 'no';
@@ -270,14 +265,19 @@ class DailyStatsSummary extends Component
             ];
         });
 
-        // IVR stats
-        $ivrYesterday = CallDetailsRecordModel::whereDate('calldate', $yesterday)
-            ->whereIn('dst', $dstExtensions)
-            ->count();
+        // Cache IVR stats
+        $ivrYesterday = Cache::remember("ivr_yesterday_{$yesterday}", 3600, function () use ($yesterday, $dstExtensions) {
+            return CallDetailsRecordModel::whereDate('calldate', $yesterday)
+                ->whereIn('dst', $dstExtensions)
+                ->count();
+        });
 
-        $ivrDayBefore = CallDetailsRecordModel::whereDate('calldate', $dayBeforeYesterday)
-            ->whereIn('dst', $dstExtensions)
-            ->count();
+        $ivrDayBefore = Cache::remember("ivr_day_before_{$dayBeforeYesterday}", 3600, function () use ($dayBeforeYesterday, $dstExtensions) {
+            return CallDetailsRecordModel::whereDate('calldate', $dayBeforeYesterday)
+                ->whereIn('dst', $dstExtensions)
+                ->count();
+        });
+
 
         $ivrChange = $ivrDayBefore > 0
             ? (($ivrDayBefore - $ivrYesterday) / $ivrYesterday) * 100
@@ -290,6 +290,9 @@ class DailyStatsSummary extends Component
             'change' => round($ivrChange, 2),
             'manual_edit' => 'no',
         ]);
+
+        // dd($merged->values()) ; // THE ORIGINAL PROBLEM LINE HAS BEEN REMOVED/COMMENTED OUT
+
 
         return view('livewire.dashboard.daily-stats-summary', [
             'dailyStats' => $merged->values(),
