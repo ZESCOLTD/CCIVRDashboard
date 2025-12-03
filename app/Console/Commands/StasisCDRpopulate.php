@@ -23,7 +23,7 @@ class StasisCDRpopulate extends Command
      *
      * @var string
      */
-    protected $description = 'Processes raw Stasis events to generate and persist Call Detail Records (CDR) incrementally or historically.';
+    protected $description = 'Processes raw Stasis events to generate and persist Call Detail Records (CDR) efficiently, incrementally or historically.';
 
     /**
      * Execute the console command.
@@ -33,27 +33,27 @@ class StasisCDRpopulate extends Command
         $this->info('Starting CDR data processing...');
 
         // --- Configuration ---
+        // Prefix to identify the main inbound trunk channels (e.g., PJSIP/provider-name-channel-XXXX)
         $inbound_trunk_prefix = 'PJSIP/alice%';
+        // The duration in seconds after which an un-answered call is classified as "Abandoned"
         $abandonment_threshold_seconds = 15;
         $time_end = Carbon::now()->toDateTimeString();
 
         // 1. DYNAMIC DATE RANGE DETERMINATION
         if ($this->option('from')) {
             // --- BACKFILL MODE ---
-            // If the --from option is provided, process all data from that date until now.
             $time_start = Carbon::parse($this->option('from'))->startOfDay()->toDateTimeString();
             $this->comment("Running in HISTORICAL BACKFILL MODE from {$time_start} to {$time_end}.");
         } else {
             // --- INCREMENTAL MODE (Default for cron) ---
-            // Find the latest processed time in the CDR table to start from.
             $latestCdrTime = LiveStasisCDR::max('start_time');
 
             if ($latestCdrTime) {
-                // Start 5 minutes before the last processed time to catch any stragglers or late-arriving events.
-                $time_start = Carbon::parse($latestCdrTime)->subMinutes(5)->toDateTimeString();
-                $this->comment("Running in INCREMENTAL MODE. Starting from last record time (with 5 min look-back).");
+                // Look back 15 minutes to catch any events that arrived late or were incomplete in the last run.
+                $time_start = Carbon::parse($latestCdrTime)->subMinutes(15)->toDateTimeString();
+                $this->comment("Running in INCREMENTAL MODE. Starting from last record time (with 15 min look-back).");
             } else {
-                // First run: Find the absolute earliest event to process everything from the beginning.
+                // First run
                 $firstEvent = StasisStartEvent::min('timestamp');
                 if (!$firstEvent) {
                     $this->comment('No Stasis events found. Skipping CDR processing.');
@@ -66,15 +66,20 @@ class StasisCDRpopulate extends Command
 
         $this->comment("Processing window: {$time_start} to {$time_end}");
 
-        // 2. Fetch all unique inbound calls (StasisStart events in Ring state on the trunk)
-        $callerStartEvents = StasisStartEvent::where('channel_name', 'like', $inbound_trunk_prefix)
+        // 2. Define the base query for all unique inbound calls and count total attempts
+        $callerStartQuery = StasisStartEvent::where('channel_name', 'like', $inbound_trunk_prefix)
             ->where('channel_state', 'Ring')
             ->whereBetween('timestamp', [$time_start, $time_end])
-            // Optimization: If running historically, we can limit the data to records not yet in StasisCDR.
-            // However, updateOrCreate handles this fine, so we proceed with the time range filter.
-            ->get();
+            // ** NEW OPTIMIZATION: Skip records that already exist in the CDR table **
+            ->whereNotIn('channel_id', function ($query) {
+                $query->select('caller_channel_id')
+                      ->from((new LiveStasisCDR)->getTable());
+            })
+            // Must order by ID for chunkById to work correctly
+            ->orderBy('id');
 
-        $totalAttempts = $callerStartEvents->count();
+        // Note: Counting the total attempts is generally fast, but the following chunking prevents memory exhaustion.
+        $totalAttempts = $callerStartQuery->count();
         $this->info("Found {$totalAttempts} new/unprocessed inbound call attempts.");
 
         if ($totalAttempts === 0) {
@@ -85,84 +90,111 @@ class StasisCDRpopulate extends Command
         $progressBar = $this->output->createProgressBar($totalAttempts);
         $progressBar->start();
         $processedCount = 0;
+        $chunkSize = 1000; // Process 1,000 records at a time
 
-        // 3. Process each call attempt to determine its fate and metrics
-        foreach ($callerStartEvents as $callerStart) {
+        // 3. Process records in chunks (MEMORY OPTIMIZATION)
+        // This replaces the $callerStartEvents->get() call and the main foreach loop.
+        $callerStartQuery->chunkById($chunkSize, function ($callerStartChunk) use (
+            $time_start, $time_end, $inbound_trunk_prefix, $abandonment_threshold_seconds,
+            &$progressBar, &$processedCount
+        ) {
+            // Get all channel IDs for the current chunk
+            $channelIdsToProcess = $callerStartChunk->pluck('channel_id')->toArray();
 
-            // Look for a corresponding ANSWER (StasisStart with 'Up') event on the callee leg.
-            // We constrain this search to events that occurred AFTER the callerStart event
-            // to prevent issues with channel ID reuse or out-of-order event ingestion.
-            $calleeAnswer = StasisStartEvent::where(DB::raw('JSON_UNQUOTE(JSON_EXTRACT(args, "$[2]"))'), $callerStart->channel_id)
+            // OPTIMIZATION: Bulk fetch required END and ANSWER events for the current chunk only.
+            // This prevents loading all 14k+ events into memory at once.
+            $callerEndEvents = StasisEndEvent::whereIn('channel_id', $channelIdsToProcess)
+                ->whereBetween('timestamp', [$time_start, $time_end])
+                ->get()
+                ->keyBy('channel_id');
+
+            // Pre-fetch all ANSWER events (StasisStart 'Up')
+            $calleeAnswerEvents = StasisStartEvent::where(DB::raw('JSON_UNQUOTE(JSON_EXTRACT(args, "$[2]"))'), 'IN', $channelIdsToProcess)
                 ->where('channel_state', 'Up')
                 ->where('channel_name', 'not like', $inbound_trunk_prefix)
-                ->where('timestamp', '>', $callerStart->timestamp) // <-- Added time constraint
-                ->first();
+                ->whereBetween('timestamp', [$time_start, $time_end])
+                ->get()
+                // Key the collection by the caller's channel_id (which is args[2]) for fast lookup
+                ->keyBy(function ($item) {
+                    return json_decode($item->args)[2] ?? null;
+                });
 
-            // Look for a corresponding HANGUP (StasisEnd) event on the caller's channel.
-            // Constrain this search to events that occurred AFTER the callerStart event.
-            $callerEnd = StasisEndEvent::where('channel_id', $callerStart->channel_id)
-                ->where('timestamp', '>', $callerStart->timestamp) // <-- Added time constraint
-                ->first();
+            // 4. Process each call attempt in the current chunk
+            foreach ($callerStartChunk as $callerStart) {
+                $callerChannelId = $callerStart->channel_id;
+                $startTime = Carbon::parse($callerStart->timestamp);
 
-            // --- Determine Timestamps and Classification ---
-            $isAnswered = (bool)$calleeAnswer;
-            $answerTime = $calleeAnswer ? Carbon::parse($calleeAnswer->timestamp) : null;
-            $endTime = $callerEnd ? Carbon::parse($callerEnd->timestamp) : null;
-            $startTime = Carbon::parse($callerStart->timestamp);
+                // In-memory lookup: Find the corresponding ANSWER
+                $calleeAnswer = $calleeAnswerEvents->get($callerChannelId);
 
-            // Ensure durations are calculated, even if they result in null
-            $timeToAnswerSeconds = $isAnswered ? $answerTime->diffInSeconds($startTime) : null;
-            $talkTimeSeconds = ($isAnswered && $endTime) ? $endTime->diffInSeconds($answerTime) : null;
-            $ringDurationSeconds = $endTime ? $endTime->diffInSeconds($startTime) : null;
+                // In-memory lookup: Find the corresponding HANGUP
+                $callerEnd = $callerEndEvents->get($callerChannelId);
 
-            // --- Extract Recording File Name ---
-            $recordingFileName = $calleeAnswer->recording_file_name ?? null;
+                // --- Determine Timestamps and Classification ---
+                $isAnswered = (bool)$calleeAnswer;
+                $answerTime = $calleeAnswer ? Carbon::parse($calleeAnswer->timestamp) : null;
+                $endTime = $callerEnd ? Carbon::parse($callerEnd->timestamp) : null;
 
-            // --- Classification Logic ---
-            $isAbandoned = false;
-            $isShortMiss = false;
+                // Ensure durations are calculated, even if they result in null
+                $timeToAnswerSeconds = ($isAnswered && $answerTime) ? $answerTime->diffInSeconds($startTime) : null;
+                $talkTimeSeconds = ($isAnswered && $endTime) ? $endTime->diffInSeconds($answerTime) : null;
+                $ringDurationSeconds = $endTime ? $endTime->diffInSeconds($startTime) : null;
 
-            if (!$isAnswered) {
-                if ($ringDurationSeconds !== null && $ringDurationSeconds >= $abandonment_threshold_seconds) {
-                    $isAbandoned = true;
-                } else {
-                    $isShortMiss = true;
+                // --- Classification Logic ---
+                $isAbandoned = false;
+                $isShortMiss = false;
+
+                if (!$isAnswered) {
+                    if ($ringDurationSeconds !== null && $ringDurationSeconds >= $abandonment_threshold_seconds) {
+                        $isAbandoned = true;
+                    } else {
+                        $isShortMiss = true;
+                    }
                 }
+
+                // --- Extract Agent/Recording Data ---
+                $recordingFileName = $calleeAnswer->recording_file_name ?? null;
+                $agentExtension = null;
+                if ($calleeAnswer) {
+                    // Safely extract extension, assuming the format is EXTENSION-UNIQUEID
+                    $parts = explode('-', $calleeAnswer->channel_name);
+                    $agentExtension = $parts[0] ?? null;
+                }
+
+                // --- Define the data payload to save/update ---
+                $cdrData = [
+                    'stasis_start_event_id' => $callerStart->id,
+                    'caller_number' => $callerStart->caller_number,
+                    'caller_channel_id' => $callerChannelId, // Explicitly set the key for the CDR table
+                    'start_time' => $startTime,
+                    'is_answered' => $isAnswered,
+                    'is_abandoned' => $isAbandoned,
+                    'is_short_miss' => $isShortMiss,
+
+                    'stasis_end_event_id' => $callerEnd ? $callerEnd->id : null,
+                    'callee_channel_id' => $calleeAnswer ? $calleeAnswer->channel_id : null,
+                    'file_name' => $recordingFileName,
+                    'answer_time' => $answerTime,
+                    'end_time' => $endTime,
+                    'agent_name' => $calleeAnswer ? $calleeAnswer->caller_name : null,
+                    'agent_extension' => $agentExtension,
+                    'ring_duration_seconds' => $ringDurationSeconds,
+                    'time_to_answer_seconds' => $timeToAnswerSeconds,
+                    'talk_time_seconds' => $talkTimeSeconds,
+                ];
+
+                // Since we used whereNotIn above, this will almost always be a new record.
+                // We keep firstOrNew for safety/idempotence.
+                $cdr = LiveStasisCDR::firstOrNew(['caller_channel_id' => $callerChannelId]);
+
+                // Fill the model with the prepared data payload and save
+                $cdr->fill($cdrData);
+                $cdr->save();
+
+                $processedCount++;
+                $progressBar->advance();
             }
-
-            // --- Define the data payload to save/update ---
-            $cdrData = [
-                // REQUIRED NON-NULLABLE FIELDS (must be set)
-                'stasis_start_event_id' => $callerStart->id,
-                'caller_number' => $callerStart->caller_number,
-                'start_time' => $startTime,
-                'is_answered' => $isAnswered,
-                'is_abandoned' => $isAbandoned,
-                'is_short_miss' => $isShortMiss,
-
-                // OPTIONAL/NULLABLE FIELDS (can be set to null)
-                'stasis_end_event_id' => $callerEnd ? $callerEnd->id : null,
-                'callee_channel_id' => $calleeAnswer ? $calleeAnswer->channel_id : null,
-                'file_name' => $recordingFileName,
-                'answer_time' => $answerTime,
-                'end_time' => $endTime,
-                'agent_name' => $calleeAnswer ? $calleeAnswer->caller_name : null,
-                'agent_extension' => $calleeAnswer ? explode('-', $calleeAnswer->channel_name)[0] : null,
-                'ring_duration_seconds' => $ringDurationSeconds,
-                'time_to_answer_seconds' => $timeToAnswerSeconds,
-                'talk_time_seconds' => $talkTimeSeconds,
-            ];
-
-            // --- Use firstOrNew and save for better control over inserts ---
-            $cdr = LiveStasisCDR::firstOrNew(['caller_channel_id' => $callerStart->channel_id]);
-
-            // Fill the model with the prepared data payload and save
-            $cdr->fill($cdrData);
-            $cdr->save();
-
-            $processedCount++;
-            $progressBar->advance();
-        }
+        }); // End of chunkById
 
         $progressBar->finish();
         $this->newLine();
