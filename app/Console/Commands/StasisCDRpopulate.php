@@ -49,8 +49,8 @@ class StasisCDRpopulate extends Command
             $latestCdrTime = LiveStasisCDR::max('start_time');
 
             if ($latestCdrTime) {
-                // Start 5 minutes before the last processed time to catch any stragglers or late-arriving events.
-                $time_start = Carbon::parse($latestCdrTime)->subMinutes(5)->toDateTimeString();
+                // Start 15 minutes before the last processed time to catch any stragglers or late-arriving events.
+                $time_start = Carbon::parse($latestCdrTime)->subMinutes(15)->toDateTimeString();
                 $this->comment("Running in INCREMENTAL MODE. Starting from last record time (with 5 min look-back).");
             } else {
                 // First run: Find the absolute earliest event to process everything from the beginning.
