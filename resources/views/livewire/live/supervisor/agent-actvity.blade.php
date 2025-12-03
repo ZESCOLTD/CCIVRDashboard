@@ -3,57 +3,51 @@
 
         <div class="row">
 
-            <div class="col-md-4 border-right pr-4"
-                style="border-color: rgba(244, 158, 56, 0.3) !important;">
+            <div class="col-md-4 border-right pr-4" style="border-color: rgba(244, 158, 56, 0.3) !important;">
 
                 <h6 class="card-subtitle mb-3"
                     style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
 
                     <i class="fas fa-user-tie mr-2"></i>Supervisor Information
 
-                    </h6>
+                </h6>
 
                 <div class="pl-3">
 
                     <p class="mb-2">
 
-                        <strong
-                            style="color: #0f974b; min-width: 120px; display: inline-block;">Name:</strong>
+                        <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Name:</strong>
 
                         <span style="color: #333;">{{ $user->name }}</span>
 
-                        </p>
+                    </p>
 
                     <p class="mb-2">
 
-                        <strong
-                            style="color: #0f974b; min-width: 120px; display: inline-block;">Employee
+                        <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Employee
 
                             No:</strong>
 
                         <span style="color: #333;">{{ $user->man_no }}</span>
 
-                        </p>
+                    </p>
 
                     <p class="mb-2">
 
-                        <strong
-                            style="color: #0f974b; min-width: 120px; display: inline-block;">Department:</strong>
+                        <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Department:</strong>
 
                         <span style="color: #333;">Customer Support</span>
 
-                        </p>
+                    </p>
 
                     <p class="mb-0">
 
-                        <strong
-                            style="color: #0f974b; min-width: 120px; display: inline-block;">Status:</strong>
+                        <strong style="color: #0f974b; min-width: 120px; display: inline-block;">Status:</strong>
 
                         <span class="badge px-2 py-1"
                             style="background-color: {{ $user->isOnline() ? '#0f974b' : '#6c757d' }}; color: white; font-size: 0.8rem;">
 
-                            <i
-                                class="fas {{ $user->isOnline() ? 'fa-wifi' : 'fa-clock' }} mr-1"></i>
+                            <i class="fas {{ $user->isOnline() ? 'fa-wifi' : 'fa-clock' }} mr-1"></i>
 
                             {{ $user->isOnline() ? 'Online' : 'Offline' }}
 
@@ -61,25 +55,24 @@
                                 <i class="fas fa-ban ml-1"></i>
                             @endif
 
-                            </span>
+                        </span>
 
-                        </p>
-
-                    </div>
+                    </p>
 
                 </div>
 
+            </div>
 
 
-            <div class="col-md-4 border-right px-4"
-                style="border-color: rgba(244, 158, 56, 0.3) !important;">
+
+            <div class="col-md-4 border-right px-4" style="border-color: rgba(244, 158, 56, 0.3) !important;">
 
                 <h6 class="card-subtitle mb-3"
                     style="color: #0f974b; font-weight: 600; border-bottom: 2px solid #f49e38; padding-bottom: 6px;">
 
                     <i class="fas fa-server mr-2"></i>System Status
 
-                    </h6>
+                </h6>
 
                 <div class="pl-3">
 
@@ -89,27 +82,25 @@
 
                             <i class="fas fa-plug mr-1"></i>Recorder Websocket:
 
-                            </label>
+                        </label>
 
                         <div class="d-flex align-items-center">
 
-                            <input type="text" id="ws_endpoint"
-                                value='{{ $ws_server }}' hidden>
+                            <input type="text" id="ws_endpoint" value='{{ $ws_server }}' hidden>
 
                             <span id="ws-info" class="badge px-2 py-1"
                                 style="background-color: #0f974b; color: white; font-size: 0.8rem;">
 
                                 <i class="fas fa-check-circle mr-1"></i>Connected
 
-                                </span>
+                            </span>
 
-                            <i class="fas fa-info-circle ml-2"
-                                style="color: #f49e38; cursor: pointer;"
+                            <i class="fas fa-info-circle ml-2" style="color: #f49e38; cursor: pointer;"
                                 data-toggle="tooltip" title="WebSocket connection status"></i>
 
-                            </div>
-
                         </div>
+
+                    </div>
 
                     <div class="mb-3">
 
@@ -117,14 +108,13 @@
 
                             <i class="fas fa-exchange-alt mr-1"></i>Recorder Rest Interface:
 
-                            </label>
+                        </label>
 
-                        <input class="form-control form-control-sm" type="text"
-                            id="api_endpoint"                             value='{{ $api_server }}'
-
+                        <input class="form-control form-control-sm" type="text" id="api_endpoint"
+                            value='{{ $api_server }}'
                             style="border-color: #f49e38; color: #0f974b; background-color: rgba(244, 158, 56, 0.05);">
 
-                        </div>
+                    </div>
 
                     <div>
 
@@ -132,20 +122,20 @@
 
                             <i class="fas fa-database mr-1"></i>Database Status:
 
-                            </label>
+                        </label>
 
                         <span class="badge px-2 py-1"
                             style="background-color: #0f974b; color: white; font-size: 0.8rem;">
 
                             <i class="fas fa-check-circle mr-1"></i>Connected
 
-                            </span>
-
-                        </div>
+                        </span>
 
                     </div>
 
                 </div>
+
+            </div>
 
 
 
@@ -158,7 +148,7 @@
 
                     <i class="fas fa-users mr-2"></i>Team Overview
 
-                    </h6>
+                </h6>
 
                 <div class="pl-3">
 
@@ -170,12 +160,12 @@
 
                                 <i class="fas fa-user-check mr-1"></i>Active Agents:
 
-                                </span>
+                            </span>
 
                             <span style="color: #333;"
                                 id="active-agents">{{ count($availableAgents) }}/{{ $totalAgentCount }}</span>
 
-                            </div>
+                        </div>
 
                         {{-- <div class="progress" style="height: 8px;">
 
@@ -187,7 +177,7 @@
 
                                 </div> --}}
 
-                        </div>
+                    </div>
 
                     {{-- <div class="mb-3">
 
@@ -226,18 +216,15 @@
                                 <i class="fas fa-hourglass-half mr-1"></i>Queue Wait
                                 Time:
 
-                                </span>
+                            </span>
 
                             <span style="color: #333;">--:--</span>
 
-                            </div>
+                        </div>
 
                         <div class="progress" style="height: 8px;">
 
-                            <div class="progress-bar"
-                                style="background-color: #fd7e14; width: 65%;">
-
-                                </div>
+                            <div class="progress-bar" style="background-color: #fd7e14; width: 65%;">
 
                             </div>
 
@@ -249,11 +236,13 @@
 
             </div>
 
-
-
-
-
         </div>
+
+
+
+
+
+    </div>
 
 
 
@@ -289,7 +278,7 @@
                                 $iconClass = 'fa-exclamation-triangle text-warning';
                             } elseif ($statusInfo['api_status'] === true) {
                                 $badgeClass = 'bg-success';
-                                $badgeText = $agent->status?? 'IDLE';
+                                $badgeText = $agent->status ?? 'IDLE';
                                 $iconClass = 'fa-user-circle text-success';
                             } elseif ($statusInfo['api_status'] === false) {
                                 // The API check found the agent is offline, even if the DB said they were logged in
@@ -340,9 +329,14 @@
 @push('custom-scripts')
     <script>
         window.addEventListener('livewire:load', () => {
-            // const apiUrl = "https://ivr.zesco.co.zm:8089/ari/bridges?api_key=asterisk:asterisk";
+            // --- GLOBAL STATE ---
+            let socket = null; // Global variable to hold the single WebSocket connection
+            let reconnectInterval; // Variable to hold the interval timer
 
-            let reconnectTimeout;
+            // Note: The original code used `reconnectTimeout` which is less ideal for continuous retries.
+            // We will switch to a central `setInterval` loop at the end.
+
+            // --- UTILITY FUNCTIONS ---
 
             function formatDuration(seconds) {
                 const h = String(Math.floor(seconds / 3600)).padStart(2, '0');
@@ -357,10 +351,14 @@
                     const startedAt = new Date(startedAtIso);
                     const now = new Date();
                     const elapsedSeconds = Math.floor((now - startedAt) / 1000);
-                    durationElem.textContent = formatDuration(elapsedSeconds);
+                    // Only update if time is positive (prevents negative timer issues)
+                    if (elapsedSeconds >= 0) {
+                        durationElem.textContent = formatDuration(elapsedSeconds);
+                    }
                 });
             }
 
+            // Start the timer update loop
             setInterval(updateCallDurations, 1000);
 
             function cleanEndpoint(rawEndpoint) {
@@ -374,21 +372,33 @@
                         return endpointParts[0]; // Returns '6004' from 'PJSIP/6004-0000051f'
                     }
                 }
-                // For other types or if no specific format, return as is (or handle as needed)
+                // For other types or if no specific format, return as is
                 return rawEndpoint;
             }
 
-            function reConnect() {
-                clearTimeout(reconnectTimeout);
+            // --- WEBSOCKET CONNECTION FUNCTION ---
 
+            function reConnect() {
                 const ws_address_elem = document.getElementById("ws_endpoint");
                 const ws_socket_elem = document.getElementById("ws-info");
 
-                const ws_url = ws_address_elem && ws_address_elem.value ? ws_address_elem.value :
+                // --- CRITICAL FIX 1: Prevent duplicate connections ---
+                // If socket is already open or connecting, do nothing.
+                if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket
+                    .CONNECTING)) {
+                    return;
+                }
+
+                const ws_url = ws_address_elem && ws_address_elem.value ?
+                    ws_address_elem.value :
                     "ws://10.44.0.56:8001/ws";
+
                 console.log("WebSocket attempting connection to:", ws_url);
 
-                const socket = new WebSocket(ws_url);
+                // Create new socket and assign it to the global variable
+                socket = new WebSocket(ws_url);
+
+                // --- LISTENERS ARE ATTACHED ONLY ONCE PER NEW SOCKET INSTANCE ---
 
                 socket.addEventListener("open", (event) => {
                     console.log("WebSocket connection opened:", ws_url);
@@ -404,8 +414,7 @@
                 socket.addEventListener("message", (event) => {
                     try {
                         const data = JSON.parse(event.data);
-                        console.log("Received WebSocket message:",
-                        data); // Log all incoming messages for debugging
+                        console.log("Received WebSocket message:", data);
 
                         // Helper to get endpoint from various data structures
                         const getEndpointFromChannelName = (channelName) => {
@@ -424,8 +433,7 @@
                             const endpoint = cleanEndpoint(rawEndpoint);
 
                             if (!endpoint) {
-                                console.warn("StasisStart: No clean endpoint found from args[1]. Raw:",
-                                    rawEndpoint);
+                                console.warn("StasisStart: No clean endpoint found from args[1].");
                                 return;
                             }
 
@@ -434,15 +442,14 @@
                             const durationElem = document.getElementById(`duration-${endpoint}`);
 
                             if (badge) {
-                                badge.classList.remove("bg-danger", "bg-warning");
+                                badge.classList.remove("bg-danger", "bg-warning", "text-dark");
                                 badge.classList.add("bg-success");
                                 badge.textContent = "ON_A_CALL";
                             }
                             if (icon) {
-                                icon.classList.remove("text-danger", "text-warning");
-                                icon.classList.add("text-success");
-                                icon.classList.remove("fa-user-circle"); // Remove default user icon
-                                icon.classList.add("fa-phone-alt"); // Add phone icon
+                                icon.classList.remove("text-danger", "text-warning", "fa-user-circle",
+                                    "fa-bell");
+                                icon.classList.add("text-success", "fa-phone-alt");
                             }
                             if (durationElem) {
                                 durationElem.dataset.startedAt = new Date().toISOString();
@@ -451,85 +458,40 @@
 
                         } else if (data.type === "ChannelStateChange" && data.channel && data.channel
                             .state === "Ringing") {
-                            // Extract endpoint from channel.name for Ringing state
                             const endpoint = getEndpointFromChannelName(data.channel.name);
 
                             if (!endpoint) {
                                 console.warn(
-                                    "ChannelStateChange (Ringing): No endpoint found from channel.name. Raw:",
-                                    data.channel.name);
+                                    "ChannelStateChange (Ringing): No endpoint found from channel.name."
+                                    );
                                 return;
                             }
 
                             const badge = document.getElementById(`badge-${endpoint}`);
                             const icon = document.getElementById(`icon-${endpoint}`);
-                            // For ringing, we don't necessarily start a duration timer yet,
-                            // but we can ensure it's reset or just left as 00:00:00
                             const durationElem = document.getElementById(`duration-${endpoint}`);
 
-
                             if (badge) {
-                                // Ringing: Orange/Warning badge
                                 badge.classList.remove("bg-success", "bg-danger");
-                                badge.classList.add("bg-warning",
-                                "text-dark"); // text-dark for visibility on warning background
+                                badge.classList.add("bg-warning", "text-dark");
                                 badge.textContent = "RINGING";
                             }
                             if (icon) {
-                                // Ringing: Orange/Warning icon, possibly a ringing specific icon
                                 icon.classList.remove("text-success", "text-danger", "fa-phone-alt",
                                     "fa-user-circle");
-                                icon.classList.add("text-warning",
-                                "fa-bell"); // FontAwesome bell icon for ringing
-                            }
-                            if (durationElem) {
-                                // For ringing, typically the call duration hasn't started, or it's a new "ringing" phase
-                                delete durationElem.dataset.startedAt; // Remove any previous started time
-                                durationElem.textContent = "00:00:00";
-                            }
-
-                        } else if (data.type === "StasisEnd") {
-                            // StasisEnd often indicates the end of a call.
-                            // The `app_data` might contain the endpoint, or you might need to rely on `channel.name`
-                            // For StasisEnd, `channel.dialplan.app_data` format may vary, so let's stick to channel.name for consistency if possible.
-                            const endpoint = getEndpointFromChannelName(data.channel?.name);
-
-
-                            if (!endpoint) {
-                                console.warn("StasisEnd: No clean endpoint found from channel.name.");
-                                return;
-                            }
-
-                            const badge = document.getElementById(`badge-${endpoint}`);
-                            const icon = document.getElementById(`icon-${endpoint}`);
-                            const durationElem = document.getElementById(`duration-${endpoint}`);
-
-                            if (badge) {
-                                // Available (after call): Red badge
-                                badge.classList.remove("bg-success", "bg-warning",
-                                "text-dark"); // Ensure text-dark is removed
-                                badge.classList.add("bg-danger");
-                                badge.textContent = "AVAILABLE";
-                            }
-                            if (icon) {
-                                // Available: Red user icon (or default user icon)
-                                icon.classList.remove("text-success", "text-warning", "fa-phone-alt",
-                                    "fa-bell");
-                                icon.classList.add("text-danger", "fa-user-circle"); // Back to user icon
+                                icon.classList.add("text-warning", "fa-bell");
                             }
                             if (durationElem) {
                                 delete durationElem.dataset.startedAt;
                                 durationElem.textContent = "00:00:00";
                             }
-                        } else if (data.type === "ChannelDestroyed") {
-                            // StasisEnd often indicates the end of a call.
-                            // The `app_data` might contain the endpoint, or you might need to rely on `channel.name`
-                            // For StasisEnd, `channel.dialplan.app_data` format may vary, so let's stick to channel.name for consistency if possible.
+
+                        } else if (data.type === "StasisEnd" || data.type === "ChannelDestroyed") {
+                            // StasisEnd/ChannelDestroyed indicate the end of the call.
                             const endpoint = getEndpointFromChannelName(data.channel?.name);
 
-
                             if (!endpoint) {
-                                console.warn("StasisEnd: No clean endpoint found from channel.name.");
+                                console.warn(`${data.type}: No clean endpoint found from channel.name.`);
                                 return;
                             }
 
@@ -538,14 +500,11 @@
                             const durationElem = document.getElementById(`duration-${endpoint}`);
 
                             if (badge) {
-                                // Available (after call): Red badge
-                                badge.classList.remove("bg-success", "bg-warning",
-                                "text-dark"); // Ensure text-dark is removed
+                                badge.classList.remove("bg-success", "bg-warning", "text-dark");
                                 badge.classList.add("bg-danger");
                                 badge.textContent = "AVAILABLE";
                             }
                             if (icon) {
-                                // Available: Red user icon (or default user icon)
                                 icon.classList.remove("text-success", "text-warning", "fa-phone-alt",
                                     "fa-bell");
                                 icon.classList.add("text-danger", "fa-user-circle"); // Back to user icon
@@ -568,7 +527,7 @@
                         ws_socket_elem.classList.add("badge-danger");
                         ws_socket_elem.textContent = "Disconnected (Error)";
                     }
-                    reconnectTimeout = setTimeout(reConnect, 5000);
+                    // CRITICAL FIX 2: Removed recursive setTimeout here
                 });
 
                 socket.addEventListener("close", (event) => {
@@ -578,11 +537,26 @@
                         ws_socket_elem.classList.add("badge-danger");
                         ws_socket_elem.textContent = "Disconnected";
                     }
-                    reconnectTimeout = setTimeout(reConnect, 5000);
+                    // CRITICAL FIX 2: Removed recursive setTimeout here
                 });
             }
 
+            // --- CONNECTION MANAGEMENT START ---
+
+            // 1. Initial WebSocket Connection
             reConnect();
+
+            // 2. CRITICAL FIX 3: Centralized Reconnection Loop
+            // Checks every 5 seconds if the socket needs to be reconnected.
+            reconnectInterval = setInterval(() => {
+                // Reconnect if socket is not initialized, or is closed/closing.
+                if (!socket || socket.readyState === WebSocket.CLOSED || socket.readyState === WebSocket
+                    .CLOSING) {
+                    reConnect();
+                }
+            }, 5000); // Check every 5 seconds
+
+            // --- CONNECTION MANAGEMENT END ---
         });
     </script>
 @endpush
