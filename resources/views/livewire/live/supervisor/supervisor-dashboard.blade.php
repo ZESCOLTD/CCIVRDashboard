@@ -1116,18 +1116,21 @@
     </style>
     @push('custom-scripts')
         <script>
-            // document.addEventListener('DOMContentLoaded', function() {
-
             document.addEventListener('livewire:load', function() {
 
+                // --- GLOBAL STATE ---
+                // Global variable to hold the single WebSocket connection
+                let socket = null;
                 const apiUrl = "https://ivr.zesco.co.zm:8089/ari/bridges?api_key=asterisk:asterisk";
-
-
                 const liveCallsElement = document.getElementById("liveCalls");
-                let liveCalls = 0;
+
+                // liveCalls is now calculated inside prob() to ensure both API calls are finished.
+                // let liveCalls = 0;
+
+                // --- API FETCH FUNCTIONS ---
 
                 function fetchBridgeData() {
-                    fetch(apiUrl)
+                    return fetch(apiUrl) // Return the Promise to link the functions later
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error("Network response was not ok");
@@ -1135,27 +1138,30 @@
                             return response.json();
                         })
                         .then(data => {
-                            console.log("API Response:", data);
+                            // Filter bridges of type 'mixing' with at least two channels (active calls)
+                            const mixingBridges = data.filter(bridge =>
+                                bridge.bridge_type === 'mixing' && bridge.channels.length > 1
+                            );
+                            const activeCalls = mixingBridges.length;
 
-                            // Filter bridges of type 'mixing'
-                            const mixingBridges = data.filter(bridge => bridge.bridge_type === 'mixing' && bridge
-                                .channels.length > 1);
+                            // Update DOM for active calls
+                            const activeCallsElement = document.getElementById("activeCalls");
+                            if (activeCallsElement) activeCallsElement.textContent = `${activeCalls}`;
 
+                            const liveCallsBargeElement = document.getElementById("liveCallsBarge");
+                            if (liveCallsBargeElement) liveCallsBargeElement.textContent =
+                                `${activeCalls} In Progress`;
 
-
-                            liveCalls = mixingBridges.length;
-                            // Update DOM with the count (you can change this element ID)
-                            document.getElementById("activeCalls").textContent = `${liveCalls}`;
-
-                            document.getElementById("liveCallsBarge").textContent = `${liveCalls} In Progress`;
+                            return activeCalls; // Return the count for use in prob()
                         })
                         .catch(error => {
-                            console.error("Fetch error:", error);
+                            console.error("FetchBridgeData error:", error);
+                            return 0; // Return 0 on error
                         });
                 }
 
-                function fetchHoldingBridgeData() {
-                    fetch(apiUrl)
+                function fetchHoldingBridgeData(currentActiveCalls) {
+                    return fetch(apiUrl) // Return the Promise
                         .then(response => {
                             if (!response.ok) {
                                 throw new Error("Network response was not ok");
@@ -1163,52 +1169,66 @@
                             return response.json();
                         })
                         .then(data => {
-                            console.log("API Response:", data);
-
-                            // Filter bridges of type 'mixing'
-                            const holdingBridges = data.filter(bridge => bridge.bridge_type === 'holding' && bridge
-                                .channels.length > 0);
+                            // Filter bridges of type 'holding' with active channels (calls in queue)
+                            const holdingBridges = data.filter(bridge =>
+                                bridge.bridge_type === 'holding' && bridge.channels.length > 0
+                            );
 
                             var callsInQueue = 0;
                             for (let i = 0; i < holdingBridges.length; i++) {
                                 callsInQueue += holdingBridges[i].channels.length;
                             }
 
+                            // Update DOM for queue
+                            const inQueueElement = document.getElementById("inQueue");
+                            if (inQueueElement) inQueueElement.textContent = `Callers in Queue: ${callsInQueue}`;
 
-                            // Update DOM with the count (you can change this element ID)
-                            document.getElementById("inQueue").textContent =
-                                `Callers in Queue: ${callsInQueue}`;
-                            document.getElementById("queue-calls").textContent = `${callsInQueue}`;
+                            const queueCallsElement = document.getElementById("queue-calls");
+                            if (queueCallsElement) queueCallsElement.textContent = `${callsInQueue}`;
 
-
-
-                            liveCalls += callsInQueue;
-                            liveCallsElement.textContent = `${liveCalls}`;
+                            // Calculate total live calls (Active + Queue)
+                            const totalLiveCalls = currentActiveCalls + callsInQueue;
+                            if (liveCallsElement) liveCallsElement.textContent = `${totalLiveCalls}`;
                         })
                         .catch(error => {
-                            console.error("Fetch error:", error);
+                            console.error("FetchHoldingBridgeData error:", error);
                         });
                 }
 
-
-                // Initial fetch
+                // Function to run both API calls
                 function prob() {
-                    fetchBridgeData();
-                    fetchHoldingBridgeData();
+                    // Chain the promises: fetch active calls first, then use the result to calculate total calls
+                    fetchBridgeData()
+                        .then(activeCalls => fetchHoldingBridgeData(activeCalls));
                 }
 
-                // Repeat every 5 seconds (5000 ms)
-                // setInterval(prob, 000);
-                function reConnect() {
+                // --- WEBSOCKET FUNCTIONS ---
 
-                    console.log("Livewire loaded");
-                    // WebSocket connection and event listeners as in the original code
+                function reConnect() {
                     var ws_address = document.getElementById("ws_endpoint");
                     var ws_socket = document.getElementById("ws-info");
-                    const socket = new WebSocket(ws_address.value);
+
+                    // --- CRITICAL FIX 1: Prevent duplicate connections ---
+                    // If socket is already open or connecting, do nothing.
+                    if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket
+                        .CONNECTING)) {
+                        return;
+                    }
+
+                    if (!ws_address || !ws_address.value) {
+                        console.error("WebSocket endpoint element not found.");
+                        return;
+                    }
+
+                    console.log("Attempting WebSocket connection to:", ws_address.value);
+
+                    // Create new socket and assign it to the global variable
+                    socket = new WebSocket(ws_address.value);
+
+                    // --- LISTENERS ARE ATTACHED ONLY ONCE PER NEW SOCKET INSTANCE ---
 
                     socket.addEventListener("open", (event) => {
-                        console.log("WebSocket connection opened: ", ws_address);
+                        console.log("WebSocket connection opened: ", ws_address.value);
                         ws_socket.classList.remove("badge-danger");
                         ws_socket.classList.add("badge-success");
                         ws_socket.textContent = "Connected ..";
@@ -1218,45 +1238,54 @@
                     socket.addEventListener("message", (event) => {
                         var data = JSON.parse(event.data);
 
-                        if (data.type != undefined) {
-                            if (data.type === "ChannelLeftBridge" || data.type === "ChannelEnteredBridge") {
-
-                                console.log("Message from server:", event.data);
-                                prob();
-                                // Livewire.emit('refreshComponent');
-                            }
+                        // If a channel joins/leaves a bridge, update the dashboard metrics
+                        if (data.type === "ChannelLeftBridge" || data.type === "ChannelEnteredBridge") {
+                            console.log("Message from server (Bridge event):", event.data);
+                            prob(); // Re-fetch all call data
                         }
+
+                        // Keep this to allow the Livewire components in the view to refresh if needed
                         Livewire.emit('refreshComponent');
                     });
 
+                    // Handle connection errors
                     socket.addEventListener("error", (event) => {
                         console.error("WebSocket error:", event);
                         ws_socket.classList.remove("badge-success");
                         ws_socket.classList.add("badge-danger");
                         ws_socket.textContent = "Web socket error";
-                        setTimeout(() => {
-                        reConnect();
-                    }, 5000); // Reconnect after 5 seconds
+                        // CRITICAL FIX 2: Removed recursive setTimeout
                     });
 
+                    // Handle connection close
                     socket.addEventListener("close", (event) => {
+                        console.log("WebSocket connection closed:", event);
                         ws_socket.classList.remove("badge-success");
                         ws_socket.classList.add("badge-danger");
                         ws_socket.textContent = "Web socket error";
-                        console.log("WebSocket connection closed:", event);
-
-                        setTimeout(() => {
-                        reConnect();
-                    }, 5000); // Reconnect after 5 seconds
+                        // CRITICAL FIX 2: Removed recursive setTimeout
                     });
-
                 }
 
+                // --- INITIALIZATION ---
+
+                // 1. Initial Call Data Fetch
+                prob();
+
+                // 2. Initial WebSocket Connection
                 reConnect();
 
-            });
+                // --- CRITICAL FIX 3: Centralized Reconnection Loop ---
+                // Checks every 5 seconds if the socket needs to be reconnected.
+                setInterval(() => {
+                    // Reconnect if socket is not initialized, or is closed/closing.
+                    if (!socket || socket.readyState === WebSocket.CLOSED || socket.readyState === WebSocket
+                        .CLOSING) {
+                        reConnect();
+                    }
+                }, 5000); // Check every 5 seconds
 
-            // });
+            });
         </script>
 
         <script>
