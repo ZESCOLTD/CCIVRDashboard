@@ -243,7 +243,7 @@
                                     @endif
                                 </div>
 
-                                <div x-data x-init="setInterval(() => Livewire.emit('refreshComponent'), 60000)"  wire:target="refreshComponent"></div>
+                                <div x-data x-init="setInterval(() => Livewire.emit('refreshComponent'), 60000)" wire:target="refreshComponent"></div>
                             </div>
                         </div>
 
@@ -1045,10 +1045,13 @@
 
     <script>
         window.addEventListener('livewire:load', () => {
+            // Global variable to hold the single WebSocket connection
+            let socket = null;
             const apiUrl = "https://ivr.zesco.co.zm:8089/ari/bridges?api_key=asterisk:asterisk";
 
-
-
+            /**
+             * Fetches and updates the call queue count from the ARI API.
+             */
             function fetchHoldingBridgeData() {
                 fetch(apiUrl)
                     .then(response => {
@@ -1058,133 +1061,147 @@
                         return response.json();
                     })
                     .then(data => {
-
-                        // Filter bridges of type 'mixing'
-                        const holdingBridges = data.filter(bridge => bridge.bridge_type === 'holding' && bridge
-                            .channels.length > 0);
+                        // Filter bridges of type 'holding' with active channels
+                        const holdingBridges = data.filter(bridge =>
+                            bridge.bridge_type === 'holding' && bridge.channels.length > 0
+                        );
                         var queueCalls = 0;
 
                         for (let i = 0; i < holdingBridges.length; i++) {
                             queueCalls += holdingBridges[i].channels.length;
                         }
 
-                        // Update DOM with the count (you can change this element ID)
-                        document.getElementById("queue-calls").innerHTML = ` ${queueCalls}`;
+                        // Update DOM with the count
+                        const queueCallsElement = document.getElementById("queue-calls");
+                        if (queueCallsElement) {
+                            queueCallsElement.innerHTML = ` ${queueCalls}`;
+                        }
 
                         console.log("Holding Bridges:", queueCalls);
-
                     })
                     .catch(error => {
                         console.error("Fetch error:", error);
-                    })
-
+                    });
             }
 
+            // Initial call to update the queue count
             fetchHoldingBridgeData();
-            // setInterval(fetchHoldingBridgeData, 10000); // Fetch every 5 seconds
+            // You can uncomment the line below if you want the queue count to refresh periodically
+            // setInterval(fetchHoldingBridgeData, 10000);
 
-
-            // WebSocket connection and event listeners as in the original code
-
-            // ws://127.0.0.1:8001/ws
-            // const socket = new WebSocket("http://127.0.0.1:8001/ws");
-
+            /**
+             * Attempts to establish a new WebSocket connection.
+             * Listeners are attached here, but logic prevents duplicate sockets.
+             */
             function reConnect() {
-
                 var ws_address = document.getElementById("ws_endpoint");
                 var ws_socket = document.getElementById("ws-info");
-                console.log("WebSocket address:", ws_address.value);
 
+                // --- CRITICAL FIX 1: Prevent duplicate connections ---
+                // If socket is already open or connecting, do nothing.
+                if (socket && (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket
+                    .CONNECTING)) {
+                    return;
+                }
 
-                const socket = new WebSocket(ws_address.value);
+                if (!ws_address || !ws_address.value) {
+                    console.error("WebSocket endpoint element not found.");
+                    return;
+                }
+
+                console.log("Attempting WebSocket connection to:", ws_address.value);
+
+                // Create new socket and assign it to the global variable
+                socket = new WebSocket(ws_address.value);
+
+                // --- LISTENERS ARE NOW ATTACHED ONLY ONCE PER NEW SOCKET INSTANCE ---
+
                 socket.addEventListener("open", (event) => {
-                    console.log("WebSocket connection opened: ", ws_address);
+                    console.log("WebSocket connection opened: ", ws_address.value);
                     ws_socket.classList.remove("badge-danger");
                     ws_socket.classList.add("badge-success");
                     ws_socket.textContent = "Connected ..";
                     socket.send("Hello Server!");
-                    Livewire.emit('refreshComponent')
+                    Livewire.emit('refreshComponent');
                 });
+
                 socket.addEventListener("message", (event) => {
                     var data = JSON.parse(event.data);
 
-
-
-
-                    if (data.type === "Dial" &&
-                        data.dialstring == {{ $agent->endpoint }}
-                    ) {
-                        // alert( incomingCall);
+                    if (data.type === "Dial" && data.dialstring == {{ $agent->endpoint }}) {
                         fetchHoldingBridgeData();
                         document.getElementById("incoming-call").innerHTML = data.peer.caller.number;
-
                     }
+
                     if (data.type === "ChannelLeftBridge" || data.type === "ChannelEnteredBridge") {
                         fetchHoldingBridgeData();
                     }
+
                     if (data.type === "StasisEnd") {
                         fetchHoldingBridgeData();
-                        //     // alert( incomingCall);
-                        console.log("Incoming Call Data:", data.channel.dialplan.app_data);
 
                         const appData = data.channel.dialplan.app_data;
                         const parts = appData.split(',');
 
-
                         if (parts.length >= 5) {
                             const filename = parts[5];
+                            // Assuming the agent extension is the last 4 digits of the second part (parts[2].slice(-4))
                             const agent = parts[2].slice(-4);
 
-                            console.error(
-                                "Error: app_data does not contain enough parts. open modal for agent",
-                                agent);
-
                             if (agent == {{ $agent->endpoint }}) {
-                                console.log("agent:", agent);
-                                console.log("filename:", filename);
                                 Livewire.emit('filename', filename);
 
                                 const modal = new bootstrap.Modal(document.getElementById(
                                     'updateTransactionCodeModal'), {
-                                    backdrop: 'static', // Prevents closing on clicking outside
-                                    keyboard: false // Allows closing with the escape key (optional, defaults to true)
+                                    backdrop: 'static',
+                                    keyboard: false
                                 });
                                 modal.show();
                             }
                         } else {
-                            console.error("Error: app_data does not contain enough parts.");
+                            console.error("Error: StasisEnd app_data does not contain enough parts:",
+                                appData);
                         }
-
-
                     }
                 });
+
+                // Handle connection errors
                 socket.addEventListener("error", (event) => {
                     console.error("WebSocket error:", event);
                     ws_socket.classList.remove("badge-success");
                     ws_socket.classList.add("badge-danger");
                     ws_socket.textContent = "Web socket error";
-
-                    setTimeout(() => {
-                        reConnect();
-                    }, 5000); // Reconnect after 5 seconds
+                    // CRITICAL FIX 2: Removed recursive setTimeout here
                 });
+
+                // Handle connection close
                 socket.addEventListener("close", (event) => {
+                    console.log("WebSocket connection closed:", event);
                     ws_socket.classList.remove("badge-success");
                     ws_socket.classList.add("badge-danger");
                     ws_socket.textContent = "Web socket error";
-                    console.log("WebSocket connection closed:", event);
-
-                    setTimeout(() => {
-                        reConnect();
-                    }, 5000); // Reconnect after 5 seconds
+                    // CRITICAL FIX 2: Removed recursive setTimeout here
                 });
-
             }
 
-            reConnect()
-        })
-    </script>
+            // --- CONNECTION MANAGEMENT START ---
 
+            // Initial connection attempt
+            reConnect();
+
+            // --- CRITICAL FIX 3: Centralized Reconnection Loop ---
+            // Checks every 5 seconds if the socket needs to be reconnected.
+            setInterval(() => {
+                // Reconnect if socket is not initialized, or is in the closing or closed state.
+                if (!socket || socket.readyState === WebSocket.CLOSED || socket.readyState === WebSocket
+                    .CLOSING) {
+                    reConnect();
+                }
+            }, 5000); // Check every 5 seconds
+
+            // --- CONNECTION MANAGEMENT END ---
+        });
+    </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             document.addEventListener('closeModal', function() {
@@ -1207,45 +1224,45 @@
         });
     </script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const sipLS = window.localStorage;
-        const sipSS = window.sessionStorage;
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sipLS = window.localStorage;
+            const sipSS = window.sessionStorage;
 
-        const manNo = "{{ $agent->endpoint ?? '' }}";
-        const MAX_RELOADS = 2;
+            const manNo = "{{ $agent->endpoint ?? '' }}";
+            const MAX_RELOADS = 2;
 
-        console.log("Provision script starting — manNo:", manNo);
+            console.log("Provision script starting — manNo:", manNo);
 
-        if (!manNo) {
-            console.warn("No endpoint (manNo) available — skipping provisioning.");
-            sipSS.removeItem('provisionReloadCount');
-            return;
-        }
+            if (!manNo) {
+                console.warn("No endpoint (manNo) available — skipping provisioning.");
+                sipSS.removeItem('provisionReloadCount');
+                return;
+            }
 
-        const oldUser = sipLS.getItem("SipUsername");
-        const reloadCount = parseInt(sipSS.getItem("provisionReloadCount") || "0", 10);
+            const oldUser = sipLS.getItem("SipUsername");
+            const reloadCount = parseInt(sipSS.getItem("provisionReloadCount") || "0", 10);
 
-        if (oldUser === manNo) {
-            console.log("SIP username matches:", manNo, "— no reload needed.");
-            sipSS.removeItem('provisionReloadCount'); // reset
-            return;
-        }
+            if (oldUser === manNo) {
+                console.log("SIP username matches:", manNo, "— no reload needed.");
+                sipSS.removeItem('provisionReloadCount'); // reset
+                return;
+            }
 
-        // Only reload if we haven't already tried too many times
-        if (reloadCount < MAX_RELOADS) {
-            console.warn(`Provisioning SIP details for ${manNo} (attempt ${reloadCount + 1}/${MAX_RELOADS})`);
-            sipLS.setItem("SipUsername", manNo);
-            sipLS.setItem("SipPassword", manNo);
-            sipLS.setItem("profileName", manNo);
-            sipSS.setItem("provisionReloadCount", (reloadCount + 1).toString());
+            // Only reload if we haven't already tried too many times
+            if (reloadCount < MAX_RELOADS) {
+                console.warn(`Provisioning SIP details for ${manNo} (attempt ${reloadCount + 1}/${MAX_RELOADS})`);
+                sipLS.setItem("SipUsername", manNo);
+                sipLS.setItem("SipPassword", manNo);
+                sipLS.setItem("profileName", manNo);
+                sipSS.setItem("provisionReloadCount", (reloadCount + 1).toString());
 
-            // Add small delay to ensure storage persists before reload
-            setTimeout(() => window.location.reload(), 500);
-        } else {
-            console.error(`Provision failed — exceeded ${MAX_RELOADS} reloads. Stopping reload loop.`);
-            sipSS.removeItem('provisionReloadCount');
-        }
-    });
+                // Add small delay to ensure storage persists before reload
+                setTimeout(() => window.location.reload(), 500);
+            } else {
+                console.error(`Provision failed — exceeded ${MAX_RELOADS} reloads. Stopping reload loop.`);
+                sipSS.removeItem('provisionReloadCount');
+            }
+        });
     </script>
 @endpush
