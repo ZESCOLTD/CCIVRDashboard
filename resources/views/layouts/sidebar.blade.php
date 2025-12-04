@@ -1,3 +1,5 @@
+
+
 @if (Auth::user()->hasRole('agent') && Auth::user()->getRoleNames()->count() == 1)
 @else
     <aside class="main-sidebar sidebar-dark-gray elevation-5">
