@@ -136,16 +136,30 @@ class DailyStatsSummary extends Component
 
         // IVR Extensions (remains the same)
         $dstExtensions = [
-            'cc-3', 'cc-4', 'cc-6', 'cc-7', 'cc-8', 'cc-9', 'cc-10', 'cc-11',
-            'cc-12', 'cc-13', 'cc-14', 'cc-15', 'cc-16', 'cc-17', 'cc-18', 'cc-20'
+            'cc-3',
+            'cc-4',
+            'cc-6',
+            'cc-7',
+            'cc-8',
+            'cc-9',
+            'cc-10',
+            'cc-11',
+            'cc-12',
+            'cc-13',
+            'cc-14',
+            'cc-15',
+            'cc-16',
+            'cc-17',
+            'cc-18',
+            'cc-20'
         ];
 
         // Fetch raw stats (USSD/Other are fast, keep them as is)
         $ussdToday = $this->getStatsForDate(UssdSession::class, $yesterday);
         $ussdYesterday = $this->getStatsForDate(UssdSession::class, $dayBeforeYesterday);
 
-        $otherToday = $this->getStatsForDateOtherChannel(OtherChannel::class, $yesterday);
-        $otherYesterday = $this->getStatsForDateOtherChannel(OtherChannel::class, $dayBeforeYesterday);
+        // $otherToday = $this->getStatsForDateOtherChannel(OtherChannel::class, $yesterday);
+        // $otherYesterday = $this->getStatsForDateOtherChannel(OtherChannel::class, $dayBeforeYesterday);
 
         // 2. APPLY CACHING TO SLOW OPERATIONS (Oracle DB and Google Analytics)
 
@@ -210,13 +224,13 @@ class DailyStatsSummary extends Component
         $stats = [
             'today' => [
                 'USSD' => $normalize($ussdToday),
-                'Other' => $normalize($otherToday),
+                // 'Other' => $normalize($otherToday),
                 'Mobile App' => $normalize($mobileAppToday),
                 'Website' => $normalize($websiteToday),
             ],
             'yesterday' => [
                 'USSD' => $normalize($ussdYesterday),
-                'Other' => $normalize($otherYesterday),
+                // 'Other' => $normalize($otherYesterday),
                 'Mobile App' => $normalize($mobileAppYesterday),
                 'Website' => $normalize($websiteYesterday),
             ],
@@ -225,8 +239,8 @@ class DailyStatsSummary extends Component
         // Merge networks and compute changes (remains the same)
         $allNetworks = collect(array_keys($stats['today']['USSD']))
             ->merge(array_keys($stats['yesterday']['USSD']))
-            ->merge(array_keys($stats['today']['Other']))
-            ->merge(array_keys($stats['yesterday']['Other']))
+            // ->merge(array_keys($stats['today']['Other']))
+            // ->merge(array_keys($stats['yesterday']['Other']))
             ->merge(['Mobile App', 'Website'])
             ->unique();
 
@@ -236,6 +250,7 @@ class DailyStatsSummary extends Component
             $yesterdayTotal = 0;
             $manual = 'no';
 
+
             if (in_array($network, ['Mobile App', 'Website'])) {
                 $todayTotal = (int)($stats['today'][$network]['count'] ?? 0);
                 $yesterdayTotal = (int)($stats['yesterday'][$network]['count'] ?? 0);
@@ -243,18 +258,20 @@ class DailyStatsSummary extends Component
                 $todayUssd = $stats['today']['USSD'][$network] ?? 0;
                 $yesterdayUssd = $stats['yesterday']['USSD'][$network] ?? 0;
 
-                $todayOther = $stats['today']['Other'][$network] ?? 0;
-                $yesterdayOther = $stats['yesterday']['Other'][$network] ?? 0;
+                // $todayOther = $stats['today']['Other'][$network] ?? 0;
+                // $yesterdayOther = $stats['yesterday']['Other'][$network] ?? 0;
 
-                $todayTotal = $todayUssd + $todayOther;
-                $yesterdayTotal = $yesterdayUssd + $yesterdayOther;
+                // $todayTotal = $todayUssd + $todayOther;
+                // $yesterdayTotal = $yesterdayUssd + $yesterdayOther;
 
-                $manual = ($todayOther + $yesterdayOther) > 0 ? 'yes' : 'no';
+                // $manual = ($todayOther + $yesterdayOther) > 0 ? 'yes' : 'no';
             }
 
             $change = $yesterdayTotal > 0
                 ? (($todayTotal - $yesterdayTotal) / $yesterdayTotal) * 100
                 : ($todayTotal > 0 ? 100 : 0);
+
+
 
             return (object)[
                 'network' => $network,
@@ -264,6 +281,8 @@ class DailyStatsSummary extends Component
                 'manual_edit' => $manual,
             ];
         });
+
+        // dd($merged);
 
         // Cache IVR stats
         $ivrYesterday = Cache::remember("ivr_yesterday_{$yesterday}", 3600, function () use ($yesterday, $dstExtensions) {

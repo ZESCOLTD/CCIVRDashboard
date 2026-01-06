@@ -2,22 +2,22 @@
     <div class="row">
 
         <div class="col-lg-12">
-            <livewire:dashboard.minute-network-chart/>
+            {{-- <livewire:dashboard.minute-network-chart/> --}}
         </div>
 
         <div class="col-lg-6">
-            <livewire:dashboard.hourly-network-chart/>
+            {{-- <livewire:dashboard.hourly-network-chart/> --}}
             <div class="col-lg-6">
-                <livewire:dashboard.daily-stats-summary/>
+                {{-- <livewire:dashboard.daily-stats-summary/> --}}
             </div>
         </div>
 
         <div class="col-lg-3">
-            <livewire:dashboard.top-menu-selected-chart/>
+            {{-- <livewire:dashboard.top-menu-selected-chart/> --}}
         </div>
 
         <div class="col-lg-3">
-            <livewire:dashboard.network-pie-chart/>
+            {{-- <livewire:dashboard.network-pie-chart/> --}}
         </div>
     </div>
 </div>
