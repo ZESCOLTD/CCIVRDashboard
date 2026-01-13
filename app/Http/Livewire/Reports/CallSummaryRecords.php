@@ -47,13 +47,18 @@ class CallSummaryRecords extends Component
             ->get();
 
         // 5. Query: Customers (Crucial: Added limit to save memory)
-        $summary_calls_customers = CallDetailsRecordModel::select('src', DB::raw('count(*) as total'))
-            ->whereBetween('calldate', [$start, $end])
-            ->whereIn('dst', $dstFilters)
-            ->groupBy('src')
-            ->orderBy('total', 'desc')
-            ->take(100) // Adjust this limit as needed for your UI
-            ->get();
+        // $summary_calls_customers = CallDetailsRecordModel::select('src', DB::raw('count(*) as total'))
+        //     ->whereBetween('calldate', [$start, $end])
+        //     ->whereIn('dst', $dstFilters)
+        //     ->groupBy('src')
+        //     ->orderBy('total', 'desc')
+        //     // ->take(100) // Adjust this limit as needed for your UI
+        //     ->get();
+
+            $summary_calls_customers_count = CallDetailsRecordModel::whereBetween('calldate', [$start, $end])
+    ->whereIn('dst', $dstFilters)
+    ->distinct('src')
+    ->count('src');
 
         // 6. Query: Yesterday (Uses Index)
         $total_calls_yesterday = CallDetailsRecordModel::select('dst', DB::raw('count(*) as y'))
@@ -66,14 +71,14 @@ class CallSummaryRecords extends Component
 
         $this->emit('dataUpdate', [
             'summary_calls_today' => $summary_calls_today,
-            'summary_calls_customers' => $summary_calls_customers,
+            'summary_calls_customers_count' => $summary_calls_customers_count,
             'callsToday' => $callsToday,
         ]);
 
         return view('livewire.reports.call-summary-records', compact(
             'summary_calls_today',
             'total_calls_yesterday',
-            'summary_calls_customers',
+            'summary_calls_customers_count',
             'callsToday',
             'speakToAnAgentCalls'
         ));

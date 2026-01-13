@@ -63,7 +63,7 @@
                         <div class="d-flex align-items-center">
                             <div>
                                 <p class="mb-0 text-secondary">Number of Customers</p>
-                                <h4 class="my-1 text-danger">{{ number_format($summary_calls_customers->count()) }}</h4>
+                                <h4 class="my-1 text-danger">{{ number_format($summary_calls_customers_count) }}</h4>
                                 {{--                                <p class="mb-0 font-13">+5.4% from last week</p> --}}
                             </div>
                             <div class="widgets-icons-2 rounded-circle bg-gradient-bloody text-white ms-auto"><i
@@ -138,7 +138,7 @@
                                 @if (count($summary_calls_today) > 0)
                                     @foreach ($summary_calls_today as $summary_call_today)
                                         <tr>
-                                          
+
                                             <td>
                                                 {{ $summary_call_today->myDestination->option ?? $summary_call_today->dst }}
                                             </td>
@@ -257,20 +257,7 @@
         });
 
 
-        Livewire.on('dataUpdate', function (data) {
-            window.chartData = data['summary_calls_today'];
-            //console.log( window['chartData'] );
-            let sum = 0
-            $.each(data?.summary_calls_customers, function (index, ele) {
-                sum += ele.total;
-                //console.log('ele.total', ele.total);
-            });
-            //   console.log('calls summary', sum);
 
-            window.summaryTotal = sum; //number_format($summary_calls_today->sum('total'));
-            // window.date = data?.mydate;//date('y-m-d-m-Y-H-i-s');
-            graph();
-        });
 
         function graph() {
             console.log('summaryTotal', window['summaryTotal']);
