@@ -87,6 +87,51 @@ class DashboardIndex extends Component
                 ->count('src');
         });
 
+        // 1. Today's Destination Distribution (Pie Chart)
+    $todayDstDist = CallDetailsRecordModel::whereBetween('calldate', [$todayS, $todayE])
+    ->whereIn('dst', $dstExtensions)
+    ->select('dst', DB::raw('count(*) as total'))
+    ->groupBy('dst')
+    ->get();
+
+// 2. Hourly Call Volume Today (Column Chart)
+$hourlyCalls = CallDetailsRecordModel::whereBetween('calldate', [$todayS, $todayE])
+    ->whereIn('dst', $dstExtensions)
+    ->select(DB::raw('HOUR(calldate) as hour'), DB::raw('count(*) as total'))
+    ->groupBy('hour')
+    ->orderBy('hour')
+    ->get();
+
+// 3. Daily Call Volume - Last 30 Days (Line Chart) - CACHED
+$dailyCalls = $this->cachedCount('daily_calls_30', function() use ($dstExtensions) {
+    return CallDetailsRecordModel::where('calldate', '>=', now()->subDays(30))
+        ->whereIn('dst', $dstExtensions)
+        ->select(DB::raw('DATE(calldate) as date'), DB::raw('count(*) as total'))
+        ->groupBy('date')
+        ->orderBy('date')
+        ->get();
+});
+
+// 4. Monthly Trend - Last 12 Months (Area Chart) - CACHED
+$monthlyCalls = $this->cachedCount('monthly_trend_12', function() use ($dstExtensions) {
+    return CallDetailsRecordModel::where('calldate', '>=', now()->subMonths(12))
+        ->whereIn('dst', $dstExtensions)
+        ->select(DB::raw("DATE_FORMAT(calldate, '%Y-%m') as month"), DB::raw('count(*) as total'))
+        ->groupBy('month')
+        ->orderBy('month')
+        ->get();
+});
+
+// 5. Unique Customers Per Day - Last 30 Days (Column Chart) - CACHED
+$dailyCustomers = $this->cachedCount('daily_cust_30', function() use ($dstExtensions) {
+    return CallDetailsRecordModel::where('calldate', '>=', now()->subDays(30))
+        ->whereIn('dst', $dstExtensions)
+        ->select(DB::raw('DATE(calldate) as date'), DB::raw('count(DISTINCT src) as total'))
+        ->groupBy('date')
+        ->orderBy('date')
+        ->get();
+});
+
         return view('livewire.reports.dashboard-index', [
             'total_calls_today_count' => $total_calls_today_count,
             'total_calls_yesterday' => $total_calls_yesterday,
@@ -94,7 +139,11 @@ class DashboardIndex extends Component
             'total_calls_month' => $total_calls_month,
             'total_calls_last_month' => $total_calls_last_month,
             'total_customers' => $total_customers,
-            'total_customers_last_month' => $total_customers_last_month,
+            'total_customers_last_month' => $total_customers_last_month,'todayDstDist' => $todayDstDist,
+        'hourlyCalls' => $hourlyCalls,
+        'dailyCalls' => $dailyCalls,
+        'monthlyCalls' => $monthlyCalls,
+        'dailyCustomers' => $dailyCustomers,
         ]);
     }
 

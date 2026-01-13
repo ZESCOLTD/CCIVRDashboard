@@ -200,7 +200,7 @@
 </div>
 
 
-{{-- <div class="row">
+<div class="row">
     <div class="container-fluid">
         <h4 class="mb-4">📈 Call Center Dashboard Charts</h4>
 
@@ -263,7 +263,7 @@
 
         </div>
     </div>
-</div> --}}
+</div>
 
 
 @push('custom-scripts')
@@ -282,7 +282,7 @@
     <script src="https://code.highcharts.com/modules/column.js"></script>
 
 
-    {{-- <script>
+    <script>
         document.addEventListener('livewire:load', function() {
             const chartContainers = document.querySelectorAll('.chart-container');
             let loadQueue = [];
@@ -404,5 +404,5 @@
                 observer.observe(container);
             });
         });
-    </script> --}}
+    </script>
 @endpush
