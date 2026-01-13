@@ -258,13 +258,13 @@ class DailyStatsSummary extends Component
                 $todayUssd = $stats['today']['USSD'][$network] ?? 0;
                 $yesterdayUssd = $stats['yesterday']['USSD'][$network] ?? 0;
 
-                // $todayOther = $stats['today']['Other'][$network] ?? 0;
-                // $yesterdayOther = $stats['yesterday']['Other'][$network] ?? 0;
+                $todayOther = $stats['today']['Other'][$network] ?? 0;
+                $yesterdayOther = $stats['yesterday']['Other'][$network] ?? 0;
 
-                // $todayTotal = $todayUssd + $todayOther;
-                // $yesterdayTotal = $yesterdayUssd + $yesterdayOther;
+                $todayTotal = $todayUssd + $todayOther;
+                $yesterdayTotal = $yesterdayUssd + $yesterdayOther;
 
-                // $manual = ($todayOther + $yesterdayOther) > 0 ? 'yes' : 'no';
+                $manual = ($todayOther + $yesterdayOther) > 0 ? 'yes' : 'no';
             }
 
             $change = $yesterdayTotal > 0
