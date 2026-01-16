@@ -158,8 +158,8 @@ class DailyStatsSummary extends Component
         $ussdToday = $this->getStatsForDate(UssdSession::class, $yesterday);
         $ussdYesterday = $this->getStatsForDate(UssdSession::class, $dayBeforeYesterday);
 
-        // $otherToday = $this->getStatsForDateOtherChannel(OtherChannel::class, $yesterday);
-        // $otherYesterday = $this->getStatsForDateOtherChannel(OtherChannel::class, $dayBeforeYesterday);
+        $otherToday = $this->getStatsForDateOtherChannel(OtherChannel::class, $yesterday);
+        $otherYesterday = $this->getStatsForDateOtherChannel(OtherChannel::class, $dayBeforeYesterday);
 
         // 2. APPLY CACHING TO SLOW OPERATIONS (Oracle DB and Google Analytics)
 
@@ -224,13 +224,13 @@ class DailyStatsSummary extends Component
         $stats = [
             'today' => [
                 'USSD' => $normalize($ussdToday),
-                // 'Other' => $normalize($otherToday),
+                'Other' => $normalize($otherToday),
                 'Mobile App' => $normalize($mobileAppToday),
                 'Website' => $normalize($websiteToday),
             ],
             'yesterday' => [
                 'USSD' => $normalize($ussdYesterday),
-                // 'Other' => $normalize($otherYesterday),
+                'Other' => $normalize($otherYesterday),
                 'Mobile App' => $normalize($mobileAppYesterday),
                 'Website' => $normalize($websiteYesterday),
             ],

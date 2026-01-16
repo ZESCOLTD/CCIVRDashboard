@@ -148,7 +148,7 @@ class BotPressAnalyticsService extends Command
                 // --- END UPDATE OR CREATE LOGIC ---
 
 
-                $this->info("Inserted totals for {$date}: Sessions {$totalSessions}, Users {$totalUserMessages}, Bots {$totalBotMessages}");
+                $this->info("Inserted totals for {$date}: Sessions {$totalSessions}, User Messages {$totalUserMessages}, Bot Messages {$totalBotMessages}");
 
             } catch (\Throwable $e) {
                 $this->error("Error fetching {$date}: " . $e->getMessage());
