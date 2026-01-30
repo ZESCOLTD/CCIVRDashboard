@@ -1269,57 +1269,36 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const loginButton = document.getElementById('login-btn');
-
-            const updateButtonState = (state) => {
-                if (state === 'granted') {
-                    if (loginButton) {
-                        loginButton.disabled = false;
-                        loginButton.style.opacity = "1";
-                    }
-                } else {
-                    // Disable login button if it exists
-                    if (loginButton) {
-                        loginButton.disabled = true;
-                        loginButton.style.opacity = "0.5";
-                    }
-
-                    // If permissions are denied, tell Livewire to log the agent out
-                    if (state === 'denied') {
-                        console.warn('Microphone permission denied. Signaling Livewire...');
-
-                        // For Livewire v2:
-                        if (window.livewire) {
-                            window.livewire.emit('micPermissionDenied');
-                        }
-                        // For Livewire v3:
-                        // else if (window.Livewire) {
-                        //     window.Livewire.dispatch('micPermissionDenied');
-                        // }
-                    }
-                }
-            };
-
-            const monitorMicPermission = () => {
+            const monitorMic = () => {
                 if (navigator.permissions && navigator.permissions.query) {
                     navigator.permissions.query({
                             name: 'microphone'
                         })
                         .then(permissionStatus => {
-                            updateButtonState(permissionStatus.state);
-                            permissionStatus.onchange = () => updateButtonState(permissionStatus.state);
+
+                            // Logic to run on change
+                            const check = (state) => {
+                                if (state === 'denied') {
+                                    // 1. Tell Livewire to log out in the background
+                                    window.livewire.emit('forceLogout');
+
+                                    // 2. Wait a split second for the request to fire, then reload
+                                    setTimeout(() => {
+                                        window.location.reload();
+                                    }, 500);
+                                }
+                            };
+
+                            // Run once on load
+                            check(permissionStatus.state);
+
+                            // Run whenever they change it
+                            permissionStatus.onchange = () => check(permissionStatus.state);
                         });
                 }
             };
 
-            monitorMicPermission();
-
-            window.addEventListener('livewire:load', () => {
-                // Listen for the "refresh" event emitted from PHP
-                window.livewire.on('refresh', () => {
-                    monitorMicPermission();
-                });
-            });
+            monitorMic();
         });
     </script>
 @endpush

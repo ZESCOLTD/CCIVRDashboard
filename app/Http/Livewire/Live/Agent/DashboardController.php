@@ -63,7 +63,8 @@ class DashboardController extends Component
         'filename' => 'filename',
         'showCustomerModal',
         'refreshComponent' => 'refreshComponent',
-        'micPermissionDenied' => 'forceLogoutDueToMic' // <--- Add this
+        'micPermissionDenied' => 'forceLogoutDueToMic', // <--- Add this
+        'forceLogout' => 'handleForceLogout'
     ];
     // Logic for customer search start
     public $search_term;
@@ -556,6 +557,13 @@ class DashboardController extends Component
         $this->clearSession();
         $this->emitSelf('refresh');
     }
+
+    public function handleForceLogout()
+{
+    // Reuse your existing logout logic to clean up the DB and sessions
+    $this->logout();
+    Log::warning("Agent forced logout due to mic permissions.");
+}
 
     public function forceLogoutDueToMic()
     {
