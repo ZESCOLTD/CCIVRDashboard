@@ -1272,29 +1272,32 @@
             const loginButton = document.getElementById('login-btn');
             const requestButton = document.getElementById('mic-request-button');
 
-            /**
-             * Updates the Login Button state based on mic permission.
-             */
+            // DEBUG: Check if elements even exist
+            console.log('Login Button found:', !!loginButton);
+            console.log('Request Button found:', !!requestButton);
+
             const updateButtonState = (state) => {
-                if (!loginButton) return;
+                if (!loginButton) {
+                    console.error('Update failed: #login-btn not found in DOM');
+                    return;
+                }
 
                 if (state === 'granted') {
                     loginButton.disabled = false;
-                    loginButton.title = ""; // Clear tooltip
-                    console.log('Mic access granted: Login enabled.');
+                    loginButton.style.opacity = "1";
+                    loginButton.style.cursor = "pointer";
+                    console.log('State: GRANTED - Button Enabled');
                 } else {
                     loginButton.disabled = true;
-                    loginButton.title = "Microphone access is required to login.";
-                    console.log('Mic access missing: Login disabled.');
+                    loginButton.style.opacity = "0.5";
+                    loginButton.style.cursor = "not-allowed";
+                    console.log('State: ' + state + ' - Button Disabled');
                 }
             };
 
-            /**
-             * Checks permission status using Permissions API
-             */
             const checkMicPermission = () => {
-                if (!navigator.permissions) {
-                    // If API not supported, disable by default until they click request
+                if (!navigator.permissions || !navigator.permissions.query) {
+                    // Safari/Older browsers might need a manual trigger
                     updateButtonState('prompt');
                     return;
                 }
@@ -1304,40 +1307,33 @@
                     })
                     .then(permissionStatus => {
                         updateButtonState(permissionStatus.state);
-
-                        // Listen for changes if user toggles permissions in browser settings
-                        permissionStatus.onchange = () => {
-                            updateButtonState(permissionStatus.state);
-                        };
+                        permissionStatus.onchange = () => updateButtonState(permissionStatus.state);
                     })
                     .catch(err => {
-                        console.error('Error querying mic:', err);
-                        updateButtonState('denied');
+                        console.warn('Permissions API failed, falling back to prompt state');
+                        updateButtonState('prompt');
                     });
             };
 
-            /**
-             * Triggers the browser prompt
-             */
             const requestMicAccess = () => {
                 navigator.mediaDevices.getUserMedia({
                         audio: true
                     })
                     .then(stream => {
                         updateButtonState('granted');
-                        // Stop the tracks immediately to turn off the hardware light
                         stream.getTracks().forEach(track => track.stop());
                     })
                     .catch(err => {
                         updateButtonState('denied');
-                        console.error("Mic access denied:", err);
+                        alert("Microphone access denied. Please enable it in browser settings.");
                     });
             };
 
-            // 1. Initial check on page load
+            // START: Disable immediately until check completes
+            if (loginButton) loginButton.disabled = true;
+
             checkMicPermission();
 
-            // 2. Click handler for the separate request button
             if (requestButton) {
                 requestButton.addEventListener('click', requestMicAccess);
             }
