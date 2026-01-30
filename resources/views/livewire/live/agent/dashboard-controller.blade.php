@@ -211,7 +211,8 @@
                                     @if ($agent != null)
                                         @if (in_array($agent->status, ['LOGGED_OUT', 'WITHDRAWN', 'AgentState.LOGGEDOUT']))
                                             <form wire:submit.prevent="login">
-                                                <button type="submit" class="btn btn-success btn-block">
+                                                <button id="login-btn" type="submit"
+                                                    class="btn btn-success btn-block">
                                                     <i class="fas fa-sign-in-alt mr-1"></i> Login
                                                 </button>
                                             </form>
@@ -1268,43 +1269,33 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const alertContainer = document.getElementById('mic-status-alert-container');
+            const loginButton = document.getElementById('login-btn');
             const requestButton = document.getElementById('mic-request-button');
 
-            if (!alertContainer) {
-                console.error("Alert container not found.");
-                return;
-            }
-
             /**
-             * Toggles the visibility of the alert container based on permission status.
-             * @param {string} state - The current state of the permission ('granted', 'denied', 'prompt').
+             * Updates the Login Button state based on mic permission.
              */
-            const updateAlertVisibility = (state) => {
+            const updateButtonState = (state) => {
+                if (!loginButton) return;
+
                 if (state === 'granted') {
-                    // Hide the div smoothly
-                    alertContainer.style.opacity = '0';
-                    setTimeout(() => {
-                        alertContainer.style.display = 'none';
-                    }, 300); // Matches the CSS transition time
-                    console.log('Permission granted. Alert hidden.');
+                    loginButton.disabled = false;
+                    loginButton.title = ""; // Clear tooltip
+                    console.log('Mic access granted: Login enabled.');
                 } else {
-                    // Show the div
-                    alertContainer.style.display = 'block';
-                    setTimeout(() => {
-                        alertContainer.style.opacity = '1';
-                    }, 10);
-                    console.log('Permission not granted. Alert visible.');
+                    loginButton.disabled = true;
+                    loginButton.title = "Microphone access is required to login.";
+                    console.log('Mic access missing: Login disabled.');
                 }
             };
 
             /**
-             * Checks the microphone permission status using the Permissions API.
+             * Checks permission status using Permissions API
              */
             const checkMicPermission = () => {
                 if (!navigator.permissions) {
-                    console.warn("Permissions API not supported in this browser.");
-                    // Keep the alert visible and rely on getUserMedia to prompt
+                    // If API not supported, disable by default until they click request
+                    updateButtonState('prompt');
                     return;
                 }
 
@@ -1312,46 +1303,41 @@
                         name: 'microphone'
                     })
                     .then(permissionStatus => {
-                        // Initial check and visibility update
-                        updateAlertVisibility(permissionStatus.state);
+                        updateButtonState(permissionStatus.state);
 
-                        // Listen for future changes (e.g., if the user changes it in settings)
+                        // Listen for changes if user toggles permissions in browser settings
                         permissionStatus.onchange = () => {
-                            updateAlertVisibility(permissionStatus.state);
+                            updateButtonState(permissionStatus.state);
                         };
                     })
-                    .catch(error => {
-                        console.error('Error querying microphone permission:', error);
+                    .catch(err => {
+                        console.error('Error querying mic:', err);
+                        updateButtonState('denied');
                     });
             };
 
             /**
-             * Requests microphone access using getUserMedia and updates the UI on success.
+             * Triggers the browser prompt
              */
             const requestMicAccess = () => {
                 navigator.mediaDevices.getUserMedia({
                         audio: true
                     })
-                    .then(function(stream) {
-                        // SUCCESS: This means permission was granted.
-                        updateAlertVisibility('granted');
-
-                        // IMPORTANT: Stop the tracks immediately if you are only checking permissions
-                        // If you intend to use the stream, remove the following block.
+                    .then(stream => {
+                        updateButtonState('granted');
+                        // Stop the tracks immediately to turn off the hardware light
                         stream.getTracks().forEach(track => track.stop());
-
                     })
-                    .catch(function(err) {
-                        // FAILURE: Permissions denied or hardware error.
-                        updateAlertVisibility('denied'); // Explicitly show/keep alert visible
-                        console.error("Microphone access failed: ", err);
+                    .catch(err => {
+                        updateButtonState('denied');
+                        console.error("Mic access denied:", err);
                     });
             };
 
-            // 1. Check the permission status on load
+            // 1. Initial check on page load
             checkMicPermission();
 
-            // 2. Attach the request function to the button click
+            // 2. Click handler for the separate request button
             if (requestButton) {
                 requestButton.addEventListener('click', requestMicAccess);
             }
