@@ -1270,11 +1270,11 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const loginButton = document.getElementById('login-btn');
-            const requestButton = document.getElementById('mic-request-button');
+            // const requestButton = document.getElementById('mic-request-button');
 
             // DEBUG: Check if elements even exist
             console.log('Login Button found:', !!loginButton);
-            console.log('Request Button found:', !!requestButton);
+            // console.log('Request Button found:', !!requestButton);
 
             const updateButtonState = (state) => {
                 if (!loginButton) {
@@ -1334,9 +1334,9 @@
 
             checkMicPermission();
 
-            if (requestButton) {
-                requestButton.addEventListener('click', requestMicAccess);
-            }
+            // if (requestButton) {
+            //     requestButton.addEventListener('click', requestMicAccess);
+            // }
         });
     </script>
 @endpush
