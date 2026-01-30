@@ -1269,6 +1269,11 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            // We only care about forcing a logout/reload if the "Login" button is NOT present.
+            // If the login button IS present, the agent is already logged out.
+            const loginButton = document.getElementById('login-btn');
+            const isAgentActive = !loginButton;
+
             const monitorMic = () => {
                 if (navigator.permissions && navigator.permissions.query) {
                     navigator.permissions.query({
@@ -1276,23 +1281,29 @@
                         })
                         .then(permissionStatus => {
 
-                            // Logic to run on change
                             const check = (state) => {
-                                if (state === 'denied') {
-                                    // 1. Tell Livewire to log out in the background
-                                    window.livewire.emit('forceLogout');
+                                // Only trigger reload if mic is denied AND the agent is currently active/logged in
+                                if (state === 'denied' && isAgentActive) {
+                                    console.warn('Mic denied while agent active. Logging out...');
 
-                                    // 2. Wait a split second for the request to fire, then reload
+                                    if (window.livewire) {
+                                        window.livewire.emit('forceLogout');
+                                    }
+
                                     setTimeout(() => {
                                         window.location.reload();
                                     }, 500);
                                 }
+
+                                // If we are on the login page and mic is denied, just disable the button
+                                if (state === 'denied' && loginButton) {
+                                    loginButton.disabled = true;
+                                    loginButton.style.opacity = "0.5";
+                                    loginButton.title = "Microphone access is required to login.";
+                                }
                             };
 
-                            // Run once on load
                             check(permissionStatus.state);
-
-                            // Run whenever they change it
                             permissionStatus.onchange = () => check(permissionStatus.state);
                         });
                 }
