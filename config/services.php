@@ -43,4 +43,6 @@ return [
         'token'        => env('BOTPRESS_TOKEN'),
     ],
 
+    'google_analytics' =>  env('WEBSITE_STATS'),
+
 ];

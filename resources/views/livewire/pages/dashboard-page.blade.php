@@ -19,12 +19,12 @@
             <div class="row g-2">
                 <div class="col-md-4">
                     <div class="small">
-                        <livewire:dashboard.network-pie-chart />
+                        {{-- <livewire:dashboard.network-pie-chart /> --}}
                     </div>
                 </div>
                 <div class="col-md-8">
                     <div class="small">
-                        <livewire:dashboard.minute-network-chart />
+                        {{-- <livewire:dashboard.minute-network-chart /> --}}
                     </div>
                 </div>
             </div>
@@ -33,7 +33,7 @@
     <div class="row mt-2">
         <div class="col-sm-12  col-lg-12 ">
             <div class="small">
-                <livewire:dashboard.hourly-network-chart />
+                {{-- <livewire:dashboard.hourly-network-chart /> --}}
             </div>
         </div>
     </div>
