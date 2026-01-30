@@ -210,14 +210,12 @@
                                 <div class="mt-3">
                                     @if ($agent != null)
                                         @if (in_array($agent->status, ['LOGGED_OUT', 'WITHDRAWN', 'AgentState.LOGGEDOUT']))
-                                        <form wire:submit.prevent="login">
-                                            <button id="login-btn"
-                                                    type="submit"
-                                                    wire:ignore
+                                            <form wire:submit.prevent="login">
+                                                <button id="login-btn" type="submit" wire:ignore
                                                     class="btn btn-success btn-block">
-                                                <i class="fas fa-sign-in-alt mr-1"></i> Login
-                                            </button>
-                                        </form>
+                                                    <i class="fas fa-sign-in-alt mr-1"></i> Login
+                                                </button>
+                                            </form>
                                         @else
                                             <div class="d-flex">
                                                 <form
@@ -1315,6 +1313,13 @@
             };
 
             monitorMicPermission();
+
+            window.addEventListener('livewire:load', () => {
+                // Listen for the "refresh" event emitted from PHP
+                window.livewire.on('refresh', () => {
+                    monitorMicPermission();
+                });
+            });
         });
     </script>
 @endpush
