@@ -1270,73 +1270,49 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const loginButton = document.getElementById('login-btn');
-            // const requestButton = document.getElementById('mic-request-button');
-
-            // DEBUG: Check if elements even exist
-            console.log('Login Button found:', !!loginButton);
-            // console.log('Request Button found:', !!requestButton);
 
             const updateButtonState = (state) => {
-                if (!loginButton) {
-                    console.error('Update failed: #login-btn not found in DOM');
-                    return;
-                }
-
                 if (state === 'granted') {
-                    loginButton.disabled = false;
-                    loginButton.style.opacity = "1";
-                    loginButton.style.cursor = "pointer";
-                    console.log('State: GRANTED - Button Enabled');
+                    if (loginButton) {
+                        loginButton.disabled = false;
+                        loginButton.style.opacity = "1";
+                    }
                 } else {
-                    loginButton.disabled = true;
-                    loginButton.style.opacity = "0.5";
-                    loginButton.style.cursor = "not-allowed";
-                    console.log('State: ' + state + ' - Button Disabled');
+                    // Disable login button if it exists
+                    if (loginButton) {
+                        loginButton.disabled = true;
+                        loginButton.style.opacity = "0.5";
+                    }
+
+                    // If permissions are denied, tell Livewire to log the agent out
+                    if (state === 'denied') {
+                        console.warn('Microphone permission denied. Signaling Livewire...');
+
+                        // For Livewire v2:
+                        if (window.livewire) {
+                            window.livewire.emit('micPermissionDenied');
+                        }
+                        // For Livewire v3:
+                        // else if (window.Livewire) {
+                        //     window.Livewire.dispatch('micPermissionDenied');
+                        // }
+                    }
                 }
             };
 
-            const checkMicPermission = () => {
-                if (!navigator.permissions || !navigator.permissions.query) {
-                    // Safari/Older browsers might need a manual trigger
-                    updateButtonState('prompt');
-                    return;
+            const monitorMicPermission = () => {
+                if (navigator.permissions && navigator.permissions.query) {
+                    navigator.permissions.query({
+                            name: 'microphone'
+                        })
+                        .then(permissionStatus => {
+                            updateButtonState(permissionStatus.state);
+                            permissionStatus.onchange = () => updateButtonState(permissionStatus.state);
+                        });
                 }
-
-                navigator.permissions.query({
-                        name: 'microphone'
-                    })
-                    .then(permissionStatus => {
-                        updateButtonState(permissionStatus.state);
-                        permissionStatus.onchange = () => updateButtonState(permissionStatus.state);
-                    })
-                    .catch(err => {
-                        console.warn('Permissions API failed, falling back to prompt state');
-                        updateButtonState('prompt');
-                    });
             };
 
-            const requestMicAccess = () => {
-                navigator.mediaDevices.getUserMedia({
-                        audio: true
-                    })
-                    .then(stream => {
-                        updateButtonState('granted');
-                        stream.getTracks().forEach(track => track.stop());
-                    })
-                    .catch(err => {
-                        updateButtonState('denied');
-                        alert("Microphone access denied. Please enable it in browser settings.");
-                    });
-            };
-
-            // START: Disable immediately until check completes
-            if (loginButton) loginButton.disabled = true;
-
-            checkMicPermission();
-
-            // if (requestButton) {
-            //     requestButton.addEventListener('click', requestMicAccess);
-            // }
+            monitorMicPermission();
         });
     </script>
 @endpush

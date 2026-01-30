@@ -58,8 +58,13 @@ class DashboardController extends Component
     public $recordFilename;
 
 
-    protected $listeners = ['refresh' => '$refresh', 'filename' => 'filename', 'showCustomerModal', 'refreshComponent' => 'refreshComponent'];
-
+    protected $listeners = [
+        'refresh' => '$refresh',
+        'filename' => 'filename',
+        'showCustomerModal',
+        'refreshComponent' => 'refreshComponent',
+        'micPermissionDenied' => 'forceLogoutDueToMic' // <--- Add this
+    ];
     // Logic for customer search start
     public $search_term;
     public $show_modal = false; // You might not need this if relying on the modal's ID
@@ -550,6 +555,20 @@ class DashboardController extends Component
         $this->agent->refresh();
         $this->clearSession();
         $this->emitSelf('refresh');
+    }
+
+    public function forceLogoutDueToMic()
+    {
+        Log::warning("Agent ID: {$this->user->id} forced logout due to microphone permission revocation.");
+
+        // Call your existing logout logic
+        $this->logout();
+
+        // Optional: Send a browser event to show an alert to the user
+        $this->dispatchBrowserEvent('alert', [
+            'type' => 'error',
+            'message' => 'You have been logged out because microphone access is required.'
+        ]);
     }
 
 
