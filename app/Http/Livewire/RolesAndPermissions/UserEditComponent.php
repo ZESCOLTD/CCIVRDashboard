@@ -24,10 +24,11 @@ class UserEditComponent extends Component
     {
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $this->userIdBeingEdited,
+            // Changed 'required' to 'nullable'
+            'email' => 'nullable|email|unique:users,email,' . $this->userIdBeingEdited,
             'password' => 'nullable|min:6',
-            'roles' => 'array', // Allow it to be an empty array
-            'roles.*' => 'string|exists:roles,name', // Validate each role name
+            'roles' => 'array',
+            'roles.*' => 'string|exists:roles,name',
         ];
     }
 
