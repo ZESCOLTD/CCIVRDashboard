@@ -1047,6 +1047,11 @@
         window.addEventListener('livewire:load', () => {
             // Global variable to hold the single WebSocket connection
             let socket = null;
+
+            // This Set tracks channel IDs that were successfully answered
+            const answeredCalls = new Set();
+            // --- VARIABLE PLACEMENT END ---
+
             const apiUrl = "https://ivr.zesco.co.zm:8089/ari/bridges?api_key=asterisk:asterisk";
 
             /**
@@ -1125,27 +1130,52 @@
                     Livewire.emit('refreshComponent');
                 });
 
+
+
                 socket.addEventListener("message", (event) => {
                     var data = JSON.parse(event.data);
 
-                    if (data.type === "Dial" && data.dialstring == {{ $agent->endpoint }}) {
-                        fetchHoldingBridgeData();
-                        document.getElementById("incoming-call").innerHTML = data.peer.caller.number;
+                    // 1. Handle Dial events to track successful answers
+                    if (data.type === "Dial") {
+                        if (data.dialstring == {{ $agent->endpoint }}) {
+                            fetchHoldingBridgeData();
+
+                            // Only update UI and track if the status is specifically ANSWER
+                            if (data.dialstatus === "ANSWER") {
+                                console.log("Call answered by agent. Tracking channel ID:", data.peer.id);
+                                answeredCalls.add(data.peer.id);
+                                document.getElementById("incoming-call").innerHTML = data.peer.caller
+                                    .number;
+                            }
+                        }
                     }
 
+                    // 2. Standard bridge updates
                     if (data.type === "ChannelLeftBridge" || data.type === "ChannelEnteredBridge") {
                         fetchHoldingBridgeData();
                     }
 
+                    // 3. Handle StasisEnd with the "Answered" guard
                     if (data.type === "StasisEnd") {
                         fetchHoldingBridgeData();
 
+                        const channelId = data.channel.id;
                         const appData = data.channel.dialplan.app_data;
-                        const parts = appData.split(',');
 
+                        // GUARD: Only proceed if this channel ID was previously marked as ANSWERED
+                        // This prevents modals on missed calls, busy signals, or cancellations.
+                        if (!answeredCalls.has(channelId)) {
+                            console.log("StasisEnd: Call was not answered. Skipping modal for channel:",
+                                channelId);
+                            return;
+                        }
+
+                        // Remove from set to clean up memory
+                        answeredCalls.delete(channelId);
+
+                        const parts = appData.split(',');
                         if (parts.length >= 5) {
                             const filename = parts[5];
-                            // Assuming the agent extension is the last 4 digits of the second part (parts[2].slice(-4))
                             const agent = parts[2].slice(-4);
 
                             if (agent == {{ $agent->endpoint }}) {
