@@ -724,32 +724,24 @@ class DashboardController extends Component
 
     public function calculateTotalBreakDurationForToday()
     {
-        if (!$this->agent) {
-            $this->totalBreakDuration = '00:00:00';
-            return;
-        }
+        if (!$this->agent) return;
 
-        // 1. Get all breaks for today
-        $breaks = AgentBreak::where('agent_id', $this->agent->id)
+        $this->totalSeconds = AgentBreak::where('agent_id', $this->agent->id)
             ->whereDate('started_at', now()->today())
-            ->get();
+            ->get()
+            ->sum(function ($break) {
+                $start = \Carbon\Carbon::parse($break->started_at);
 
-        // 2. Sum them up (handling the "Active" break)
-        $this->totalSeconds = $breaks->reduce(function ($carry, $break) {
-            // IMPORTANT: Always parse to Carbon in case the model cast fails
-            $start = \Carbon\Carbon::parse($break->started_at);
+                // If the agent is CURRENTLY on break, ended_at is null.
+                // We use now() to calculate the time elapsed since they started.
+                $end = $break->ended_at ? \Carbon\Carbon::parse($break->ended_at) : now();
 
-            // If ended_at is null, they are currently ON break.
-            // Use the current server time to calculate the "live" duration.
-            $end = $break->ended_at ? \Carbon\Carbon::parse($break->ended_at) : now();
+                return $end->diffInSeconds($start);
+            });
 
-            return $carry + $end->diffInSeconds($start);
-        }, 0);
-
-        // 3. Format for UI
         $this->totalBreakDuration = gmdate('H:i:s', $this->totalSeconds);
 
-        // 4. Update the Limit Warning (40 mins = 2400 seconds)
-        $this->breakLimitReached = $this->totalSeconds >= 2400;
+        // Debugging: Remove this after testing
+        // \Log::info('Break Calculation for ' . $this->agent->id . ': ' . $this->totalBreakDuration);
     }
 }
