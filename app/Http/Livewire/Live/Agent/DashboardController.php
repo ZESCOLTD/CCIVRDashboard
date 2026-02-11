@@ -735,21 +735,18 @@ class DashboardController extends Component
     {
         if (!$this->agent) return;
 
-        // Use a wider range to catch today's records regardless of timezone drift
-        $startOfToday = now()->startOfDay();
-        $endOfToday = now()->endOfDay();
-
         $this->totalSeconds = AgentBreak::where('agent_id', $this->agent->id)
-            ->whereBetween('started_at', [$startOfToday, $endOfToday])
+            ->whereDate('started_at', now()->today())
             ->get()
             ->sum(function ($break) {
-                // ESSENTIAL: Ensure Carbon parsing
-                $start = \Carbon\Carbon::parse($break->started_at);
-                $end = $break->ended_at ? \Carbon\Carbon::parse($break->ended_at) : now();
+                // Because we added $casts to the model,
+                // $break->started_at is already a Carbon object!
 
-                return $end->diffInSeconds($start);
+                $end = $break->ended_at ?? now();
+                return $end->diffInSeconds($break->started_at);
             });
 
         $this->totalBreakDuration = gmdate('H:i:s', $this->totalSeconds);
+        $this->breakLimitReached = $this->totalSeconds >= 2400;
     }
 }

@@ -18,10 +18,11 @@ class AgentBreak extends Model
         'ended_at',
     ];
 
-    protected $dates = [
-        'started_at',
-        'ended_at',
-    ];
+    // To this:
+protected $casts = [
+    'started_at' => 'datetime',
+    'ended_at' => 'datetime',
+];
 
     // Relationship to Agent
     public function agent()
