@@ -723,25 +723,31 @@ class DashboardController extends Component
     // }
 
     public function calculateTotalBreakDurationForToday()
-    {
-        if (!$this->agent) return;
-
-        $this->totalSeconds = AgentBreak::where('agent_id', $this->agent->id)
-            ->whereDate('started_at', now()->today())
-            ->get()
-            ->sum(function ($break) {
-                $start = \Carbon\Carbon::parse($break->started_at);
-
-                // If the agent is CURRENTLY on break, ended_at is null.
-                // We use now() to calculate the time elapsed since they started.
-                $end = $break->ended_at ? \Carbon\Carbon::parse($break->ended_at) : now();
-
-                return $end->diffInSeconds($start);
-            });
-
-        $this->totalBreakDuration = gmdate('H:i:s', $this->totalSeconds);
-
-        // Debugging: Remove this after testing
-        // \Log::info('Break Calculation for ' . $this->agent->id . ': ' . $this->totalBreakDuration);
+{
+    if (!$this->agent) {
+        $this->totalBreakDuration = '00:00:00';
+        return;
     }
+
+    // Force a fresh query from the database
+    $this->totalSeconds = AgentBreak::where('agent_id', $this->agent->id)
+        ->whereDate('started_at', now()->today())
+        ->get()
+        ->sum(function ($break) {
+            // Ensure we are dealing with Carbon objects
+            $start = \Carbon\Carbon::parse($break->started_at);
+
+            // This is the "Engine" of your timer:
+            // If the break is still active (null), we use the CURRENT server time.
+            $end = $break->ended_at ? \Carbon\Carbon::parse($break->ended_at) : now();
+
+            return $end->diffInSeconds($start);
+        });
+
+    // Update the string that the view displays
+    $this->totalBreakDuration = gmdate('H:i:s', $this->totalSeconds);
+
+    // Update the limit status
+    $this->breakLimitReached = $this->totalSeconds >= 2400;
+}
 }
