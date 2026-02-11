@@ -735,19 +735,21 @@ class DashboardController extends Component
     {
         if (!$this->agent) return;
 
-        // We query the database for ANY break today,
-        // including the one that might have a NULL ended_at
+        // Use a wider range to catch today's records regardless of timezone drift
+        $startOfToday = now()->startOfDay();
+        $endOfToday = now()->endOfDay();
+
         $this->totalSeconds = AgentBreak::where('agent_id', $this->agent->id)
-            ->whereDate('started_at', now()->today())
+            ->whereBetween('started_at', [$startOfToday, $endOfToday])
             ->get()
             ->sum(function ($break) {
+                // ESSENTIAL: Ensure Carbon parsing
                 $start = \Carbon\Carbon::parse($break->started_at);
-                // Use now() if the break is still open
                 $end = $break->ended_at ? \Carbon\Carbon::parse($break->ended_at) : now();
+
                 return $end->diffInSeconds($start);
             });
 
         $this->totalBreakDuration = gmdate('H:i:s', $this->totalSeconds);
-        $this->breakLimitReached = $this->totalSeconds >= 2400;
     }
 }
