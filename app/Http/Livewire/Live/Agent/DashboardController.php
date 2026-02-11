@@ -512,18 +512,27 @@ class DashboardController extends Component
     {
         if (!$this->agent) return;
 
+        // 1. Update Agent Status
         $this->agent->status = config('constants.agent_status.IDLE');
-        $this->agent->user_status = config('constants.agent_status.IDLE'); // Set user status to ONLINE
+        $this->agent->user_status = config('constants.agent_status.IDLE');
         $this->agent->save();
 
-        // End the latest break
+        // 2. End the latest break
+        // Using update() is fine, but ensure the timestamp is set precisely
         AgentBreak::where('agent_id', $this->agent->id)
             ->whereNull('ended_at')
-            ->latest()
+            ->latest('started_at') // Be explicit about which column to order by
+            ->limit(1)             // Extra safety to ensure only one is closed
             ->update(['ended_at' => now()]);
 
+        // 3. Refresh Agent state
         $this->agent = $this->agent->fresh();
+
+        // 4. CRITICAL: Re-calculate one last time
+        // This stops the timer exactly at the 'ended_at' time for the UI
+        $this->calculateTotalBreakDurationForToday();
     }
+
     public function status($status)
     {
         if (!$this->agent) {
