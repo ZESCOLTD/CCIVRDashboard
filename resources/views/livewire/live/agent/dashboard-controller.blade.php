@@ -183,8 +183,9 @@
                                     <h3 id="queue-calls" wire:ignore class="ml-2">--</h3>
                                 </div>
 
-                                @if ($agent && $agent->status === config('constants.agent_status.ON_BREAK'))
-                                    <div wire:poll.1s="calculateTotalBreakDurationForToday">
+                                <div wire:poll.1s="calculateTotalBreakDurationForToday">
+
+                                    @if ($agent && $agent->status === config('constants.agent_status.ON_BREAK'))
                                         <div class="d-flex align-items-center mt-3">
                                             <i class="fas fa-stopwatch mr-2 text-danger font-weight-bold h4"></i>
                                             <strong class="text-danger h5">Total Break Time:</strong>
@@ -193,18 +194,14 @@
                                             </span>
                                         </div>
 
-                                        {{-- <div wire:poll.60s="calculateTotalBreakDuration">
-                                            Break Duration: {{ $breakDuration }}
-                                        </div> --}}
-
                                         @if ($breakLimitReached)
                                             <div class="text-danger font-weight-bold text-center mt-2">
                                                 ⚠️ Total break time exceeded 40 minutes for this shift.
                                             </div>
                                         @endif
-                                    </div>
-                                @endif
+                                    @endif
 
+                                </div>
 
 
                                 <div class="mt-3">
