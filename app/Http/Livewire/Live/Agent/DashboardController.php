@@ -51,6 +51,7 @@ class DashboardController extends Component
     public $breakDuration = '00:00:00';
     public $breakLimitReached = false;
     public $breakMinutes = 0;
+    public $totalSeconds = 0; // Add this line!
 
     public $totalBreakDuration;
     public $t_code;
@@ -559,11 +560,11 @@ class DashboardController extends Component
     }
 
     public function handleForceLogout()
-{
-    // Reuse your existing logout logic to clean up the DB and sessions
-    $this->logout();
-    Log::warning("Agent forced logout due to mic permissions.");
-}
+    {
+        // Reuse your existing logout logic to clean up the DB and sessions
+        $this->logout();
+        Log::warning("Agent forced logout due to mic permissions.");
+    }
 
     public function forceLogoutDueToMic()
     {
@@ -698,6 +699,29 @@ class DashboardController extends Component
     //     // dd($this->totalBreakDuration);
     // }
 
+    // public function calculateTotalBreakDurationForToday()
+    // {
+    //     if (!$this->agent) {
+    //         $this->totalBreakDuration = '00:00:00';
+    //         return;
+    //     }
+
+    //     $todayStart = now()->startOfDay();
+    //     $todayEnd = now()->endOfDay();
+
+    //     $totalSeconds = AgentBreak::where('agent_id', $this->agent->id)
+    //         ->where('started_at', '>=', $todayStart)
+    //         ->where('started_at', '<=', $todayEnd)
+    //         ->get()
+    //         ->reduce(function ($carry, $break) {
+    //             $end = $break->ended_at ?? now(); // still on break if ended_at is null
+    //             return $carry + $end->diffInSeconds($break->started_at);
+    //         }, 0);
+
+    //     $this->totalBreakDuration = gmdate('H:i:s', $totalSeconds);
+    //     // dd($this->totalBreakDuration);
+    // }
+
     public function calculateTotalBreakDurationForToday()
     {
         if (!$this->agent) {
@@ -705,19 +729,27 @@ class DashboardController extends Component
             return;
         }
 
-        $todayStart = now()->startOfDay();
-        $todayEnd = now()->endOfDay();
+        // 1. Get all breaks for today
+        $breaks = AgentBreak::where('agent_id', $this->agent->id)
+            ->whereDate('started_at', now()->today())
+            ->get();
 
-        $totalSeconds = AgentBreak::where('agent_id', $this->agent->id)
-            ->where('started_at', '>=', $todayStart)
-            ->where('started_at', '<=', $todayEnd)
-            ->get()
-            ->reduce(function ($carry, $break) {
-                $end = $break->ended_at ?? now(); // still on break if ended_at is null
-                return $carry + $end->diffInSeconds($break->started_at);
-            }, 0);
+        // 2. Sum them up (handling the "Active" break)
+        $this->totalSeconds = $breaks->reduce(function ($carry, $break) {
+            // IMPORTANT: Always parse to Carbon in case the model cast fails
+            $start = \Carbon\Carbon::parse($break->started_at);
 
-        $this->totalBreakDuration = gmdate('H:i:s', $totalSeconds);
-        // dd($this->totalBreakDuration);
+            // If ended_at is null, they are currently ON break.
+            // Use the current server time to calculate the "live" duration.
+            $end = $break->ended_at ? \Carbon\Carbon::parse($break->ended_at) : now();
+
+            return $carry + $end->diffInSeconds($start);
+        }, 0);
+
+        // 3. Format for UI
+        $this->totalBreakDuration = gmdate('H:i:s', $this->totalSeconds);
+
+        // 4. Update the Limit Warning (40 mins = 2400 seconds)
+        $this->breakLimitReached = $this->totalSeconds >= 2400;
     }
 }
