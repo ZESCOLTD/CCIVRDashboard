@@ -297,6 +297,11 @@ class DashboardController extends Component
             $averageDurationFormatted = "No call records found.";
         }
 
+        // 1. RECALCULATE BREAK DURATION HERE
+        // This ensures that even on a fresh page load or a poll,
+        // the variable is updated before the HTML is sent to the browser.
+        $this->calculateTotalBreakDurationForToday();
+
         return view('livewire.live.agent.dashboard-controller', [
             'agent' => $this->agent,
             'api_server' => $api_server,
