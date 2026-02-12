@@ -775,5 +775,8 @@ class DashboardController extends Component
 
         $this->totalBreakDuration = gmdate('H:i:s', $this->totalSeconds);
         $this->breakLimitReached = $this->totalSeconds >= 2400;
+
+
+        $this->emitSelf('refresh'); // <-- force Livewire to update DOM
     }
 }
