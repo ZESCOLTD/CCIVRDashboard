@@ -751,32 +751,35 @@ class DashboardController extends Component
     {
         if (!$this->agent) return;
 
-        // Refresh the agent to get latest breaks
-        $this->agent->refresh();
-
         $now = now();
+        $today = $now->toDateString();
 
-        // Get all today's breaks, including active one
+        // Get all breaks for today + any active breaks
         $breaks = AgentBreak::where('agent_id', $this->agent->id)
-            ->where(function ($query) use ($now) {
-                $query->whereDate('started_at', $now->toDateString())
-                    ->orWhereNull('ended_at'); // include active break
+            ->where(function ($query) use ($today) {
+                $query->whereDate('started_at', $today)
+                    ->orWhereNull('ended_at'); // include ongoing break
             })
             ->get();
 
         $totalSeconds = 0;
+        $activeBreakStarted = null;
 
         foreach ($breaks as $break) {
             $start = $break->started_at;
-            $end = $break->ended_at ?? now();
+            $end = $break->ended_at ?? $now;
+
             $totalSeconds += $end->diffInSeconds($start);
+
+            if (!$break->ended_at) {
+                $activeBreakStarted = $break->started_at;
+            }
         }
 
-        // Only update if different to force reactivity
-        if ($totalSeconds !== $this->totalSeconds) {
-            $this->totalSeconds = $totalSeconds;
-            $this->totalBreakDuration = gmdate('H:i:s', $totalSeconds);
-            $this->breakLimitReached = $totalSeconds >= 2400;
-        }
+        // Reactive properties
+        $this->totalSeconds = $totalSeconds;
+        $this->totalBreakDuration = gmdate('H:i:s', $totalSeconds);
+        $this->breakLimitReached = $totalSeconds >= 2400;
+        $this->activeBreakStartedAt = $activeBreakStarted; // ✅ track active break
     }
 }
