@@ -751,32 +751,29 @@ class DashboardController extends Component
     {
         if (!$this->agent) return;
 
-        $this->agent->refresh();
+        $this->agent = $this->agent->fresh();
+        $now = now();
 
+        // Completed breaks for today
         $completedSeconds = AgentBreak::where('agent_id', $this->agent->id)
             ->whereDate('started_at', today())
             ->whereNotNull('ended_at')
             ->get()
-            ->sum(
-                fn($break) =>
-                $break->ended_at->diffInSeconds($break->started_at)
-            );
+            ->sum(fn($break) => $break->ended_at->diffInSeconds($break->started_at));
+
+        // Current active break (if any)
+        $activeBreak = AgentBreak::where('agent_id', $this->agent->id)
+            ->whereNull('ended_at')
+            ->latest('started_at')
+            ->first();
 
         $activeSeconds = 0;
-
-        if (
-            $this->agent->status === config('constants.agent_status.ON_BREAK') &&
-            $this->activeBreakStartedAt
-        ) {
-            $activeSeconds = now()->diffInSeconds($this->activeBreakStartedAt);
+        if ($activeBreak) {
+            $activeSeconds = now()->diffInSeconds($activeBreak->started_at);
         }
 
         $this->totalSeconds = $completedSeconds + $activeSeconds;
-
         $this->totalBreakDuration = gmdate('H:i:s', $this->totalSeconds);
         $this->breakLimitReached = $this->totalSeconds >= 2400;
-
-
-        // $this->emitSelf('refresh'); // <-- force Livewire to update DOM
     }
 }
