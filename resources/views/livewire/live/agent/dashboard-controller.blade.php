@@ -183,28 +183,28 @@
                                     <h3 id="queue-calls" wire:ignore class="ml-2">--</h3>
                                 </div>
 
+                                {{-- ALWAYS poll --}}
                                 <div wire:poll.1s="calculateTotalBreakDurationForToday">
 
                                     @if ($agent && $agent->status === config('constants.agent_status.ON_BREAK'))
-                                        <div class="d-flex align-items-center mt-3" wire:key="break-timer-container">
-                                            <i class="fas fa-stopwatch mr-2 text-danger font-weight-bold h4"></i>
+                                        <div class="d-flex align-items-center mt-3">
+                                            <i class="fas fa-stopwatch mr-2 text-danger h4"></i>
                                             <strong class="text-danger h5">Total Break Time:</strong>
 
-                                            <span class="ml-2 font-weight-bold text-danger h5" wire:key="break-duration-display">
+                                            <span class="ml-2 font-weight-bold text-danger h5">
                                                 {{ $totalBreakDuration }}
                                             </span>
                                         </div>
 
                                         @if ($breakLimitReached)
-                                            <div class="text-danger font-weight-bold text-center mt-2" wire:key="break-limit-warning">
+                                            <div class="text-danger font-weight-bold text-center mt-2">
                                                 ⚠️ Total break time exceeded 40 minutes for this shift.
                                             </div>
                                         @endif
-                                    @else
-                                        <div style="display:none;" wire:key="break-timer-hidden"></div>
                                     @endif
 
                                 </div>
+
 
                                 <div class="mt-3">
                                     @if ($agent != null)
