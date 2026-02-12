@@ -184,13 +184,11 @@
                                 </div>
 
                                 {{-- ALWAYS poll --}}
-                                <div wire:poll.1s="calculateTotalBreakDurationForToday">
-
+                                <div wire:poll.1s="$refresh">
                                     @if ($agent && $agent->status === config('constants.agent_status.ON_BREAK'))
                                         <div class="d-flex align-items-center mt-3">
                                             <i class="fas fa-stopwatch mr-2 text-danger h4"></i>
                                             <strong class="text-danger h5">Total Break Time:</strong>
-
                                             <span class="ml-2 font-weight-bold text-danger h5">
                                                 {{ $totalBreakDuration }}
                                             </span>
@@ -202,8 +200,8 @@
                                             </div>
                                         @endif
                                     @endif
-
                                 </div>
+
 
 
                                 <div class="mt-3">

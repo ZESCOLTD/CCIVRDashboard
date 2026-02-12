@@ -777,6 +777,6 @@ class DashboardController extends Component
         $this->breakLimitReached = $this->totalSeconds >= 2400;
 
 
-        $this->emitSelf('refresh'); // <-- force Livewire to update DOM
+        // $this->emitSelf('refresh'); // <-- force Livewire to update DOM
     }
 }
