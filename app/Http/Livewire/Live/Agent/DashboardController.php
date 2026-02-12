@@ -740,6 +740,8 @@ class DashboardController extends Component
     {
         if (!$this->agent) return;
 
+        $this->agent->refresh();
+
         $this->totalSeconds = AgentBreak::where('agent_id', $this->agent->id)
             ->whereDate('started_at', now()->today())
             ->get()
