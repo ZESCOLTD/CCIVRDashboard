@@ -85,6 +85,7 @@ class DashboardController extends Component
 
         $user = $this->user;
         $this->agent = $user->myAgentDetails;
+        $this->totalBreakDuration = '00:00:00';
         $this->calculateTotalBreakDurationForToday();
         // Load all available sessions
         $this->sessions = CallSession::all();
