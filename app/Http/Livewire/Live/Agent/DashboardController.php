@@ -301,7 +301,7 @@ class DashboardController extends Component
         // 1. RECALCULATE BREAK DURATION HERE
         // This ensures that even on a fresh page load or a poll,
         // the variable is updated before the HTML is sent to the browser.
-        $this->calculateTotalBreakDurationForToday();
+        // $this->calculateTotalBreakDurationForToday();
 
         return view('livewire.live.agent.dashboard-controller', [
             'agent' => $this->agent,
@@ -638,50 +638,50 @@ class DashboardController extends Component
     }
 
 
-    public function updateBreakTimer()
-    {
+    // public function updateBreakTimer()
+    // {
 
-        if (!$this->agent) return;
+    //     if (!$this->agent) return;
 
-        $totalSeconds = 0;
-
-
-        $breaks = AgentBreak::where('agent_id', $this->agent->id)->get();
-
-        foreach ($breaks as $break) {
-            $start = Carbon::parse($break->started_at);
-            $end = $break->ended_at ? Carbon::parse($break->ended_at) : now();
-            $totalSeconds += $end->diffInSeconds($start);
-        }
-
-        $hours = floor($totalSeconds / 3600);
-        $minutes = floor(($totalSeconds % 3600) / 60);
-        $seconds = $totalSeconds % 60;
-
-        $this->totalBreakDuration = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
-
-        $this->breakLimitReached = $totalSeconds > 40 * 60;
-    }
-
-    public function calculateTotalBreakDuration()
-    {
-
-        if ($this->agent == null) {
-            $this->totalBreakDuration = '00:00:00';
-            return;
-        }
+    //     $totalSeconds = 0;
 
 
-        $totalSeconds = AgentBreak::where('agent_id', $this->agent->id)
-            ->get()
-            ->reduce(function ($carry, $break) {
-                $end = $break->ended_at ?? now(); // still on break if ended_at is null
-                return $carry + $end->diffInSeconds($break->started_at);
-            }, 0);
+    //     $breaks = AgentBreak::where('agent_id', $this->agent->id)->get();
 
-        $this->totalBreakDuration = gmdate('H:i:s', $totalSeconds);
-        // dd($this->totalBreakDuration);
-    }
+    //     foreach ($breaks as $break) {
+    //         $start = Carbon::parse($break->started_at);
+    //         $end = $break->ended_at ? Carbon::parse($break->ended_at) : now();
+    //         $totalSeconds += $end->diffInSeconds($start);
+    //     }
+
+    //     $hours = floor($totalSeconds / 3600);
+    //     $minutes = floor(($totalSeconds % 3600) / 60);
+    //     $seconds = $totalSeconds % 60;
+
+    //     $this->totalBreakDuration = sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
+
+    //     $this->breakLimitReached = $totalSeconds > 40 * 60;
+    // }
+
+    // public function calculateTotalBreakDuration()
+    // {
+
+    //     if ($this->agent == null) {
+    //         $this->totalBreakDuration = '00:00:00';
+    //         return;
+    //     }
+
+
+    //     $totalSeconds = AgentBreak::where('agent_id', $this->agent->id)
+    //         ->get()
+    //         ->reduce(function ($carry, $break) {
+    //             $end = $break->ended_at ?? now(); // still on break if ended_at is null
+    //             return $carry + $end->diffInSeconds($break->started_at);
+    //         }, 0);
+
+    //     $this->totalBreakDuration = gmdate('H:i:s', $totalSeconds);
+    //     // dd($this->totalBreakDuration);
+    // }
     // public function calculateTotalBreakDuration()
     // {
     //     if (!$this->agent || !$this->currentSession) {
