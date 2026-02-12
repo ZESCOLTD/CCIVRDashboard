@@ -52,6 +52,8 @@ class DashboardController extends Component
     public $breakLimitReached = false;
     public $breakMinutes = 0;
     public $totalSeconds = 0; // Add this line!
+    public $activeBreakStartedAt = null;
+
 
     public $totalBreakDuration;
     public $t_code;
@@ -92,6 +94,14 @@ class DashboardController extends Component
 
         // Set selectedSession from application or browser session, if available
         $this->selectedSession = session('current_session_id', '');
+
+        $activeBreak = AgentBreak::where('agent_id', $this->agent->id)
+            ->whereNull('ended_at')
+            ->latest('started_at')
+            ->first();
+
+        if ($activeBreak != null)
+            $this->activeBreakStartedAt = $activeBreak->started_at;
 
         // Check if selectedSession is empty or null
         // if (empty($this->selectedSession)) {
@@ -741,24 +751,27 @@ class DashboardController extends Component
     {
         if (!$this->agent) return;
 
-        $this->agent = $this->agent->fresh();
+        $this->agent->refresh();
 
-        $now = now();
-        $startOfDay = $now->copy()->startOfDay();
-
-        $this->totalSeconds = AgentBreak::where('agent_id', $this->agent->id)
-            ->where(function ($q) use ($startOfDay) {
-                $q->whereBetween('started_at', [$startOfDay, now()])
-                    ->orWhere(function ($q) use ($startOfDay) {
-                        $q->whereNull('ended_at')
-                            ->where('started_at', '<=', $startOfDay);
-                    });
-            })
+        $completedSeconds = AgentBreak::where('agent_id', $this->agent->id)
+            ->whereDate('started_at', today())
+            ->whereNotNull('ended_at')
             ->get()
             ->sum(
                 fn($break) =>
-                $break->started_at->diffInSeconds($break->ended_at ?? $now)
+                $break->ended_at->diffInSeconds($break->started_at)
             );
+
+        $activeSeconds = 0;
+
+        if (
+            $this->agent->status === config('constants.agent_status.ON_BREAK') &&
+            $this->activeBreakStartedAt
+        ) {
+            $activeSeconds = now()->diffInSeconds($this->activeBreakStartedAt);
+        }
+
+        $this->totalSeconds = $completedSeconds + $activeSeconds;
 
         $this->totalBreakDuration = gmdate('H:i:s', $this->totalSeconds);
         $this->breakLimitReached = $this->totalSeconds >= 2400;
