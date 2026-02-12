@@ -738,32 +738,29 @@ class DashboardController extends Component
     // }
 
     public function calculateTotalBreakDurationForToday()
-{
-    if (!$this->agent) return;
+    {
+        if (!$this->agent) return;
 
-    // 🔥 THIS IS REQUIRED
-    $this->agent = $this->agent->fresh();
+        $this->agent = $this->agent->fresh();
 
-    $now = now();
-    $startOfDay = $now->copy()->startOfDay();
+        $now = now();
+        $startOfDay = $now->copy()->startOfDay();
 
-    $this->totalSeconds = AgentBreak::where('agent_id', $this->agent->id)
-        ->where(function ($q) use ($startOfDay) {
-            $q->whereBetween('started_at', [$startOfDay, now()])
-              ->orWhere(function ($q) use ($startOfDay) {
-                  $q->whereNull('ended_at')
-                    ->where('started_at', '<=', $startOfDay);
-              });
-        })
-        ->get()
-        ->sum(function ($break) use ($now) {
-            return $break->started_at
-                ->diffInSeconds($break->ended_at ?? $now);
-        });
+        $this->totalSeconds = AgentBreak::where('agent_id', $this->agent->id)
+            ->where(function ($q) use ($startOfDay) {
+                $q->whereBetween('started_at', [$startOfDay, now()])
+                    ->orWhere(function ($q) use ($startOfDay) {
+                        $q->whereNull('ended_at')
+                            ->where('started_at', '<=', $startOfDay);
+                    });
+            })
+            ->get()
+            ->sum(
+                fn($break) =>
+                $break->started_at->diffInSeconds($break->ended_at ?? $now)
+            );
 
-    $this->totalBreakDuration = gmdate('H:i:s', $this->totalSeconds);
-    $this->breakLimitReached = $this->totalSeconds >= 2400;
-}
-
-
+        $this->totalBreakDuration = gmdate('H:i:s', $this->totalSeconds);
+        $this->breakLimitReached = $this->totalSeconds >= 2400;
+    }
 }
