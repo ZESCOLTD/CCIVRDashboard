@@ -741,20 +741,28 @@ class DashboardController extends Component
     {
         if (!$this->agent) return;
 
-        $this->agent->refresh();
+        $now = now();
+        $startOfDay = $now->copy()->startOfDay();
+        $endOfDay   = $now->copy()->endOfDay();
 
         $this->totalSeconds = AgentBreak::where('agent_id', $this->agent->id)
-            ->whereDate('started_at', now()->today())
+            ->where(function ($q) use ($startOfDay, $endOfDay) {
+                $q->whereBetween('started_at', [$startOfDay, $endOfDay])
+                  ->orWhere(function ($q) use ($startOfDay) {
+                      $q->whereNull('ended_at')
+                        ->where('started_at', '<=', $startOfDay);
+                  });
+            })
             ->get()
-            ->sum(function ($break) {
-                // Because we added $casts to the model,
-                // $break->started_at is already a Carbon object!
+            ->sum(function ($break) use ($now) {
+                $start = $break->started_at;
+                $end   = $break->ended_at ?? $now;
 
-                $end = $break->ended_at ?? now();
-                return $end->diffInSeconds($break->started_at);
+                return $start->diffInSeconds($end);
             });
 
         $this->totalBreakDuration = gmdate('H:i:s', $this->totalSeconds);
         $this->breakLimitReached = $this->totalSeconds >= 2400;
     }
+
 }
