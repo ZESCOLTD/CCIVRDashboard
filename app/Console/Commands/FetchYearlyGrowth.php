@@ -32,16 +32,17 @@ class FetchYearlyGrowth extends Command
         $endBound   = $endDate . ' 23:59:59';
 
         try {
+
             $stats = $modelClass::query()
                 ->toBase()
-                ->selectRaw('
-                    YEAR(created_at) as year,
+                ->selectRaw("
+                    EXTRACT(YEAR FROM created_at) as year,
                     COUNT(*) as total_sessions,
                     COUNT(DISTINCT msisdn) as unique_users
-                ')
+                ")
                 ->whereBetween('created_at', [$startBound, $endBound])
-                ->groupBy('year')
-                ->orderBy('year', 'asc')
+                ->groupByRaw("EXTRACT(YEAR FROM created_at)") // Oracle requires repeating the expression
+                ->orderByRaw("EXTRACT(YEAR FROM created_at) ASC")
                 ->get();
 
             if ($stats->isEmpty()) {
