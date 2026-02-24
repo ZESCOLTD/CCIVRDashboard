@@ -84,8 +84,22 @@ class DailyStatsSummary extends Component
             throw new InvalidArgumentException("{$modelClass} is not a valid Eloquent model.");
         }
 
-        return $modelClass::selectRaw('network, COUNT(*) as sessions')
-            ->whereDate('created_at', $date)
+        // return $modelClass::selectRaw('network, COUNT(*) as sessions')
+        //     ->whereDate('created_at', $date)
+        //     ->groupBy('network')
+        //     ->get()
+        //     ->keyBy('network');
+
+        // 1. Create precise 24-hour boundaries
+        $start = Carbon::parse($date);
+        $end = $start->copy()->addDay()->subSecond();
+
+        return $modelClass::query()
+            // 2. toBase() avoids the memory overhead of Hydrating Eloquent Models
+            ->toBase()
+            ->selectRaw('network, COUNT(*) as sessions')
+            // 3. Use whereBetween for high-speed Index Seek performance
+            ->whereBetween('created_at', [$start, $end])
             ->groupBy('network')
             ->get()
             ->keyBy('network');
@@ -116,15 +130,18 @@ class DailyStatsSummary extends Component
      */
     private function getStatsForMobileAppDate($date, int $system_id)
     {
-        $dateString = Carbon::parse($date)->format('Y-m-d');
+        $start = Carbon::parse($date);
+        $end = $start->copy()->addDay()->subSecond();
 
         return DB::connection('omni_channel')
             ->table('M_APPS_COMPLAINTS')
             ->selectRaw('SYSTEM_ID, COUNT(*) as count')
-            ->whereRaw('TRUNC("F_ACTUAL") = TO_DATE(?, \'YYYY-MM-DD\')', [$dateString])
+            // Use standard comparison operators for Oracle Index performance
+            ->where('F_ACTUAL', '>=', $start)
+            ->where('F_ACTUAL', '<=', $end)
             ->where('SYSTEM_ID', '=', $system_id)
             ->groupBy('SYSTEM_ID')
-            ->first(); // single row, not collection
+            ->first();
     }
 
     public function render()
@@ -284,15 +301,26 @@ class DailyStatsSummary extends Component
 
         // dd($merged);
 
-        // Cache IVR stats
-        $ivrYesterday = Cache::remember("ivr_yesterday_{$yesterday}", 3600, function () use ($yesterday, $dstExtensions) {
-            return CallDetailsRecordModel::whereDate('calldate', $yesterday)
+        // 1. Prepare boundaries for "Yesterday" (based on selected date)
+        $startYesterday = Carbon::parse($yesterday)->startOfDay();
+        $endYesterday   = $startYesterday->copy()->endOfDay();
+
+        // 2. Prepare boundaries for "Day Before Yesterday"
+        $startDayBefore = Carbon::parse($dayBeforeYesterday)->startOfDay();
+        $endDayBefore   = $startDayBefore->copy()->endOfDay();
+
+        // Cache IVR stats for Yesterday
+        $ivrYesterday = Cache::remember("ivr_yesterday_{$yesterday}", 3600, function () use ($startYesterday, $endYesterday, $dstExtensions) {
+            return CallDetailsRecordModel::query()
+                ->whereBetween('calldate', [$startYesterday, $endYesterday])
                 ->whereIn('dst', $dstExtensions)
                 ->count();
         });
 
-        $ivrDayBefore = Cache::remember("ivr_day_before_{$dayBeforeYesterday}", 3600, function () use ($dayBeforeYesterday, $dstExtensions) {
-            return CallDetailsRecordModel::whereDate('calldate', $dayBeforeYesterday)
+        // Cache IVR stats for Day Before Yesterday
+        $ivrDayBefore = Cache::remember("ivr_day_before_{$dayBeforeYesterday}", 3600, function () use ($startDayBefore, $endDayBefore, $dstExtensions) {
+            return CallDetailsRecordModel::query()
+                ->whereBetween('calldate', [$startDayBefore, $endDayBefore])
                 ->whereIn('dst', $dstExtensions)
                 ->count();
         });
