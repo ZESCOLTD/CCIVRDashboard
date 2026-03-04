@@ -426,10 +426,13 @@ class DashboardController extends Component
         $server = config("app.API_SERVER_ENDPOINT");
 
         try {
-            $response = Http::get($server . '/online/' . $this->agent_num);
+            http://ccivr.zesco.co.zm:8088/ari/endpoints/PJSIP/8900?api_key=asterisk:asterisk
+            // $response = Http::get($server . '/online/' . $this->agent_num);
+            // ccivr.zesco.co.zm:8088/ari/endpoints/PJSIP/8900?api_key=asterisk:asterisk
+            $response = Http::get("http://ccivr.zesco.co.zm:8088/ari/endpoints/PJSIP/{$this->agent_num}?api_key=asterisk:asterisk");
             $data = $response->json();
 
-            if ($data['status'] === true) {
+            if ($data['state'] === 'online') {
                 $this->agent->state = config('constants.agent_state.LOGGED_IN');
                 $this->agent->status = config('constants.agent_status.IDLE');
                 $this->agent->user_status = config('constants.agent_status.IDLE'); // Set user status to ONLINE
