@@ -1049,7 +1049,7 @@
             const answeredCalls = new Set();
             // --- VARIABLE PLACEMENT END ---
 
-            const apiUrl = "https://ivr.zesco.co.zm:8089/ari/bridges?api_key=asterisk:asterisk";
+            const apiUrl = "https://ccivr.zesco.co.zm:8089/ari/bridges?api_key=asterisk:asterisk";
 
             /**
              * Fetches and updates the call queue count from the ARI API.

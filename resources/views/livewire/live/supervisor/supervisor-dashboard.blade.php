@@ -1121,7 +1121,7 @@
                 // --- GLOBAL STATE ---
                 // Global variable to hold the single WebSocket connection
                 let socket = null;
-                const apiUrl = "https://ivr.zesco.co.zm:8089/ari/bridges?api_key=asterisk:asterisk";
+                const apiUrl = "https://ccivr.zesco.co.zm:8089/ari/bridges?api_key=asterisk:asterisk";
                 const liveCallsElement = document.getElementById("liveCalls");
 
                 // liveCalls is now calculated inside prob() to ensure both API calls are finished.
