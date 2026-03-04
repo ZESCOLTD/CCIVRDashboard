@@ -601,10 +601,10 @@ $(document).ready(function () {
     if (options.XmppChatGroupService !== undefined) XmppChatGroupService = options.XmppChatGroupService;
 
     if (getDbItem("wssServer", null) == null) {
-        localDB.setItem("wssServer", "ivr.zesco.co.zm");
+        localDB.setItem("wssServer", "ccivr.zesco.co.zm");
         localDB.setItem("WebSocketPort", 8089);
         localDB.setItem("ServerPath", "/ws");
-        localDB.setItem("SipDomain", "ivr.zesco.co.zm");
+        localDB.setItem("SipDomain", "ccivr.zesco.co.zm");
     }
 
     // fetch('/api/agent')
