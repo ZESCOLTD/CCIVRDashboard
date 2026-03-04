@@ -426,7 +426,6 @@ class DashboardController extends Component
         $server = config("app.API_SERVER_ENDPOINT");
 
         try {
-            http://ccivr.zesco.co.zm:8088/ari/endpoints/PJSIP/8900?api_key=asterisk:asterisk
             // $response = Http::get($server . '/online/' . $this->agent_num);
             // ccivr.zesco.co.zm:8088/ari/endpoints/PJSIP/8900?api_key=asterisk:asterisk
             $response = Http::get("http://ccivr.zesco.co.zm:8088/ari/endpoints/PJSIP/{$this->agent_num}?api_key=asterisk:asterisk");
